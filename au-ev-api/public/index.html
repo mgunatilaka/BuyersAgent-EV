@@ -38,18 +38,18 @@
         </div>
       </div>
 
-        <div class="flex items-center gap-2 flex-wrap">
-        <button id="apiConfigBtn" type="button" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold flex items-center gap-2 transition cursor-pointer">
+      <div class="flex items-center gap-2 flex-wrap">
+        <div class="px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-xs font-semibold flex items-center gap-2">
           <span id="statusDot" class="w-2 h-2 rounded-full bg-amber-400"></span>
           <span id="statusLabel">AU Catalog (52 EVs)</span>
-        </button>
+        </div>
         <button id="syncApiBtn" type="button" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-slate-200 transition cursor-pointer">
           ↻ Sync
         </button>
-        <button id="adminToggleBtn" type="button" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-amber-300 transition cursor-pointer">
-          🔒 Admin Mode
+        <button id="seedCloudBtn" type="button" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-indigo-300 transition cursor-pointer" title="Push all 52 built-in EVs to Supabase via server environment variables">
+          ☁ Seed Cloud DB
         </button>
-        <button id="openAddModalBtn" type="button" class="hidden px-3.5 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold transition shadow-xs cursor-pointer">
+        <button id="openAddModalBtn" type="button" class="px-3.5 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold transition shadow-xs cursor-pointer">
           + Add / Edit AU Car
         </button>
       </div>
@@ -253,7 +253,7 @@
     </div>
   </div>
 
-  <!-- Add / Edit Australian EV Modal (Admin Only) -->
+  <!-- Add / Edit Australian EV Modal -->
   <div id="vehicleModal" class="hidden fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] flex flex-col overflow-hidden shadow-2xl border border-slate-200">
       <div class="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
@@ -383,95 +383,6 @@
     </div>
   </div>
 
-  <!-- Supabase & Admin Settings Modal (Admin Only) -->
-  <div id="apiModal" class="hidden fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-xl w-full overflow-hidden shadow-2xl border border-slate-200 text-xs">
-      <div class="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
-        <h3 class="text-sm font-extrabold">Site Admin: Cloud Database (Supabase) & API</h3>
-        <button id="closeApiModalBtn" type="button" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 font-bold cursor-pointer">✕</button>
-      </div>
-      <div class="p-6 space-y-4">
-        <p class="text-slate-600 leading-relaxed">
-          Configure your shared <strong>Supabase</strong> project (Sydney <code class="bg-slate-100 px-1 rounded">ap-southeast-2</code>) below or bake your public read-only keys into <code class="bg-slate-100 px-1 rounded">DEFAULT_SUPABASE_CONFIG</code> so all visitors automatically load the live database.
-        </p>
-        <div class="bg-slate-900 text-emerald-300 p-3 rounded-xl font-mono text-[11px] overflow-x-auto">
-          create table if not exists custom_evs (id text primary key, payload jsonb not null, updated_at timestamptz default now());<br/>
-          alter table custom_evs enable row level security;<br/>
-          create policy "Public read" on custom_evs for select using (true);<br/>
-          create policy "Admin write" on custom_evs for all using (true) with check (true);
-        </div>
-        <div class="space-y-3">
-          <div>
-            <label class="block font-bold text-slate-700 mb-1">Supabase Project URL</label>
-            <input id="supabaseUrlInput" type="url" placeholder="https://your-project-id.supabase.co" class="w-full px-3 py-2 rounded-xl border border-slate-300" />
-          </div>
-          <div>
-            <label class="block font-bold text-slate-700 mb-1">Supabase Anon Public Key</label>
-            <input id="supabaseKeyInput" type="password" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." class="w-full px-3 py-2 rounded-xl border border-slate-300" />
-          </div>
-          <div>
-            <label class="block font-bold text-slate-700 mb-1">Authorized Admin Email (OTP Destination)</label>
-            <input id="adminEmailDisplayInput" type="email" value="mhettivi@hotmail.com" readonly class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-100 text-slate-600 font-semibold" />
-          </div>
-          <div>
-            <label class="block font-bold text-slate-700 mb-1">Optional Node.js API Base URL (Blank = Same Origin)</label>
-            <input id="apiBaseUrlInput" type="text" placeholder="https://buyersagent-ev.onrender.com" class="w-full px-3 py-2 rounded-xl border border-slate-300" />
-          </div>
-        </div>
-        <div class="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-slate-200">
-          <div class="flex gap-2">
-            <button id="useEmbeddedBtn" type="button" class="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 font-bold text-slate-700 cursor-pointer">Disconnect Cloud</button>
-            <button id="seedSupabaseBtn" type="button" class="px-3 py-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 font-bold text-indigo-800 cursor-pointer">Seed All 52 EVs to Cloud</button>
-          </div>
-          <button id="connectApiBtn" type="button" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold cursor-pointer">Save & Sync</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Admin Unlock Modal (2-Step Email OTP to mhettivi@hotmail.com) -->
-  <div id="adminLoginModal" class="hidden fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-sm w-full overflow-hidden shadow-2xl border border-slate-200 text-xs">
-      <div class="px-5 py-3.5 bg-slate-900 text-white flex items-center justify-between">
-        <h3 class="text-sm font-extrabold">Site Admin Email Verification</h3>
-        <button id="closeAdminLoginBtn" type="button" class="px-2 py-0.5 rounded-lg bg-slate-800 hover:bg-slate-700 font-bold cursor-pointer">✕</button>
-      </div>
-
-      <!-- Step 1: Verify Admin Email & Request Random 6-Digit PIN -->
-      <form id="adminEmailStepForm" class="p-5 space-y-4">
-        <p class="text-slate-600 leading-relaxed">
-          Enter the registered Site Admin email address to generate and send a random 6-digit one-time PIN code.
-        </p>
-        <div>
-          <label class="block font-bold text-slate-700 mb-1">Admin Email Address</label>
-          <input id="adminEmailInput" type="email" required placeholder="Enter registered admin email" class="w-full px-3 py-2 rounded-xl border border-slate-300" />
-        </div>
-        <div id="adminEmailError" class="hidden text-rose-600 font-semibold bg-rose-50 border border-rose-200 rounded-lg px-3 py-2"></div>
-        <div class="flex justify-end gap-2">
-          <button type="button" id="cancelAdminLoginBtn" class="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 font-bold text-slate-700 cursor-pointer">Cancel</button>
-          <button type="submit" id="sendAdminOtpBtn" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold cursor-pointer">Send PIN Code</button>
-        </div>
-      </form>
-
-      <!-- Step 2: Enter Random 6-Digit PIN Sent to Email -->
-      <form id="adminPinStepForm" class="hidden p-5 space-y-4">
-        <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-emerald-950 space-y-1">
-          <div class="font-bold">✓ Random 6-digit PIN dispatched</div>
-          <div id="otpDeliveryNotice" class="text-[11px] text-emerald-800"></div>
-        </div>
-        <div>
-          <label class="block font-bold text-slate-700 mb-1">6-Digit One-Time PIN</label>
-          <input id="adminPinCheckInput" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required placeholder="e.g., 482910" class="w-full px-3 py-2 rounded-xl border border-slate-300 tracking-widest font-mono text-sm text-center font-bold" />
-        </div>
-        <div id="adminPinError" class="hidden text-rose-600 font-semibold bg-rose-50 border border-rose-200 rounded-lg px-3 py-2"></div>
-        <div class="flex items-center justify-between gap-2">
-          <button type="button" id="backToEmailStepBtn" class="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 font-bold text-slate-700 cursor-pointer">← Resend / Back</button>
-          <button type="submit" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold cursor-pointer">Verify & Unlock</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
   <!-- Toast Notification -->
   <div id="toastBanner" class="hidden fixed top-16 right-5 z-50 bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-lg border border-slate-700 text-xs font-semibold"></div>
 
@@ -479,24 +390,6 @@
     const LCT_FBT_THRESHOLD_AUD = 91387;
     const ATO_5YR_RESIDUAL_RATE = 0.2813;
     const LOCAL_OVERLAY_STORAGE_KEY = 'au_ev_custom_overlay_v4';
-    const SUPABASE_CFG_STORAGE_KEY = 'au_ev_supabase_cfg_v2';
-    const ADMIN_SESSION_STORAGE_KEY = 'au_ev_admin_unlocked_v1';
-    const AUTHORIZED_ADMIN_EMAIL = 'mhettivi@hotmail.com';
-
-    // Site Admin can paste their public Supabase Project URL & Anon Key here once
-    // so ALL public visitors automatically read from Supabase without seeing settings.
-    const DEFAULT_SUPABASE_CONFIG = {
-      supabaseUrl: '',
-      supabaseAnonKey: ''
-    };
-
-    const savedSupabaseCfg = (() => {
-      try {
-        return JSON.parse(localStorage.getItem(SUPABASE_CFG_STORAGE_KEY) || '{}');
-      } catch {
-        return {};
-      }
-    })();
 
     const SCORED_CRITERIA = [
       { id: 'towball', label: 'Towball ≥ 100 kg', cat: 'utility' },
@@ -688,13 +581,6 @@
       sunshadeOnly: false,
       sortBy: 'scoreDesc',
       compareIds: new Set(),
-      supabaseUrl: savedSupabaseCfg.supabaseUrl || DEFAULT_SUPABASE_CONFIG.supabaseUrl,
-      supabaseAnonKey: savedSupabaseCfg.supabaseAnonKey || DEFAULT_SUPABASE_CONFIG.supabaseAnonKey,
-      generatedOtpPin: null,
-      otpDispatchedViaServer: false,
-      otpExpiresAt: 0,
-      isAdmin: sessionStorage.getItem(ADMIN_SESSION_STORAGE_KEY) === 'true',
-      apiBaseUrl: savedSupabaseCfg.apiBaseUrl || '',
       supabaseConnected: false,
       preferredExternalSite: 'carsales'
     };
@@ -705,7 +591,7 @@
       el.textContent = msg;
       el.classList.remove('hidden');
       clearTimeout(window.__toastTimer);
-      window.__toastTimer = setTimeout(() => el.classList.add('hidden'), 3200);
+      window.__toastTimer = setTimeout(() => el.classList.add('hidden'), 3400);
     }
 
     function formatAud(num) {
@@ -777,8 +663,6 @@
     function updateConnectionBadge() {
       const dot = document.getElementById('statusDot');
       const label = document.getElementById('statusLabel');
-      const adminBtn = document.getElementById('adminToggleBtn');
-      const addBtn = document.getElementById('openAddModalBtn');
 
       if (state.supabaseConnected) {
         dot.className = 'w-2 h-2 rounded-full bg-emerald-400';
@@ -786,16 +670,6 @@
       } else {
         dot.className = 'w-2 h-2 rounded-full bg-amber-400';
         label.textContent = `AU Catalog (${state.vehicles.length} EVs)`;
-      }
-
-      if (state.isAdmin) {
-        adminBtn.textContent = '🔓 Admin Active (Lock)';
-        adminBtn.className = 'px-3 py-1.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-xs font-bold text-emerald-300 transition cursor-pointer';
-        addBtn.classList.remove('hidden');
-      } else {
-        adminBtn.textContent = '🔒 Admin Mode';
-        adminBtn.className = 'px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-amber-300 transition cursor-pointer';
-        addBtn.classList.add('hidden');
       }
     }
 
@@ -810,31 +684,24 @@
         // Ignore corrupt localStorage
       }
 
-      if (state.supabaseUrl && state.supabaseAnonKey) {
-        try {
-          const cleanUrl = state.supabaseUrl.replace(/\/+$/, '');
-          const res = await fetch(`${cleanUrl}/rest/v1/custom_evs?select=payload`, {
-            headers: {
-              apikey: state.supabaseAnonKey,
-              Authorization: `Bearer ${state.supabaseAnonKey}`
-            }
-          });
-          if (res.ok) {
-            const rows = await res.json();
-            for (const r of rows) {
-              if (r?.payload?.id) mergedMap.set(r.payload.id, r.payload);
+      try {
+        const res = await fetch('/api/v1/evs');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.supabaseConnected) {
+            for (const item of data.vehicles || []) {
+              if (item?.id) mergedMap.set(item.id, item);
             }
             state.supabaseConnected = true;
-            if (notify) showToast(`Synced ${rows.length} cloud records from Supabase.`);
+            if (notify) showToast(`Synced ${(data.vehicles || []).length} records from Supabase.`);
           } else {
             state.supabaseConnected = false;
-            if (notify) showToast(`Supabase HTTP ${res.status} — using built-in catalog.`);
+            if (notify) showToast('Server SUPABASE_URL / SUPABASE_SERVICE_KEY not set — using built-in catalog.');
           }
-        } catch {
+        } else {
           state.supabaseConnected = false;
-          if (notify) showToast('Supabase unreachable — using built-in catalog.');
         }
-      } else {
+      } catch {
         state.supabaseConnected = false;
         if (notify) showToast(`Refreshed ${mergedMap.size} Australian EVs.`);
       }
@@ -1015,7 +882,7 @@
                 <a href="${activeUrl}" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-bold transition">
                   ${activeLinkLabel}
                 </a>
-                ${state.isAdmin ? `<button type="button" data-edit-id="${ev.id}" class="edit-ev-btn px-2 py-1.5 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold cursor-pointer">Edit</button>` : ''}
+                <button type="button" data-edit-id="${ev.id}" class="edit-ev-btn px-2 py-1.5 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold cursor-pointer">Edit</button>
               </div>
             </div>
           </article>
@@ -1125,11 +992,6 @@
     }
 
     function openVehicleModal(editId = null) {
-      if (!state.isAdmin) {
-        document.getElementById('adminToggleBtn').click();
-        return;
-      }
-
       const form = document.getElementById('vehicleForm');
       form.reset();
       document.getElementById('editVehicleId').value = editId || '';
@@ -1180,20 +1042,17 @@
         // Ignore storage quota issues
       }
 
-      if (state.supabaseUrl && state.supabaseAnonKey) {
-        const cleanUrl = state.supabaseUrl.replace(/\/+$/, '');
-        const res = await fetch(`${cleanUrl}/rest/v1/custom_evs`, {
-          method: 'POST',
-          headers: {
-            apikey: state.supabaseAnonKey,
-            Authorization: `Bearer ${state.supabaseAnonKey}`,
-            'Content-Type': 'application/json',
-            Prefer: 'resolution=merge-duplicates'
-          },
-          body: JSON.stringify({ id: record.id, payload: record, updated_at: new Date().toISOString() })
-        });
-        if (!res.ok) throw new Error(`Supabase HTTP ${res.status}`);
+      const res = await fetch('/api/v1/evs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(record)
+      });
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || `HTTP ${res.status}`);
       }
+      state.supabaseConnected = true;
+      updateConnectionBadge();
     }
 
     function wireEventListeners() {
@@ -1357,170 +1216,7 @@
         document.getElementById('compareModal').classList.add('hidden');
       });
 
-      function openAdminAuthModal() {
-        document.getElementById('adminEmailInput').value = '';
-        document.getElementById('adminPinCheckInput').value = '';
-        document.getElementById('adminEmailError').classList.add('hidden');
-        document.getElementById('adminPinError').classList.add('hidden');
-        document.getElementById('adminEmailStepForm').classList.remove('hidden');
-        document.getElementById('adminPinStepForm').classList.add('hidden');
-        document.getElementById('adminLoginModal').classList.remove('hidden');
-      }
-
-      function generateRandomSixDigitPin() {
-        if (window.crypto && window.crypto.getRandomValues) {
-          const arr = new Uint32Array(1);
-          window.crypto.getRandomValues(arr);
-          return String(100000 + (arr[0] % 900000));
-        }
-        return String(Math.floor(100000 + Math.random() * 900000));
-      }
-
-      // Admin Mode Lock / Unlock
-      document.getElementById('adminToggleBtn').addEventListener('click', () => {
-        if (state.isAdmin) {
-          state.isAdmin = false;
-          state.generatedOtpPin = null;
-          sessionStorage.removeItem(ADMIN_SESSION_STORAGE_KEY);
-          updateConnectionBadge();
-          renderVehicles();
-          showToast('Site Admin locked. Public read-only view active.');
-        } else {
-          openAdminAuthModal();
-        }
-      });
-
-      document.getElementById('closeAdminLoginBtn').addEventListener('click', () => {
-        document.getElementById('adminLoginModal').classList.add('hidden');
-      });
-      document.getElementById('cancelAdminLoginBtn').addEventListener('click', () => {
-        document.getElementById('adminLoginModal').classList.add('hidden');
-      });
-      document.getElementById('backToEmailStepBtn').addEventListener('click', () => {
-        document.getElementById('adminPinError').classList.add('hidden');
-        document.getElementById('adminPinStepForm').classList.add('hidden');
-        document.getElementById('adminEmailStepForm').classList.remove('hidden');
-      });
-
-      // Step 1: Validate Admin Email & Dispatch Random 6-Digit PIN
-      document.getElementById('adminEmailStepForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const enteredEmail = document.getElementById('adminEmailInput').value.trim().toLowerCase();
-        const errBox = document.getElementById('adminEmailError');
-
-        if (enteredEmail !== AUTHORIZED_ADMIN_EMAIL.toLowerCase()) {
-          errBox.textContent = 'Access denied: Email does not match the authorized Site Admin address.';
-          errBox.classList.remove('hidden');
-          return;
-        }
-
-        errBox.classList.add('hidden');
-        const sendBtn = document.getElementById('sendAdminOtpBtn');
-        sendBtn.disabled = true;
-        sendBtn.textContent = 'Sending PIN...';
-
-        let dispatchedViaBackend = false;
-        let backendErrorMsg = '';
-        try {
-          const endpoint = `${state.apiBaseUrl || ''}/api/v1/admin/send-otp`;
-          const res = await fetch(endpoint, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: AUTHORIZED_ADMIN_EMAIL })
-          });
-          if (res.ok) {
-            dispatchedViaBackend = true;
-          } else {
-            const errData = await res.json().catch(() => ({}));
-            backendErrorMsg = errData.error || `HTTP ${res.status}`;
-          }
-        } catch {
-          // Backend email relay not reachable (standalone file mode)
-        }
-
-        sendBtn.disabled = false;
-        sendBtn.textContent = 'Send PIN Code';
-
-        const noticeEl = document.getElementById('otpDeliveryNotice');
-        state.otpDispatchedViaServer = dispatchedViaBackend;
-        state.otpExpiresAt = Date.now() + 10 * 60 * 1000;
-
-        if (dispatchedViaBackend) {
-          state.generatedOtpPin = null;
-          noticeEl.innerHTML = `A random 6-digit PIN was emailed to <strong>${AUTHORIZED_ADMIN_EMAIL}</strong> via Resend (expires in 10 mins).`;
-        } else {
-          const fallbackPin = generateRandomSixDigitPin();
-          state.generatedOtpPin = fallbackPin;
-          noticeEl.innerHTML = `
-            ${backendErrorMsg ? `<span class="block text-amber-800 mb-1">Server email notice: ${backendErrorMsg}</span>` : ''}
-            PIN generated for <strong>${AUTHORIZED_ADMIN_EMAIL}</strong>.
-            <span class="block mt-1 font-mono bg-white px-2 py-1 rounded border border-emerald-300 text-slate-900">Standalone Fallback PIN: <strong>${fallbackPin}</strong></span>
-          `;
-        }
-
-        document.getElementById('adminEmailStepForm').classList.add('hidden');
-        document.getElementById('adminPinStepForm').classList.remove('hidden');
-        document.getElementById('adminPinCheckInput').value = '';
-        document.getElementById('adminPinCheckInput').focus();
-      });
-
-      // Step 2: Verify Random 6-Digit PIN (via Server or Standalone Fallback)
-      document.getElementById('adminPinStepForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const enteredPin = document.getElementById('adminPinCheckInput').value.trim();
-        const pinErrBox = document.getElementById('adminPinError');
-
-        if (state.otpDispatchedViaServer) {
-          try {
-            const endpoint = `${state.apiBaseUrl || ''}/api/v1/admin/verify-otp`;
-            const res = await fetch(endpoint, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ email: AUTHORIZED_ADMIN_EMAIL, pin: enteredPin })
-            });
-            const data = await res.json().catch(() => ({}));
-            if (!res.ok) {
-              pinErrBox.textContent = data.error || 'Incorrect or expired 6-digit PIN.';
-              pinErrBox.classList.remove('hidden');
-              return;
-            }
-            pinErrBox.classList.add('hidden');
-            state.isAdmin = true;
-            state.otpDispatchedViaServer = false;
-            sessionStorage.setItem(ADMIN_SESSION_STORAGE_KEY, 'true');
-            document.getElementById('adminLoginModal').classList.add('hidden');
-            updateConnectionBadge();
-            renderVehicles();
-            showToast(`Verified ${AUTHORIZED_ADMIN_EMAIL}. Site Admin unlocked.`);
-          } catch (err) {
-            pinErrBox.textContent = `Verification error: ${err.message}`;
-            pinErrBox.classList.remove('hidden');
-          }
-          return;
-        }
-
-        if (!state.generatedOtpPin || Date.now() > state.otpExpiresAt) {
-          pinErrBox.textContent = 'PIN has expired. Click "Resend / Back" to generate a new code.';
-          pinErrBox.classList.remove('hidden');
-          return;
-        }
-
-        if (enteredPin === state.generatedOtpPin) {
-          pinErrBox.classList.add('hidden');
-          state.isAdmin = true;
-          state.generatedOtpPin = null;
-          sessionStorage.setItem(ADMIN_SESSION_STORAGE_KEY, 'true');
-          document.getElementById('adminLoginModal').classList.add('hidden');
-          updateConnectionBadge();
-          renderVehicles();
-          showToast(`Verified ${AUTHORIZED_ADMIN_EMAIL}. Site Admin unlocked.`);
-        } else {
-          pinErrBox.textContent = 'Incorrect 6-digit PIN. Please check the code sent to mhettivi@hotmail.com.';
-          pinErrBox.classList.remove('hidden');
-        }
-      });
-
-      // Add / Edit Vehicle Modal (Admin Only)
+      // Add / Edit Vehicle Modal
       document.getElementById('openAddModalBtn').addEventListener('click', () => openVehicleModal(null));
       document.getElementById('closeModalBtn').addEventListener('click', () => document.getElementById('vehicleModal').classList.add('hidden'));
       document.getElementById('cancelModalBtn').addEventListener('click', () => document.getElementById('vehicleModal').classList.add('hidden'));
@@ -1563,93 +1259,29 @@
           document.getElementById('vehicleModal').classList.add('hidden');
           populateFilterDropdowns();
           renderVehicles();
-          showToast(`Saved ${make} ${model} ${variant}.`);
+          showToast(`Saved ${make} ${model} ${variant} to Supabase.`);
         } catch (err) {
-          showToast(`Saved locally; cloud sync warning: ${err.message}`);
+          document.getElementById('vehicleModal').classList.add('hidden');
+          populateFilterDropdowns();
+          renderVehicles();
+          showToast(`Saved locally (${err.message}).`);
         }
       });
 
-      // Sync button
+      // Sync & Seed buttons
       document.getElementById('syncApiBtn').addEventListener('click', () => syncAllDatasets({ notify: true }));
-
-      // Supabase & Admin Settings Modal (Admin Only)
-      document.getElementById('apiConfigBtn').addEventListener('click', () => {
-        if (!state.isAdmin) {
-          showToast('Supabase settings are restricted to Site Admin. Verify admin email to unlock.');
-          openAdminAuthModal();
-          return;
-        }
-        document.getElementById('supabaseUrlInput').value = state.supabaseUrl || '';
-        document.getElementById('supabaseKeyInput').value = state.supabaseAnonKey || '';
-        document.getElementById('apiBaseUrlInput').value = state.apiBaseUrl;
-        document.getElementById('apiModal').classList.remove('hidden');
-      });
-      document.getElementById('closeApiModalBtn').addEventListener('click', () => {
-        document.getElementById('apiModal').classList.add('hidden');
-      });
-      document.getElementById('useEmbeddedBtn').addEventListener('click', () => {
-        state.supabaseUrl = '';
-        state.supabaseAnonKey = '';
-        state.supabaseConnected = false;
-        localStorage.removeItem(SUPABASE_CFG_STORAGE_KEY);
-        updateConnectionBadge();
-        document.getElementById('apiModal').classList.add('hidden');
-        showToast('Disconnected Supabase; using built-in & local catalog.');
-      });
-      document.getElementById('connectApiBtn').addEventListener('click', async () => {
-        state.supabaseUrl = document.getElementById('supabaseUrlInput').value.trim();
-        state.supabaseAnonKey = document.getElementById('supabaseKeyInput').value.trim();
-        state.apiBaseUrl = document.getElementById('apiBaseUrlInput').value.trim().replace(/\/$/, '');
-        localStorage.setItem(
-          SUPABASE_CFG_STORAGE_KEY,
-          JSON.stringify({
-            supabaseUrl: state.supabaseUrl,
-            supabaseAnonKey: state.supabaseAnonKey,
-            apiBaseUrl: state.apiBaseUrl
-          })
-        );
-        document.getElementById('apiModal').classList.add('hidden');
-        await syncAllDatasets({ notify: true });
-      });
-      document.getElementById('seedSupabaseBtn').addEventListener('click', async () => {
-        const url = document.getElementById('supabaseUrlInput').value.trim();
-        const key = document.getElementById('supabaseKeyInput').value.trim();
-        if (!url || !key) {
-          showToast('Enter your Supabase Project URL and Anon Key first.');
-          return;
-        }
-        state.supabaseUrl = url;
-        state.supabaseAnonKey = key;
-        localStorage.setItem(
-          SUPABASE_CFG_STORAGE_KEY,
-          JSON.stringify({
-            supabaseUrl: url,
-            supabaseAnonKey: key,
-            apiBaseUrl: state.apiBaseUrl
-          })
-        );
+      document.getElementById('seedCloudBtn').addEventListener('click', async () => {
         try {
-          const cleanUrl = url.replace(/\/+$/, '');
-          const rows = state.vehicles.map((ev) => ({
-            id: ev.id,
-            payload: ev,
-            updated_at: new Date().toISOString()
-          }));
-          const res = await fetch(`${cleanUrl}/rest/v1/custom_evs`, {
+          const res = await fetch('/api/v1/evs/seed', {
             method: 'POST',
-            headers: {
-              apikey: key,
-              Authorization: `Bearer ${key}`,
-              'Content-Type': 'application/json',
-              Prefer: 'resolution=merge-duplicates'
-            },
-            body: JSON.stringify(rows)
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ vehicles: state.vehicles })
           });
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
           state.supabaseConnected = true;
           updateConnectionBadge();
-          document.getElementById('apiModal').classList.add('hidden');
-          showToast(`Seeded all ${rows.length} Australian EVs to Supabase!`);
+          showToast(`Seeded all ${data.count} Australian EVs to Supabase!`);
         } catch (err) {
           showToast(`Supabase seed failed: ${err.message}`);
         }

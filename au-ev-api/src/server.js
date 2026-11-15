@@ -1,6 +1,5 @@
 import express from 'express';
 import cors from 'cors';
-import crypto from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -8,137 +7,169 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Admin & Resend HTTPS Email API configuration (set in Render Environment Variables)
-const AUTHORIZED_ADMIN_EMAIL = (process.env.ADMIN_EMAIL || 'mhettivi@hotmail.com').trim().toLowerCase();
-const RESEND_API_KEY = process.env.RESEND_API_KEY || '';
-const RESEND_FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'BuyersAgent EV <onboarding@resend.dev>';
-
-// In-memory store for active one-time PINs (keyed by lowercase email)
-const activeOtpStore = new Map();
+// Supabase credentials configured via Render / hosting Environment Variables
+const SUPABASE_URL = (process.env.SUPABASE_URL || '').trim().replace(/\/+$/, '');
+const SUPABASE_KEY = (process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_ANON_KEY || '').trim();
 
 app.use(cors());
-app.use(express.json({ limit: '1mb' }));
+app.use(express.json({ limit: '2mb' }));
 
 // Serve static frontend files from ../public
 app.use(express.static(path.join(__dirname, '../public')));
+
+function hasSupabaseConfig() {
+  return Boolean(SUPABASE_URL && SUPABASE_KEY);
+}
 
 /**
  * Health check endpoint for Render
  */
 app.get('/healthz', (_req, res) => {
-  res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
+  res.status(200).json({
+    status: 'ok',
+    supabaseConfigured: hasSupabaseConfig(),
+    timestamp: new Date().toISOString()
+  });
 });
 
 /**
- * Step 1: Generate a cryptographically random 6-digit PIN and email it via Resend HTTPS API
+ * GET /api/v1/evs
+ * Fetch all custom/updated EV records persisted in Supabase
  */
-app.post('/api/v1/admin/send-otp', async (req, res) => {
+app.get('/api/v1/evs', async (_req, res) => {
+  if (!hasSupabaseConfig()) {
+    return res.status(200).json({
+      supabaseConnected: false,
+      vehicles: []
+    });
+  }
+
   try {
-    const email = String(req.body?.email || '').trim().toLowerCase();
-
-    if (!email || email !== AUTHORIZED_ADMIN_EMAIL) {
-      return res.status(403).json({
-        error: 'Access denied: Email does not match the authorized Site Admin address.'
-      });
-    }
-
-    // Generate cryptographically secure 6-digit PIN on the server
-    const pin = String(crypto.randomInt(100000, 1000000));
-    const expiresAt = Date.now() + 10 * 60 * 1000; // Valid for 10 minutes
-
-    activeOtpStore.set(email, {
-      pin,
-      expiresAt,
-      attempts: 0
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/custom_evs?select=payload`, {
+      headers: {
+        apikey: SUPABASE_KEY,
+        Authorization: `Bearer ${SUPABASE_KEY}`
+      }
     });
 
-    if (!RESEND_API_KEY) {
-      console.warn('[Admin OTP] RESEND_API_KEY not configured. Generated PIN:', pin);
-      return res.status(503).json({
-        error: 'Email service (RESEND_API_KEY) is not configured on the server.'
+    if (!response.ok) {
+      const errText = await response.text();
+      console.error('[Supabase GET Error]', response.status, errText);
+      return res.status(502).json({
+        supabaseConnected: false,
+        error: `Supabase returned HTTP ${response.status}`,
+        vehicles: []
       });
     }
 
-    // Dispatch email over HTTPS port 443 via Resend API
-    const emailResponse = await fetch('https://api.resend.com/emails', {
+    const rows = await response.json();
+    const vehicles = rows.map((r) => r?.payload).filter((v) => v && v.id);
+
+    return res.status(200).json({
+      supabaseConnected: true,
+      count: vehicles.length,
+      vehicles
+    });
+  } catch (err) {
+    console.error('[Supabase GET Exception]', err);
+    return res.status(500).json({
+      supabaseConnected: false,
+      error: err.message,
+      vehicles: []
+    });
+  }
+});
+
+/**
+ * POST /api/v1/evs
+ * Create or update a single EV record in Supabase
+ */
+app.post('/api/v1/evs', async (req, res) => {
+  const record = req.body;
+  if (!record || !record.id || !record.make || !record.model) {
+    return res.status(400).json({ error: 'Invalid EV payload: id, make, and model are required.' });
+  }
+
+  if (!hasSupabaseConfig()) {
+    return res.status(503).json({
+      error: 'SUPABASE_URL and SUPABASE_SERVICE_KEY are not set in server environment variables.'
+    });
+  }
+
+  try {
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/custom_evs`, {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${RESEND_API_KEY}`,
-        'Content-Type': 'application/json'
+        apikey: SUPABASE_KEY,
+        Authorization: `Bearer ${SUPABASE_KEY}`,
+        'Content-Type': 'application/json',
+        Prefer: 'resolution=merge-duplicates'
       },
       body: JSON.stringify({
-        from: RESEND_FROM_EMAIL,
-        to: [AUTHORIZED_ADMIN_EMAIL],
-        subject: `Your BuyersAgent EV Admin PIN: ${pin}`,
-        html: `
-          <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 480px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 12px;">
-            <h2 style="margin: 0 0 12px; color: #0f172a; font-size: 18px;">Australian EV Explorer — Site Admin Verification</h2>
-            <p style="margin: 0 0 16px; color: #475569; font-size: 14px; line-height: 1.5;">
-              Use the one-time 6-digit PIN below to unlock Site Admin mode and manage the Supabase EV database:
-            </p>
-            <div style="background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 10px; padding: 16px; text-align: center; font-size: 28px; font-weight: 800; letter-spacing: 6px; color: #059669;">
-              ${pin}
-            </div>
-            <p style="margin: 16px 0 0; color: #64748b; font-size: 12px;">
-              This code expires in <strong>10 minutes</strong>. If you did not request this login, you can safely ignore this email.
-            </p>
-          </div>
-        `
+        id: record.id,
+        payload: record,
+        updated_at: new Date().toISOString()
       })
     });
 
-    if (!emailResponse.ok) {
-      const errDetail = await emailResponse.text();
-      console.error('[Resend API Error]', emailResponse.status, errDetail);
-      return res.status(502).json({
-        error: `Email delivery provider returned HTTP ${emailResponse.status}.`
-      });
+    if (!response.ok) {
+      const errText = await response.text();
+      console.error('[Supabase POST Error]', response.status, errText);
+      return res.status(502).json({ error: `Supabase save failed: HTTP ${response.status}` });
     }
 
-    return res.status(200).json({
-      ok: true,
-      message: `One-time PIN sent to ${AUTHORIZED_ADMIN_EMAIL}`
-    });
+    return res.status(200).json({ ok: true, id: record.id });
   } catch (err) {
-    console.error('[Admin OTP Send Error]', err);
-    return res.status(500).json({ error: 'Internal server error while dispatching OTP email.' });
+    console.error('[Supabase POST Exception]', err);
+    return res.status(500).json({ error: err.message });
   }
 });
 
 /**
- * Step 2: Verify the 6-digit PIN submitted by the admin user
+ * POST /api/v1/evs/seed
+ * Bulk upsert an array of EV records into Supabase
  */
-app.post('/api/v1/admin/verify-otp', (req, res) => {
-  const email = String(req.body?.email || '').trim().toLowerCase();
-  const submittedPin = String(req.body?.pin || '').trim();
-
-  if (email !== AUTHORIZED_ADMIN_EMAIL) {
-    return res.status(403).json({ error: 'Unauthorized admin email.' });
+app.post('/api/v1/evs/seed', async (req, res) => {
+  const vehicles = Array.isArray(req.body?.vehicles) ? req.body.vehicles : [];
+  if (vehicles.length === 0) {
+    return res.status(400).json({ error: 'Request body must include a non-empty vehicles array.' });
   }
 
-  const record = activeOtpStore.get(email);
-  if (!record) {
-    return res.status(400).json({ error: 'No active PIN found. Please request a new code.' });
+  if (!hasSupabaseConfig()) {
+    return res.status(503).json({
+      error: 'SUPABASE_URL and SUPABASE_SERVICE_KEY are not set in server environment variables.'
+    });
   }
 
-  if (Date.now() > record.expiresAt) {
-    activeOtpStore.delete(email);
-    return res.status(400).json({ error: 'PIN has expired. Please request a new code.' });
-  }
+  try {
+    const rows = vehicles.map((ev) => ({
+      id: ev.id,
+      payload: ev,
+      updated_at: new Date().toISOString()
+    }));
 
-  record.attempts += 1;
-  if (record.attempts > 5) {
-    activeOtpStore.delete(email);
-    return res.status(429).json({ error: 'Too many failed attempts. Please request a new PIN.' });
-  }
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/custom_evs`, {
+      method: 'POST',
+      headers: {
+        apikey: SUPABASE_KEY,
+        Authorization: `Bearer ${SUPABASE_KEY}`,
+        'Content-Type': 'application/json',
+        Prefer: 'resolution=merge-duplicates'
+      },
+      body: JSON.stringify(rows)
+    });
 
-  if (submittedPin !== record.pin) {
-    return res.status(401).json({ error: 'Incorrect 6-digit PIN. Please check your email.' });
-  }
+    if (!response.ok) {
+      const errText = await response.text();
+      console.error('[Supabase Seed Error]', response.status, errText);
+      return res.status(502).json({ error: `Supabase bulk seed failed: HTTP ${response.status}` });
+    }
 
-  // Valid PIN — clear from store so it cannot be reused
-  activeOtpStore.delete(email);
-  return res.status(200).json({ ok: true, admin: true });
+    return res.status(200).json({ ok: true, count: rows.length });
+  } catch (err) {
+    console.error('[Supabase Seed Exception]', err);
+    return res.status(500).json({ error: err.message });
+  }
 });
 
 // Fallback to index.html for root requests
@@ -147,5 +178,5 @@ app.get('*', (_req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`AU EV Explorer & API running at http://localhost:${PORT}`);
+  console.log(`AU EV Explorer & API running at http://localhost:${PORT} (Supabase: ${hasSupabaseConfig() ? 'Connected' : 'Not configured'})`);
 });
