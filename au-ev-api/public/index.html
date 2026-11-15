@@ -114,26 +114,45 @@
         </div>
 
         <!-- Preset Buyer Profiles -->
-        <div class="flex flex-wrap items-center gap-2">
-          <span class="text-xs font-medium text-slate-500">Quick Presets:</span>
-          <button type="button" data-preset="adventure" class="preset-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-indigo-50 text-slate-700 hover:text-indigo-700 border border-slate-200 transition cursor-pointer">
-            🚵 Adventure & Towing (All)
-          </button>
-          <button type="button" data-preset="urban" class="preset-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 border border-slate-200 transition cursor-pointer">
-            🏙️ Urban / Family (No Towbar)
-          </button>
-          <button type="button" data-preset="value" class="preset-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-amber-50 text-slate-700 hover:text-amber-700 border border-slate-200 transition cursor-pointer">
-            💰 Pure Range & Value
-          </button>
-        </div>
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="text-xs font-medium text-slate-500">Quick Presets:</span>
+        <button type="button" data-preset="adventure" class="preset-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-indigo-50 text-slate-700 hover:text-indigo-700 border border-slate-200 transition cursor-pointer">
+          🚵 Adventure & Towing
+        </button>
+        <button type="button" data-preset="luxury" class="preset-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-purple-50 text-slate-700 hover:text-purple-700 border border-slate-200 transition cursor-pointer">
+          💆 Cabin Luxury & 360° Tech
+        </button>
+        <button type="button" data-preset="urban" class="preset-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 border border-slate-200 transition cursor-pointer">
+          🏙️ Urban / Family (No Towbar)
+        </button>
+        <button type="button" data-preset="value" class="preset-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-amber-50 text-slate-700 hover:text-amber-700 border border-slate-200 transition cursor-pointer">
+          💰 Pure Range & Value
+        </button>
       </div>
+    </div>
 
-      <!-- Feature Checkboxes Grid -->
-      <div id="scoredFeaturesGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-2.5 pt-4">
-        <!-- Populated dynamically via JS -->
+    <!-- Category Tabs for Comprehensive Scored Features -->
+    <div class="flex flex-wrap items-center justify-between gap-2 pt-3 pb-1">
+      <div id="featureCategoryTabs" class="flex flex-wrap items-center gap-1.5 text-xs">
+        <button type="button" data-cat="all" class="feat-cat-btn px-3 py-1.5 rounded-xl font-semibold bg-indigo-600 text-white shadow-2xs cursor-pointer">All Features (24)</button>
+        <button type="button" data-cat="utility" class="feat-cat-btn px-3 py-1.5 rounded-xl font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer">Tow, AWD & Clearance (4)</button>
+        <button type="button" data-cat="luxury" class="feat-cat-btn px-3 py-1.5 rounded-xl font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer">Seating & Roof Luxury (8)</button>
+        <button type="button" data-cat="cameras" class="feat-cat-btn px-3 py-1.5 rounded-xl font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer">360° Cameras & Traffic ADAS (7)</button>
+        <button type="button" data-cat="tech" class="feat-cat-btn px-3 py-1.5 rounded-xl font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer">Screens, Audio & V2L (5)</button>
       </div>
+      <div class="flex items-center gap-2 text-xs">
+        <button type="button" id="checkAllFeaturesBtn" class="text-indigo-600 hover:text-indigo-800 font-semibold cursor-pointer">Select All</button>
+        <span class="text-slate-300">|</span>
+        <button type="button" id="uncheckAllFeaturesBtn" class="text-slate-500 hover:text-slate-800 font-semibold cursor-pointer">Clear All</button>
+      </div>
+    </div>
 
-      <!-- Active Scoring Formula Summary Bar -->
+    <!-- Feature Checkboxes Grid -->
+    <div id="scoredFeaturesGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2.5 pt-2 max-h-[340px] overflow-y-auto pr-1">
+      <!-- Populated dynamically via JS -->
+    </div>
+
+    <!-- Active Scoring Formula Summary Bar -->
       <div class="mt-4 pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs">
         <div class="flex flex-wrap items-center gap-2 text-slate-600">
           <span class="font-semibold text-slate-800">Active 100-pt Breakdown:</span>
@@ -237,7 +256,7 @@
           <span class="font-semibold text-slate-500">Must-Have Filter:</span>
           <label class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200/70 cursor-pointer select-none">
             <input id="fbtOnlyFilter" type="checkbox" class="rounded text-indigo-600 focus:ring-indigo-500" />
-            <span class="font-medium text-slate-700">FBT-Exempt Only (≤$91,387)</span>
+            <span class="font-medium text-slate-700">FBT-Exempt (≤$91,387)</span>
           </label>
           <label class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200/70 cursor-pointer select-none">
             <input id="minRangeFilter" type="checkbox" class="rounded text-indigo-600 focus:ring-indigo-500" />
@@ -246,6 +265,18 @@
           <label class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200/70 cursor-pointer select-none">
             <input id="towCapableOnlyFilter" type="checkbox" class="rounded text-indigo-600 focus:ring-indigo-500" />
             <span class="font-medium text-slate-700">Towball ≥ 100 kg</span>
+          </label>
+          <label class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200/70 cursor-pointer select-none">
+            <input id="surround360OnlyFilter" type="checkbox" class="rounded text-indigo-600 focus:ring-indigo-500" />
+            <span class="font-medium text-slate-700">360° Camera</span>
+          </label>
+          <label class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200/70 cursor-pointer select-none">
+            <input id="massageSeatsOnlyFilter" type="checkbox" class="rounded text-indigo-600 focus:ring-indigo-500" />
+            <span class="font-medium text-slate-700">Massaging Seats</span>
+          </label>
+          <label class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200/70 cursor-pointer select-none">
+            <input id="sunshadeOnlyFilter" type="checkbox" class="rounded text-indigo-600 focus:ring-indigo-500" />
+            <span class="font-medium text-slate-700">Sunroof / Power Blind</span>
           </label>
           <button id="resetFiltersBtn" type="button" class="text-indigo-600 hover:text-indigo-800 font-semibold px-2 py-1 cursor-pointer">
             Reset Filters
@@ -272,25 +303,25 @@
     <div class="bg-white rounded-2xl max-w-2xl w-full shadow-2xl border border-slate-200 overflow-hidden my-8">
       <div class="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
         <div>
-          <h3 id="modalTitle" class="text-base font-bold">Add / Edit Australian EV Specification</h3>
-          <p class="text-xs text-slate-400">Saves directly to live session & POST /api/v1/evs if connected</p>
+          <h3 id="modalTitle" class="text-base font-bold">Add Australian EV to Catalog</h3>
+          <p class="text-xs text-slate-400">Saves locally and syncs to POST /api/v1/evs when connected</p>
         </div>
-        <button id="closeModalBtn" type="button" class="text-slate-400 hover:text-white text-lg font-bold cursor-pointer">✕</button>
+        <button id="closeModalBtn" type="button" class="text-slate-400 hover:text-white text-sm font-bold cursor-pointer">✕</button>
       </div>
-      <form id="vehicleForm" class="p-6 space-y-4 text-xs sm:text-sm max-h-[80vh] overflow-y-auto">
-        <input type="hidden" id="formId" />
+      <form id="vehicleForm" class="p-6 space-y-4 text-xs sm:text-sm">
+        <input id="formId" type="hidden" />
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
             <label class="block font-semibold text-slate-700 mb-1">Make *</label>
-            <input id="formMake" required placeholder="e.g. Subaru" class="w-full px-3 py-2 rounded-xl border border-slate-300" />
+            <input id="formMake" required placeholder="e.g. Geely" class="w-full px-3 py-2 rounded-xl border border-slate-300" />
           </div>
           <div>
             <label class="block font-semibold text-slate-700 mb-1">Model *</label>
-            <input id="formModel" required placeholder="e.g. Trailseeker" class="w-full px-3 py-2 rounded-xl border border-slate-300" />
+            <input id="formModel" required placeholder="e.g. EX5" class="w-full px-3 py-2 rounded-xl border border-slate-300" />
           </div>
           <div>
             <label class="block font-semibold text-slate-700 mb-1">Variant *</label>
-            <input id="formVariant" required placeholder="e.g. AWD Touring" class="w-full px-3 py-2 rounded-xl border border-slate-300" />
+            <input id="formVariant" required placeholder="e.g. Inspire" class="w-full px-3 py-2 rounded-xl border border-slate-300" />
           </div>
         </div>
 
@@ -304,18 +335,17 @@
             </select>
           </div>
           <div>
-            <label class="block font-semibold text-slate-700 mb-1">Body Segment</label>
+            <label class="block font-semibold text-slate-700 mb-1">Segment</label>
             <select id="formSegment" class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white">
               <option value="Mid-Size SUV">Mid-Size SUV</option>
               <option value="Compact SUV">Compact SUV</option>
-              <option value="Large SUV">Large SUV</option>
               <option value="Fastback / Sedan">Fastback / Sedan</option>
               <option value="Hatchback">Hatchback</option>
             </select>
           </div>
           <div>
             <label class="block font-semibold text-slate-700 mb-1">NSW Drive-Away ($)</label>
-            <input id="formPrice" type="number" required value="69990" class="w-full px-3 py-2 rounded-xl border border-slate-300" />
+            <input id="formPrice" type="number" required value="64990" class="w-full px-3 py-2 rounded-xl border border-slate-300" />
           </div>
           <div>
             <label class="block font-semibold text-slate-700 mb-1">WLTP Range (km)</label>
@@ -326,46 +356,134 @@
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div>
             <label class="block font-semibold text-slate-700 mb-1">Battery (kWh)</label>
-            <input id="formBattery" type="number" step="0.1" value="75" class="w-full px-3 py-2 rounded-xl border border-slate-300" />
+            <input id="formBattery" type="number" step="0.1" value="75.0" class="w-full px-3 py-2 rounded-xl border border-slate-300" />
           </div>
           <div>
-            <label class="block font-semibold text-slate-700 mb-1">Max DC Charge (kW)</label>
+            <label class="block font-semibold text-slate-700 mb-1">Max DC (kW)</label>
             <input id="formDcKw" type="number" value="150" class="w-full px-3 py-2 rounded-xl border border-slate-300" />
           </div>
           <div>
             <label class="block font-semibold text-slate-700 mb-1">Towball Limit (kg)</label>
-            <input id="formTowball" type="number" value="100" class="w-full px-3 py-2 rounded-xl border border-slate-300" />
+            <input id="formTowball" type="number" value="150" class="w-full px-3 py-2 rounded-xl border border-slate-300" />
           </div>
           <div>
-            <label class="block font-semibold text-slate-700 mb-1">Ground Clearance (mm)</label>
-            <input id="formClearance" type="number" value="180" class="w-full px-3 py-2 rounded-xl border border-slate-300" />
+            <label class="block font-semibold text-slate-700 mb-1">Clearance (mm)</label>
+            <input id="formClearance" type="number" value="175" class="w-full px-3 py-2 rounded-xl border border-slate-300" />
           </div>
         </div>
 
         <div>
-          <label class="block font-semibold text-slate-700 mb-2">Included Cabin & Utility Features</label>
-          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
-            <label class="flex items-center gap-2 p-2 rounded-xl border border-slate-200 cursor-pointer">
-              <input id="formV2l" type="checkbox" class="rounded text-indigo-600" />
-              <span>V2L (Vehicle-to-Load)</span>
+          <label class="block font-semibold text-slate-700 mb-2">Comprehensive Equipment, Luxury, Camera & ADAS Features</label>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-xs bg-slate-50 p-3 rounded-xl border border-slate-200 max-h-60 overflow-y-auto">
+            <label class="flex items-center gap-2 p-1.5 rounded-lg hover:bg-white cursor-pointer">
+              <input id="formMassageSeats" type="checkbox" class="rounded text-indigo-600" />
+              <span>Massaging Front Seats</span>
             </label>
-            <label class="flex items-center gap-2 p-2 rounded-xl border border-slate-200 cursor-pointer">
+            <label class="flex items-center gap-2 p-1.5 rounded-lg hover:bg-white cursor-pointer">
               <input id="formVentSeats" type="checkbox" class="rounded text-indigo-600" />
               <span>Ventilated Front Seats</span>
             </label>
-            <label class="flex items-center gap-2 p-2 rounded-xl border border-slate-200 cursor-pointer">
-              <input id="formHud" type="checkbox" class="rounded text-indigo-600" />
-              <span>Head-Up Display (HUD)</span>
+            <label class="flex items-center gap-2 p-1.5 rounded-lg hover:bg-white cursor-pointer">
+              <input id="formHeatedRearSeats" type="checkbox" class="rounded text-indigo-600" />
+              <span>Heated Rear Seats</span>
             </label>
-            <label class="flex items-center gap-2 p-2 rounded-xl border border-slate-200 cursor-pointer">
-              <input id="formCarplay" type="checkbox" checked class="rounded text-indigo-600" />
-              <span>Wireless Apple CarPlay</span>
+            <label class="flex items-center gap-2 p-1.5 rounded-lg hover:bg-white cursor-pointer">
+              <input id="formHeatedWheel" type="checkbox" checked class="rounded text-indigo-600" />
+              <span>Heated Steering Wheel</span>
             </label>
-            <label class="flex items-center gap-2 p-2 rounded-xl border border-slate-200 cursor-pointer">
+            <label class="flex items-center gap-2 p-1.5 rounded-lg hover:bg-white cursor-pointer">
+              <input id="formLegRest" type="checkbox" class="rounded text-indigo-600" />
+              <span>Power Leg-Rest Ottoman</span>
+            </label>
+            <label class="flex items-center gap-2 p-1.5 rounded-lg hover:bg-white cursor-pointer">
+              <input id="formSeatMemory" type="checkbox" checked class="rounded text-indigo-600" />
+              <span>Driver Seat Memory</span>
+            </label>
+            <label class="flex items-center gap-2 p-1.5 rounded-lg hover:bg-white cursor-pointer">
+              <input id="formOpeningSunroof" type="checkbox" class="rounded text-indigo-600" />
+              <span>Opening Panoramic Sunroof</span>
+            </label>
+            <label class="flex items-center gap-2 p-1.5 rounded-lg hover:bg-white cursor-pointer">
+              <input id="formElectricSunshade" type="checkbox" checked class="rounded text-indigo-600" />
+              <span>Electric Sunshade Blind</span>
+            </label>
+            <label class="flex items-center gap-2 p-1.5 rounded-lg hover:bg-white cursor-pointer">
+              <input id="formAcousticGlass" type="checkbox" checked class="rounded text-indigo-600" />
+              <span>Acoustic Double-Glazed Glass</span>
+            </label>
+            <label class="flex items-center gap-2 p-1.5 rounded-lg hover:bg-white cursor-pointer">
+              <input id="formHandsFreeTailgate" type="checkbox" checked class="rounded text-indigo-600" />
+              <span>Hands-Free Power Tailgate</span>
+            </label>
+            <label class="flex items-center gap-2 p-1.5 rounded-lg hover:bg-white cursor-pointer">
               <input id="formGlovebox" type="checkbox" checked class="rounded text-indigo-600" />
               <span>Traditional Glove Box</span>
             </label>
-            <label class="flex items-center gap-2 p-2 rounded-xl border border-slate-200 cursor-pointer">
+            <label class="flex items-center gap-2 p-1.5 rounded-lg hover:bg-white cursor-pointer">
+              <input id="formSurround360" type="checkbox" checked class="rounded text-indigo-600" />
+              <span>360° HD Surround Camera</span>
+            </label>
+            <label class="flex items-center gap-2 p-1.5 rounded-lg hover:bg-white cursor-pointer">
+              <input id="formFrontCamera" type="checkbox" checked class="rounded text-indigo-600" />
+              <span>Front Bumper Camera</span>
+            </label>
+            <label class="flex items-center gap-2 p-1.5 rounded-lg hover:bg-white cursor-pointer">
+              <input id="formDigitalMirror" type="checkbox" class="rounded text-indigo-600" />
+              <span>Digital Rear-View Camera Mirror</span>
+            </label>
+            <label class="flex items-center gap-2 p-1.5 rounded-lg hover:bg-white cursor-pointer">
+              <input id="formAutoPark" type="checkbox" class="rounded text-indigo-600" />
+              <span>Auto / Remote Park Assist</span>
+            </label>
+            <label class="flex items-center gap-2 p-1.5 rounded-lg hover:bg-white cursor-pointer">
+              <input id="formTrafficAssist" type="checkbox" checked class="rounded text-indigo-600" />
+              <span>ACC + Lane Centring Traffic Assist</span>
+            </label>
+            <label class="flex items-center gap-2 p-1.5 rounded-lg hover:bg-white cursor-pointer">
+              <input id="formTrafficSign" type="checkbox" checked class="rounded text-indigo-600" />
+              <span>Traffic Sign / Speed Recognition</span>
+            </label>
+            <label class="flex items-center gap-2 p-1.5 rounded-lg hover:bg-white cursor-pointer">
+              <input id="formLiveTraffic" type="checkbox" checked class="rounded text-indigo-600" />
+              <span>Live Traffic Connected Nav</span>
+            </label>
+            <label class="flex items-center gap-2 p-1.5 rounded-lg hover:bg-white cursor-pointer">
+              <input id="formBlindSpotBrake" type="checkbox" checked class="rounded text-indigo-600" />
+              <span>Blind-Spot + Rear Cross-Traffic Brake</span>
+            </label>
+            <label class="flex items-center gap-2 p-1.5 rounded-lg hover:bg-white cursor-pointer">
+              <input id="formDriverFatigue" type="checkbox" checked class="rounded text-indigo-600" />
+              <span>Driver Fatigue / Attention Camera</span>
+            </label>
+            <label class="flex items-center gap-2 p-1.5 rounded-lg hover:bg-white cursor-pointer">
+              <input id="formSentryDashcam" type="checkbox" class="rounded text-indigo-600" />
+              <span>360° Sentry Mode & Dashcam</span>
+            </label>
+            <label class="flex items-center gap-2 p-1.5 rounded-lg hover:bg-white cursor-pointer">
+              <input id="formHud" type="checkbox" class="rounded text-indigo-600" />
+              <span>Head-Up Display (HUD)</span>
+            </label>
+            <label class="flex items-center gap-2 p-1.5 rounded-lg hover:bg-white cursor-pointer">
+              <input id="formDriverCluster" type="checkbox" checked class="rounded text-indigo-600" />
+              <span>Dedicated Driver Instrument Cluster</span>
+            </label>
+            <label class="flex items-center gap-2 p-1.5 rounded-lg hover:bg-white cursor-pointer">
+              <input id="formCarplay" type="checkbox" checked class="rounded text-indigo-600" />
+              <span>Wireless Apple CarPlay & Android Auto</span>
+            </label>
+            <label class="flex items-center gap-2 p-1.5 rounded-lg hover:bg-white cursor-pointer">
+              <input id="formPremiumAudio" type="checkbox" checked class="rounded text-indigo-600" />
+              <span>Premium Branded Audio (10+ Spk)</span>
+            </label>
+            <label class="flex items-center gap-2 p-1.5 rounded-lg hover:bg-white cursor-pointer">
+              <input id="formDualWireless" type="checkbox" class="rounded text-indigo-600" />
+              <span>Dual Wireless Phone Chargers</span>
+            </label>
+            <label class="flex items-center gap-2 p-1.5 rounded-lg hover:bg-white cursor-pointer">
+              <input id="formV2l" type="checkbox" class="rounded text-indigo-600" />
+              <span>V2L (Vehicle-to-Load Power)</span>
+            </label>
+            <label class="flex items-center gap-2 p-1.5 rounded-lg hover:bg-white cursor-pointer">
               <input id="formHeatPump" type="checkbox" checked class="rounded text-indigo-600" />
               <span>Heat Pump</span>
             </label>
@@ -411,19 +529,21 @@
   <script>
     /**
      * =========================================================================
-     * 1. SCORED BUYER FEATURES CONFIGURATION (Dynamic Toggle Weights)
+     * 1. SCORED BUYER FEATURES CONFIGURATION (24 Comprehensive Dynamic Toggles)
      * =========================================================================
-     * Each toggle represents a feature a buyer can enable or disable.
-     * When disabled (checked = false), its weight is redistributed to the
-     * remaining active features & core value/range score so vehicles are
-     * NEVER penalized for lacking features the buyer doesn't want (like towbar).
+     * Categorized across Utility/Tow, Seating & Roof Luxury, 360° Cameras & Active
+     * Traffic ADAS, and Screens/Audio/V2L. Unchecking any feature removes it
+     * from the 100-point denominator so vehicles are never penalized for
+     * unwanted equipment.
      */
     const BUYER_FEATURE_CRITERIA = [
+      // --- UTILITY, TOWING & DRIVETRAIN ---
       {
         id: 'towbar100',
+        category: 'utility',
         label: 'Towbar / Bike Rack (≥100kg)',
         shortLabel: 'Towball ≥100kg',
-        weight: 14,
+        weight: 12,
         checked: true,
         description: 'Essential for 2–4 e-bike racks or light trailer towing',
         evaluate: (v) => {
@@ -435,11 +555,12 @@
       },
       {
         id: 'heavyTow150',
+        category: 'utility',
         label: 'Heavy Towball (≥150kg)',
         shortLabel: 'Towball ≥150kg',
         weight: 6,
         checked: false,
-        description: 'Bonus capacity for heavy vertical loads & caravanning',
+        description: 'Heavy vertical load capacity for 4 e-bikes or caravanning',
         evaluate: (v) => {
           const tb = Number(v.towballDownloadKg || 0);
           if (tb >= 150) return { ratio: 1, detail: `${tb}kg heavy-duty` };
@@ -449,23 +570,25 @@
       },
       {
         id: 'awd',
+        category: 'utility',
         label: 'AWD Dual-Motor Traction',
         shortLabel: 'AWD Traction',
-        weight: 10,
+        weight: 9,
         checked: true,
         description: 'All-wheel-drive grip for wet roads, snow trips & gravel',
-        evaluate: (v) => {
-          const isAwd = (v.drivetrain || '').toUpperCase() === 'AWD';
-          return { ratio: isAwd ? 1 : 0, detail: v.drivetrain || '2WD' };
-        }
+        evaluate: (v) => ({
+          ratio: (v.drivetrain || '').toUpperCase() === 'AWD' ? 1 : 0,
+          detail: v.drivetrain || '2WD'
+        })
       },
       {
         id: 'clearance',
+        category: 'utility',
         label: 'High Clearance (≥200mm)',
         shortLabel: 'Clearance ≥200mm',
-        weight: 9,
+        weight: 8,
         checked: true,
-        description: 'Unsealed fire trails, steep driveways & rural roads',
+        description: 'Unsealed national park trails, steep driveways & rural roads',
         evaluate: (v) => {
           const gc = Number(v.groundClearanceMm || 0);
           if (gc >= 200) return { ratio: 1, detail: `${gc}mm SUV clearance` };
@@ -474,21 +597,25 @@
           return { ratio: 0, detail: `${gc}mm` };
         }
       },
+
+      // --- SEATING & ROOF LUXURY ---
       {
-        id: 'v2l',
-        label: 'V2L Power Outlet',
-        shortLabel: 'V2L 240V Power',
-        weight: 7,
-        checked: true,
-        description: 'Power camping gear, appliances or home blackout backup',
+        id: 'massageSeats',
+        category: 'luxury',
+        label: 'Massaging Front Seats',
+        shortLabel: 'Massaging Seats',
+        weight: 6,
+        checked: false,
+        description: 'Multi-mode lumbar & back massage for long highway commutes',
         evaluate: (v) => ({
-          ratio: v.features?.v2l ? 1 : 0,
-          detail: v.features?.v2l ? 'V2L Included' : 'No V2L'
+          ratio: v.features?.massagingSeats ? 1 : 0,
+          detail: v.features?.massagingSeats ? 'Massaging Seats' : 'No massage'
         })
       },
       {
         id: 'ventilatedSeats',
-        label: 'Ventilated Front Seats',
+        category: 'luxury',
+        label: 'Ventilated (Cooled) Front Seats',
         shortLabel: 'Ventilated Seats',
         weight: 6,
         checked: true,
@@ -499,31 +626,74 @@
         })
       },
       {
-        id: 'hud',
-        label: 'Head-Up Display (HUD)',
-        shortLabel: 'Head-Up Display',
-        weight: 5,
-        checked: true,
-        description: 'Windscreen speed & navigation projection',
+        id: 'heatedRearSeats',
+        category: 'luxury',
+        label: 'Heated Rear Seats',
+        shortLabel: 'Heated Rear Seats',
+        weight: 3,
+        checked: false,
+        description: 'Outboard rear passenger seat warmers for winter trips',
         evaluate: (v) => ({
-          ratio: v.features?.headUpDisplay ? 1 : 0,
-          detail: v.features?.headUpDisplay ? 'HUD Equipped' : 'No HUD'
+          ratio: v.features?.heatedRearSeats ? 1 : 0,
+          detail: v.features?.heatedRearSeats ? 'Heated Rear' : 'Front heated only'
         })
       },
       {
-        id: 'carplay',
-        label: 'Wireless Apple CarPlay',
-        shortLabel: 'Wireless CarPlay',
+        id: 'legRestOttoman',
+        category: 'luxury',
+        label: 'Power Leg-Rest Ottoman',
+        shortLabel: 'Leg-Rest Ottoman',
+        weight: 3,
+        checked: false,
+        description: 'Extendable calf/thigh support for charging stops',
+        evaluate: (v) => ({
+          ratio: v.features?.powerLegRest ? 1 : 0,
+          detail: v.features?.powerLegRest ? 'Power Leg Rest' : 'Standard cushion'
+        })
+      },
+      {
+        id: 'openingSunroof',
+        category: 'luxury',
+        label: 'Opening Panoramic Sunroof',
+        shortLabel: 'Opening Sunroof',
+        weight: 4,
+        checked: false,
+        description: 'Tilt & slide glass roof (vs. sealed fixed glass)',
+        evaluate: (v) => {
+          if (v.features?.openingSunroof) return { ratio: 1, detail: 'Opening Sunroof' };
+          if (v.features?.electricSunshade) return { ratio: 0.4, detail: 'Fixed Glass Roof' };
+          return { ratio: 0, detail: 'Solid Roof' };
+        }
+      },
+      {
+        id: 'electricSunshade',
+        category: 'luxury',
+        label: 'Electric Sunshade Roof Blind',
+        shortLabel: 'Power Sunshade',
         weight: 5,
         checked: true,
-        description: 'Native iPhone integration without aftermarket dongles',
+        description: 'Retractable roof blind to block Australian summer heat',
         evaluate: (v) => ({
-          ratio: v.features?.wirelessCarPlay ? 1 : 0,
-          detail: v.features?.wirelessCarPlay ? 'Wireless CarPlay' : 'No native CarPlay'
+          ratio: v.features?.electricSunshade ? 1 : 0,
+          detail: v.features?.electricSunshade ? 'Power Blind' : 'No roof blind'
+        })
+      },
+      {
+        id: 'acousticGlass',
+        category: 'luxury',
+        label: 'Acoustic Double-Glazed Glass',
+        shortLabel: 'Acoustic Glass',
+        weight: 4,
+        checked: true,
+        description: 'Laminated noise-insulating glass for quiet highway NVH',
+        evaluate: (v) => ({
+          ratio: v.features?.acousticGlass ? 1 : 0,
+          detail: v.features?.acousticGlass ? 'Acoustic Glass' : 'Standard glass'
         })
       },
       {
         id: 'glovebox',
+        category: 'luxury',
         label: 'Traditional Glove Box',
         shortLabel: 'Glove Box',
         weight: 3,
@@ -533,12 +703,1359 @@
           ratio: v.features?.gloveBox !== false ? 1 : 0,
           detail: v.features?.gloveBox !== false ? 'Has Glove Box' : 'No Glove Box'
         })
+      },
+
+      // --- 360° SURROUND CAMERAS & ACTIVE TRAFFIC ADAS ---
+      {
+        id: 'surround360',
+        category: 'cameras',
+        label: '360° HD Surround-View Camera',
+        shortLabel: '360° Surround Cam',
+        weight: 7,
+        checked: true,
+        description: 'Top-down stitched 360° & 3D transparent chassis parking view',
+        evaluate: (v) => ({
+          ratio: v.features?.surroundView360 ? 1 : 0,
+          detail: v.features?.surroundView360 ? 'True 360° Camera' : 'No stitched 360° cam'
+        })
+      },
+      {
+        id: 'digitalMirror',
+        category: 'cameras',
+        label: 'Digital Camera Rear-View Mirror',
+        shortLabel: 'Digital Mirror',
+        weight: 3,
+        checked: false,
+        description: 'Unobstructed rear camera feed when boot/bike rack is full',
+        evaluate: (v) => ({
+          ratio: v.features?.digitalRearMirror ? 1 : 0,
+          detail: v.features?.digitalRearMirror ? 'Digital Mirror' : 'Auto-dimming mirror'
+        })
+      },
+      {
+        id: 'autoPark',
+        category: 'cameras',
+        label: 'Auto / Remote Park Assist',
+        shortLabel: 'Auto Park Assist',
+        weight: 3,
+        checked: false,
+        description: 'Automated parallel & perpendicular self-parking',
+        evaluate: (v) => ({
+          ratio: v.features?.autoParkAssist ? 1 : 0,
+          detail: v.features?.autoParkAssist ? 'Auto Park' : 'Manual parking'
+        })
+      },
+      {
+        id: 'trafficAssist',
+        category: 'cameras',
+        label: 'Active Traffic Jam & Lane Centring',
+        shortLabel: 'Traffic Lane Assist',
+        weight: 6,
+        checked: true,
+        description: 'Stop-and-go adaptive cruise + active steering centring',
+        evaluate: (v) => ({
+          ratio: v.features?.activeTrafficAssist !== false ? 1 : 0,
+          detail: v.features?.activeTrafficAssist !== false ? 'ACC + Lane Centring' : 'Basic cruise'
+        })
+      },
+      {
+        id: 'trafficSignRec',
+        category: 'cameras',
+        label: 'Traffic Sign & Speed Recognition',
+        shortLabel: 'Speed Sign Assist',
+        weight: 4,
+        checked: true,
+        description: 'Reads NSW school zones & speed signs with cruise matching',
+        evaluate: (v) => ({
+          ratio: v.features?.trafficSignRecognition !== false ? 1 : 0,
+          detail: v.features?.trafficSignRecognition !== false ? 'Traffic Sign Rec' : 'No sign reader'
+        })
+      },
+      {
+        id: 'blindSpotBrake',
+        category: 'cameras',
+        label: 'Blind-Spot + Rear Cross-Traffic Brake',
+        shortLabel: 'RCTA Auto-Brake',
+        weight: 5,
+        checked: true,
+        description: 'Active auto-braking when reversing out of blind driveways',
+        evaluate: (v) => ({
+          ratio: v.features?.blindSpotCrossTrafficBrake !== false ? 1 : 0,
+          detail: v.features?.blindSpotCrossTrafficBrake !== false ? 'BSM + RCTA Brake' : 'Warning only'
+        })
+      },
+      {
+        id: 'sentryDashcam',
+        category: 'cameras',
+        label: '360° Sentry Security & Dashcam',
+        shortLabel: '360° Sentry Cam',
+        weight: 4,
+        checked: false,
+        description: 'Built-in continuous dashcam & parked car security recording',
+        evaluate: (v) => ({
+          ratio: v.features?.sentryDashcam ? 1 : 0,
+          detail: v.features?.sentryDashcam ? 'Built-in Sentry' : 'No Sentry recording'
+        })
+      },
+
+      // --- SCREENS, AUDIO & V2L POWER ---
+      {
+        id: 'hud',
+        category: 'tech',
+        label: 'Windshield Head-Up Display (HUD)',
+        shortLabel: 'Head-Up Display',
+        weight: 5,
+        checked: true,
+        description: 'Windscreen speed, speed-limit & turn-by-turn projection',
+        evaluate: (v) => ({
+          ratio: v.features?.headUpDisplay ? 1 : 0,
+          detail: v.features?.headUpDisplay ? 'HUD Equipped' : 'No HUD'
+        })
+      },
+      {
+        id: 'driverCluster',
+        category: 'tech',
+        label: 'Dedicated Driver Instrument Cluster',
+        shortLabel: 'Driver Cluster',
+        weight: 4,
+        checked: false,
+        description: 'Speedo screen directly behind steering wheel',
+        evaluate: (v) => ({
+          ratio: v.features?.driverInstrumentCluster !== false ? 1 : 0,
+          detail: v.features?.driverInstrumentCluster !== false ? 'Driver Screen' : 'Central screen only'
+        })
+      },
+      {
+        id: 'carplay',
+        category: 'tech',
+        label: 'Wireless Apple CarPlay & Android Auto',
+        shortLabel: 'Wireless CarPlay',
+        weight: 5,
+        checked: true,
+        description: 'Native Waze, Apple Maps & Spotify projection',
+        evaluate: (v) => ({
+          ratio: v.features?.wirelessCarPlay ? 1 : 0,
+          detail: v.features?.wirelessCarPlay ? 'Wireless CarPlay' : 'No native CarPlay'
+        })
+      },
+      {
+        id: 'premiumAudio',
+        category: 'tech',
+        label: 'Premium Branded Audio (10+ Spk)',
+        shortLabel: '10+ Spk Audio',
+        weight: 4,
+        checked: false,
+        description: 'Dynaudio, Harman Kardon, Flyme 16-spk or Tesla Studio sound',
+        evaluate: (v) => ({
+          ratio: v.features?.premiumAudio ? 1 : 0,
+          detail: v.features?.premiumAudio ? '10+ Spk Premium' : 'Standard audio'
+        })
+      },
+      {
+        id: 'v2l',
+        category: 'tech',
+        label: 'V2L (Vehicle-to-Load 240V Power)',
+        shortLabel: 'V2L 240V Power',
+        weight: 6,
+        checked: true,
+        description: 'Power e-bike chargers, camping gear or home appliances',
+        evaluate: (v) => ({
+          ratio: v.features?.v2l ? 1 : 0,
+          detail: v.features?.v2l ? 'V2L Included' : 'No V2L'
+        })
       }
     ];
 
     /**
      * =========================================================================
-     * 2. 2026 AUSTRALIAN EV CATALOG (NSW Drive-Away Pricing & Specs)
+     * 2. 2026 AUSTRALIAN EV CATALOG (Comprehensive Specs & Feature Flags)
+     * =========================================================================
+     */
+    const DEFAULT_AU_EVS = [
+      {
+        id: 'subaru-trailseeker-awd-touring',
+        make: 'Subaru',
+        model: 'Trailseeker',
+        variant: 'AWD Touring',
+        segment: 'Mid-Size SUV',
+        drivetrain: 'AWD',
+        nswDriveAwayAud: 74990,
+        wltpRangeKm: 515,
+        batteryKwh: 74.7,
+        maxDcKw: 150,
+        towballDownloadKg: 150,
+        brakedTowingKg: 1500,
+        groundClearanceMm: 211,
+        features: {
+          massagingSeats: false,
+          ventilatedFrontSeats: true,
+          heatedRearSeats: true,
+          heatedSteeringWheel: true,
+          powerLegRest: false,
+          driverSeatMemory: true,
+          openingSunroof: false,
+          electricSunshade: true,
+          acousticGlass: true,
+          handsFreeTailgate: true,
+          gloveBox: false,
+          surroundView360: true,
+          frontBumperCamera: true,
+          digitalRearMirror: true,
+          autoParkAssist: true,
+          activeTrafficAssist: true,
+          trafficSignRecognition: true,
+          liveTrafficNav: true,
+          blindSpotCrossTrafficBrake: true,
+          driverFatigueCamera: true,
+          sentryDashcam: false,
+          headUpDisplay: false,
+          driverInstrumentCluster: true,
+          wirelessCarPlay: true,
+          premiumAudio: true,
+          dualWirelessChargers: true,
+          v2l: true,
+          heatPump: true
+        },
+        notes: '211mm X-Mode AWD clearance, 150kg towball, 360° Multi-Terrain cam, digital mirror & auto-park; no HUD or glove box.'
+      },
+      {
+        id: 'subaru-trailseeker-awd',
+        make: 'Subaru',
+        model: 'Trailseeker',
+        variant: 'AWD Base',
+        segment: 'Mid-Size SUV',
+        drivetrain: 'AWD',
+        nswDriveAwayAud: 67990,
+        wltpRangeKm: 530,
+        batteryKwh: 74.7,
+        maxDcKw: 150,
+        towballDownloadKg: 150,
+        brakedTowingKg: 1500,
+        groundClearanceMm: 211,
+        features: {
+          massagingSeats: false,
+          ventilatedFrontSeats: false,
+          heatedRearSeats: false,
+          heatedSteeringWheel: true,
+          powerLegRest: false,
+          driverSeatMemory: false,
+          openingSunroof: false,
+          electricSunshade: false,
+          acousticGlass: true,
+          handsFreeTailgate: true,
+          gloveBox: false,
+          surroundView360: true,
+          frontBumperCamera: true,
+          digitalRearMirror: false,
+          autoParkAssist: false,
+          activeTrafficAssist: true,
+          trafficSignRecognition: true,
+          liveTrafficNav: true,
+          blindSpotCrossTrafficBrake: true,
+          driverFatigueCamera: true,
+          sentryDashcam: false,
+          headUpDisplay: false,
+          driverInstrumentCluster: true,
+          wirelessCarPlay: true,
+          premiumAudio: false,
+          dualWirelessChargers: true,
+          v2l: true,
+          heatPump: true
+        },
+        notes: '211mm X-Mode AWD tourer under $68k NSW drive-away with 150kg towball & 360° camera.'
+      },
+      {
+        id: 'toyota-bz4x-touring-awd',
+        make: 'Toyota',
+        model: 'bZ4X',
+        variant: 'Touring AWD',
+        segment: 'Mid-Size SUV',
+        drivetrain: 'AWD',
+        nswDriveAwayAud: 73214,
+        wltpRangeKm: 488,
+        batteryKwh: 74.7,
+        maxDcKw: 150,
+        towballDownloadKg: 150,
+        brakedTowingKg: 1500,
+        groundClearanceMm: 211,
+        features: {
+          massagingSeats: false,
+          ventilatedFrontSeats: true,
+          heatedRearSeats: true,
+          heatedSteeringWheel: true,
+          powerLegRest: false,
+          driverSeatMemory: true,
+          openingSunroof: false,
+          electricSunshade: true,
+          acousticGlass: true,
+          handsFreeTailgate: true,
+          gloveBox: false,
+          surroundView360: true,
+          frontBumperCamera: true,
+          digitalRearMirror: true,
+          autoParkAssist: true,
+          activeTrafficAssist: true,
+          trafficSignRecognition: true,
+          liveTrafficNav: true,
+          blindSpotCrossTrafficBrake: true,
+          driverFatigueCamera: true,
+          sentryDashcam: false,
+          headUpDisplay: false,
+          driverInstrumentCluster: true,
+          wirelessCarPlay: true,
+          premiumAudio: false,
+          dualWirelessChargers: true,
+          v2l: true,
+          heatPump: true
+        },
+        notes: 'Mechanical twin to Trailseeker Touring with 150kg towball, 360° cam, digital mirror & strong Toyota resale.'
+      },
+      {
+        id: 'geely-ex5-inspire',
+        make: 'Geely',
+        model: 'EX5',
+        variant: 'Inspire',
+        segment: 'Mid-Size SUV',
+        drivetrain: 'FWD',
+        nswDriveAwayAud: 49990,
+        wltpRangeKm: 410,
+        batteryKwh: 60.2,
+        maxDcKw: 100,
+        towballDownloadKg: 0,
+        brakedTowingKg: 0,
+        groundClearanceMm: 168,
+        features: {
+          massagingSeats: true,
+          ventilatedFrontSeats: true,
+          heatedRearSeats: false,
+          heatedSteeringWheel: true,
+          powerLegRest: true,
+          driverSeatMemory: true,
+          openingSunroof: true,
+          electricSunshade: true,
+          acousticGlass: true,
+          handsFreeTailgate: true,
+          gloveBox: true,
+          surroundView360: true,
+          frontBumperCamera: true,
+          digitalRearMirror: false,
+          autoParkAssist: false,
+          activeTrafficAssist: true,
+          trafficSignRecognition: true,
+          liveTrafficNav: true,
+          blindSpotCrossTrafficBrake: true,
+          driverFatigueCamera: true,
+          sentryDashcam: false,
+          headUpDisplay: true,
+          driverInstrumentCluster: true,
+          wirelessCarPlay: true,
+          premiumAudio: true,
+          dualWirelessChargers: false,
+          v2l: true,
+          heatPump: true
+        },
+        notes: '6-mode massaging seats, passenger ottoman, opening sunroof, 13.4" HUD, 16-spk audio & 360° 3D cam under $50k; 0kg tow rating.'
+      },
+      {
+        id: 'geely-ex5-complete',
+        make: 'Geely',
+        model: 'EX5',
+        variant: 'Complete',
+        segment: 'Mid-Size SUV',
+        drivetrain: 'FWD',
+        nswDriveAwayAud: 45990,
+        wltpRangeKm: 430,
+        batteryKwh: 60.2,
+        maxDcKw: 100,
+        towballDownloadKg: 0,
+        brakedTowingKg: 0,
+        groundClearanceMm: 148,
+        features: {
+          massagingSeats: false,
+          ventilatedFrontSeats: false,
+          heatedRearSeats: false,
+          heatedSteeringWheel: false,
+          powerLegRest: false,
+          driverSeatMemory: false,
+          openingSunroof: false,
+          electricSunshade: false,
+          acousticGlass: true,
+          handsFreeTailgate: false,
+          gloveBox: true,
+          surroundView360: true,
+          frontBumperCamera: true,
+          digitalRearMirror: false,
+          autoParkAssist: false,
+          activeTrafficAssist: true,
+          trafficSignRecognition: true,
+          liveTrafficNav: true,
+          blindSpotCrossTrafficBrake: true,
+          driverFatigueCamera: true,
+          sentryDashcam: false,
+          headUpDisplay: false,
+          driverInstrumentCluster: true,
+          wirelessCarPlay: true,
+          premiumAudio: false,
+          dualWirelessChargers: false,
+          v2l: true,
+          heatPump: true
+        },
+        notes: 'Ultra-sharp ~$46k drive-away mid-size SUV with 360° camera, V2L & CarPlay; 0kg tow rating.'
+      },
+      {
+        id: 'tesla-model-y-lr-awd',
+        make: 'Tesla',
+        model: 'Model Y',
+        variant: 'Premium Long Range AWD',
+        segment: 'Mid-Size SUV',
+        drivetrain: 'AWD',
+        nswDriveAwayAud: 72570,
+        wltpRangeKm: 600,
+        batteryKwh: 79.0,
+        maxDcKw: 250,
+        towballDownloadKg: 160,
+        brakedTowingKg: 1600,
+        groundClearanceMm: 167,
+        features: {
+          massagingSeats: false,
+          ventilatedFrontSeats: true,
+          heatedRearSeats: true,
+          heatedSteeringWheel: true,
+          powerLegRest: false,
+          driverSeatMemory: true,
+          openingSunroof: false,
+          electricSunshade: false,
+          acousticGlass: true,
+          handsFreeTailgate: true,
+          gloveBox: true,
+          surroundView360: false,
+          frontBumperCamera: true,
+          digitalRearMirror: false,
+          autoParkAssist: true,
+          activeTrafficAssist: true,
+          trafficSignRecognition: true,
+          liveTrafficNav: true,
+          blindSpotCrossTrafficBrake: true,
+          driverFatigueCamera: true,
+          sentryDashcam: true,
+          headUpDisplay: false,
+          driverInstrumentCluster: false,
+          wirelessCarPlay: false,
+          premiumAudio: true,
+          dualWirelessChargers: true,
+          v2l: false,
+          heatPump: true
+        },
+        notes: '600km range, 160kg towball, 360° Sentry dashcam, all-around acoustic glass & live traffic nav; no HUD, CarPlay or roof blind.'
+      },
+      {
+        id: 'tesla-model-y-rwd',
+        make: 'Tesla',
+        model: 'Model Y',
+        variant: 'Premium Rear-Wheel Drive',
+        segment: 'Mid-Size SUV',
+        drivetrain: 'RWD',
+        nswDriveAwayAud: 62065,
+        wltpRangeKm: 466,
+        batteryKwh: 62.5,
+        maxDcKw: 175,
+        towballDownloadKg: 160,
+        brakedTowingKg: 1600,
+        groundClearanceMm: 167,
+        features: {
+          massagingSeats: false,
+          ventilatedFrontSeats: true,
+          heatedRearSeats: true,
+          heatedSteeringWheel: true,
+          powerLegRest: false,
+          driverSeatMemory: true,
+          openingSunroof: false,
+          electricSunshade: false,
+          acousticGlass: true,
+          handsFreeTailgate: true,
+          gloveBox: true,
+          surroundView360: false,
+          frontBumperCamera: true,
+          digitalRearMirror: false,
+          autoParkAssist: true,
+          activeTrafficAssist: true,
+          trafficSignRecognition: true,
+          liveTrafficNav: true,
+          blindSpotCrossTrafficBrake: true,
+          driverFatigueCamera: true,
+          sentryDashcam: true,
+          headUpDisplay: false,
+          driverInstrumentCluster: false,
+          wirelessCarPlay: false,
+          premiumAudio: false,
+          dualWirelessChargers: true,
+          v2l: false,
+          heatPump: true
+        },
+        notes: 'Ventilated front & heated rear seats, 160kg towball & 360° Sentry security.'
+      },
+      {
+        id: 'byd-sealion-7-performance',
+        make: 'BYD',
+        model: 'Sealion 7',
+        variant: 'Performance AWD',
+        segment: 'Mid-Size SUV',
+        drivetrain: 'AWD',
+        nswDriveAwayAud: 66400,
+        wltpRangeKm: 456,
+        batteryKwh: 82.6,
+        maxDcKw: 150,
+        towballDownloadKg: 150,
+        brakedTowingKg: 1500,
+        groundClearanceMm: 163,
+        features: {
+          massagingSeats: false,
+          ventilatedFrontSeats: true,
+          heatedRearSeats: true,
+          heatedSteeringWheel: true,
+          powerLegRest: true,
+          driverSeatMemory: true,
+          openingSunroof: false,
+          electricSunshade: true,
+          acousticGlass: true,
+          handsFreeTailgate: true,
+          gloveBox: true,
+          surroundView360: true,
+          frontBumperCamera: true,
+          digitalRearMirror: false,
+          autoParkAssist: false,
+          activeTrafficAssist: true,
+          trafficSignRecognition: true,
+          liveTrafficNav: true,
+          blindSpotCrossTrafficBrake: true,
+          driverFatigueCamera: true,
+          sentryDashcam: false,
+          headUpDisplay: true,
+          driverInstrumentCluster: true,
+          wirelessCarPlay: true,
+          premiumAudio: true,
+          dualWirelessChargers: false,
+          v2l: true,
+          heatPump: true
+        },
+        notes: '390kW AWD with HUD, ventilated Nappa leather, driver leg rest, power roof blind, 360° cam, Dynaudio & 150kg ADR towbar.'
+      },
+      {
+        id: 'byd-sealion-7-premium',
+        make: 'BYD',
+        model: 'Sealion 7',
+        variant: 'Premium RWD',
+        segment: 'Mid-Size SUV',
+        drivetrain: 'RWD',
+        nswDriveAwayAud: 58990,
+        wltpRangeKm: 482,
+        batteryKwh: 82.6,
+        maxDcKw: 150,
+        towballDownloadKg: 150,
+        brakedTowingKg: 1500,
+        groundClearanceMm: 163,
+        features: {
+          massagingSeats: false,
+          ventilatedFrontSeats: true,
+          heatedRearSeats: false,
+          heatedSteeringWheel: true,
+          powerLegRest: true,
+          driverSeatMemory: true,
+          openingSunroof: false,
+          electricSunshade: true,
+          acousticGlass: true,
+          handsFreeTailgate: true,
+          gloveBox: true,
+          surroundView360: true,
+          frontBumperCamera: true,
+          digitalRearMirror: false,
+          autoParkAssist: false,
+          activeTrafficAssist: true,
+          trafficSignRecognition: true,
+          liveTrafficNav: true,
+          blindSpotCrossTrafficBrake: true,
+          driverFatigueCamera: true,
+          sentryDashcam: false,
+          headUpDisplay: true,
+          driverInstrumentCluster: true,
+          wirelessCarPlay: true,
+          premiumAudio: true,
+          dualWirelessChargers: false,
+          v2l: true,
+          heatPump: true
+        },
+        notes: 'HUD, ventilated seats, power sunshade, 360° camera, Dynaudio & V2L under $59k drive-away.'
+      },
+      {
+        id: 'zeekr-7x-performance-awd',
+        make: 'Zeekr',
+        model: '7X',
+        variant: 'Performance AWD',
+        segment: 'Mid-Size SUV',
+        drivetrain: 'AWD',
+        nswDriveAwayAud: 76900,
+        wltpRangeKm: 543,
+        batteryKwh: 100.0,
+        maxDcKw: 360,
+        towballDownloadKg: 200,
+        brakedTowingKg: 2000,
+        groundClearanceMm: 215,
+        features: {
+          massagingSeats: true,
+          ventilatedFrontSeats: true,
+          heatedRearSeats: true,
+          heatedSteeringWheel: true,
+          powerLegRest: true,
+          driverSeatMemory: true,
+          openingSunroof: false,
+          electricSunshade: true,
+          acousticGlass: true,
+          handsFreeTailgate: true,
+          gloveBox: true,
+          surroundView360: true,
+          frontBumperCamera: true,
+          digitalRearMirror: false,
+          autoParkAssist: true,
+          activeTrafficAssist: true,
+          trafficSignRecognition: true,
+          liveTrafficNav: true,
+          blindSpotCrossTrafficBrake: true,
+          driverFatigueCamera: true,
+          sentryDashcam: true,
+          headUpDisplay: true,
+          driverInstrumentCluster: true,
+          wirelessCarPlay: true,
+          premiumAudio: true,
+          dualWirelessChargers: true,
+          v2l: true,
+          heatPump: true
+        },
+        notes: '800V 100kWh battery, air suspension up to 215mm, 200kg towball, massaging/ventilated seats, HUD & 360° cam.'
+      },
+      {
+        id: 'zeekr-7x-long-range-rwd',
+        make: 'Zeekr',
+        model: '7X',
+        variant: 'Long Range RWD',
+        segment: 'Mid-Size SUV',
+        drivetrain: 'RWD',
+        nswDriveAwayAud: 67900,
+        wltpRangeKm: 615,
+        batteryKwh: 100.0,
+        maxDcKw: 360,
+        towballDownloadKg: 150,
+        brakedTowingKg: 1500,
+        groundClearanceMm: 178,
+        features: {
+          massagingSeats: false,
+          ventilatedFrontSeats: true,
+          heatedRearSeats: true,
+          heatedSteeringWheel: true,
+          powerLegRest: false,
+          driverSeatMemory: true,
+          openingSunroof: false,
+          electricSunshade: true,
+          acousticGlass: true,
+          handsFreeTailgate: true,
+          gloveBox: true,
+          surroundView360: true,
+          frontBumperCamera: true,
+          digitalRearMirror: false,
+          autoParkAssist: true,
+          activeTrafficAssist: true,
+          trafficSignRecognition: true,
+          liveTrafficNav: true,
+          blindSpotCrossTrafficBrake: true,
+          driverFatigueCamera: true,
+          sentryDashcam: true,
+          headUpDisplay: true,
+          driverInstrumentCluster: true,
+          wirelessCarPlay: true,
+          premiumAudio: true,
+          dualWirelessChargers: true,
+          v2l: true,
+          heatPump: true
+        },
+        notes: '615km WLTP range, 360kW ultra-fast charging, HUD, 360° camera & 150kg towball.'
+      },
+      {
+        id: 'kia-ev5-gt-line-awd',
+        make: 'Kia',
+        model: 'EV5',
+        variant: 'GT-Line AWD',
+        segment: 'Mid-Size SUV',
+        drivetrain: 'AWD',
+        nswDriveAwayAud: 75990,
+        wltpRangeKm: 470,
+        batteryKwh: 88.1,
+        maxDcKw: 141,
+        towballDownloadKg: 125,
+        brakedTowingKg: 1250,
+        groundClearanceMm: 175,
+        features: {
+          massagingSeats: true,
+          ventilatedFrontSeats: true,
+          heatedRearSeats: true,
+          heatedSteeringWheel: true,
+          powerLegRest: true,
+          driverSeatMemory: true,
+          openingSunroof: true,
+          electricSunshade: true,
+          acousticGlass: true,
+          handsFreeTailgate: true,
+          gloveBox: true,
+          surroundView360: true,
+          frontBumperCamera: true,
+          digitalRearMirror: false,
+          autoParkAssist: true,
+          activeTrafficAssist: true,
+          trafficSignRecognition: true,
+          liveTrafficNav: true,
+          blindSpotCrossTrafficBrake: true,
+          driverFatigueCamera: true,
+          sentryDashcam: false,
+          headUpDisplay: true,
+          driverInstrumentCluster: true,
+          wirelessCarPlay: true,
+          premiumAudio: true,
+          dualWirelessChargers: false,
+          v2l: true,
+          heatPump: true
+        },
+        notes: 'Australian-tuned suspension, driver massage & leg rest, opening sunroof + blind, HUD, 360° cam & 125kg towball.'
+      },
+      {
+        id: 'kia-ev5-earth-awd',
+        make: 'Kia',
+        model: 'EV5',
+        variant: 'Earth AWD',
+        segment: 'Mid-Size SUV',
+        drivetrain: 'AWD',
+        nswDriveAwayAud: 68990,
+        wltpRangeKm: 500,
+        batteryKwh: 88.1,
+        maxDcKw: 141,
+        towballDownloadKg: 125,
+        brakedTowingKg: 1250,
+        groundClearanceMm: 175,
+        features: {
+          massagingSeats: false,
+          ventilatedFrontSeats: false,
+          heatedRearSeats: false,
+          heatedSteeringWheel: false,
+          powerLegRest: false,
+          driverSeatMemory: false,
+          openingSunroof: false,
+          electricSunshade: false,
+          acousticGlass: true,
+          handsFreeTailgate: true,
+          gloveBox: true,
+          surroundView360: false,
+          frontBumperCamera: false,
+          digitalRearMirror: false,
+          autoParkAssist: false,
+          activeTrafficAssist: true,
+          trafficSignRecognition: true,
+          liveTrafficNav: true,
+          blindSpotCrossTrafficBrake: true,
+          driverFatigueCamera: true,
+          sentryDashcam: false,
+          headUpDisplay: false,
+          driverInstrumentCluster: true,
+          wirelessCarPlay: true,
+          premiumAudio: false,
+          dualWirelessChargers: false,
+          v2l: true,
+          heatPump: true
+        },
+        notes: '88kWh LFP battery, 500km range & 125kg towball at sharp AWD drive-away price.'
+      },
+      {
+        id: 'kia-ev5-air-lr',
+        make: 'Kia',
+        model: 'EV5',
+        variant: 'Air Long Range FWD',
+        segment: 'Mid-Size SUV',
+        drivetrain: 'FWD',
+        nswDriveAwayAud: 61170,
+        wltpRangeKm: 555,
+        batteryKwh: 88.1,
+        maxDcKw: 141,
+        towballDownloadKg: 125,
+        brakedTowingKg: 1250,
+        groundClearanceMm: 175,
+        features: {
+          massagingSeats: false,
+          ventilatedFrontSeats: false,
+          heatedRearSeats: false,
+          heatedSteeringWheel: false,
+          powerLegRest: false,
+          driverSeatMemory: false,
+          openingSunroof: false,
+          electricSunshade: false,
+          acousticGlass: true,
+          handsFreeTailgate: false,
+          gloveBox: true,
+          surroundView360: false,
+          frontBumperCamera: false,
+          digitalRearMirror: false,
+          autoParkAssist: false,
+          activeTrafficAssist: true,
+          trafficSignRecognition: true,
+          liveTrafficNav: true,
+          blindSpotCrossTrafficBrake: true,
+          driverFatigueCamera: true,
+          sentryDashcam: false,
+          headUpDisplay: false,
+          driverInstrumentCluster: true,
+          wirelessCarPlay: true,
+          premiumAudio: false,
+          dualWirelessChargers: false,
+          v2l: true,
+          heatPump: true
+        },
+        notes: '555km WLTP range + 125kg towball even on 2WD model.'
+      },
+      {
+        id: 'hyundai-ioniq5-dynamiq-awd',
+        make: 'Hyundai',
+        model: 'Ioniq 5',
+        variant: 'Dynamiq AWD (84kWh)',
+        segment: 'Mid-Size SUV',
+        drivetrain: 'AWD',
+        nswDriveAwayAud: 79900,
+        wltpRangeKm: 500,
+        batteryKwh: 84.0,
+        maxDcKw: 260,
+        towballDownloadKg: 160,
+        brakedTowingKg: 1600,
+        groundClearanceMm: 160,
+        features: {
+          massagingSeats: false,
+          ventilatedFrontSeats: true,
+          heatedRearSeats: true,
+          heatedSteeringWheel: true,
+          powerLegRest: false,
+          driverSeatMemory: true,
+          openingSunroof: false,
+          electricSunshade: true,
+          acousticGlass: true,
+          handsFreeTailgate: true,
+          gloveBox: true,
+          surroundView360: true,
+          frontBumperCamera: true,
+          digitalRearMirror: false,
+          autoParkAssist: true,
+          activeTrafficAssist: true,
+          trafficSignRecognition: true,
+          liveTrafficNav: true,
+          blindSpotCrossTrafficBrake: true,
+          driverFatigueCamera: true,
+          sentryDashcam: false,
+          headUpDisplay: true,
+          driverInstrumentCluster: true,
+          wirelessCarPlay: true,
+          premiumAudio: true,
+          dualWirelessChargers: false,
+          v2l: true,
+          heatPump: true
+        },
+        notes: '800V 18-min charging, 160kg towball, 360° camera, HUD, ventilated seats & V2L.'
+      },
+      {
+        id: 'mg-s6-ev-essence-rwd',
+        make: 'MG',
+        model: 'S6 EV',
+        variant: 'Essence 77kWh RWD',
+        segment: 'Mid-Size SUV',
+        drivetrain: 'RWD',
+        nswDriveAwayAud: 49990,
+        wltpRangeKm: 530,
+        batteryKwh: 77.0,
+        maxDcKw: 144,
+        towballDownloadKg: 100,
+        brakedTowingKg: 1500,
+        groundClearanceMm: 170,
+        features: {
+          massagingSeats: false,
+          ventilatedFrontSeats: true,
+          heatedRearSeats: false,
+          heatedSteeringWheel: true,
+          powerLegRest: false,
+          driverSeatMemory: true,
+          openingSunroof: true,
+          electricSunshade: true,
+          acousticGlass: true,
+          handsFreeTailgate: true,
+          gloveBox: true,
+          surroundView360: true,
+          frontBumperCamera: true,
+          digitalRearMirror: false,
+          autoParkAssist: false,
+          activeTrafficAssist: true,
+          trafficSignRecognition: true,
+          liveTrafficNav: true,
+          blindSpotCrossTrafficBrake: true,
+          driverFatigueCamera: true,
+          sentryDashcam: false,
+          headUpDisplay: false,
+          driverInstrumentCluster: true,
+          wirelessCarPlay: true,
+          premiumAudio: true,
+          dualWirelessChargers: false,
+          v2l: true,
+          heatPump: true
+        },
+        notes: '530km range, opening panoramic sunroof + blind, 360° camera, ventilated seats, 100kg towball & 6kW V2L under $50k.'
+      },
+      {
+        id: 'xpeng-g6-long-range',
+        make: 'XPeng',
+        model: 'G6',
+        variant: 'Long Range RWD',
+        segment: 'Mid-Size SUV',
+        drivetrain: 'RWD',
+        nswDriveAwayAud: 59990,
+        wltpRangeKm: 570,
+        batteryKwh: 87.5,
+        maxDcKw: 280,
+        towballDownloadKg: 150,
+        brakedTowingKg: 1500,
+        groundClearanceMm: 165,
+        features: {
+          massagingSeats: false,
+          ventilatedFrontSeats: true,
+          heatedRearSeats: true,
+          heatedSteeringWheel: true,
+          powerLegRest: false,
+          driverSeatMemory: true,
+          openingSunroof: false,
+          electricSunshade: false,
+          acousticGlass: true,
+          handsFreeTailgate: true,
+          gloveBox: false,
+          surroundView360: true,
+          frontBumperCamera: true,
+          digitalRearMirror: false,
+          autoParkAssist: true,
+          activeTrafficAssist: true,
+          trafficSignRecognition: true,
+          liveTrafficNav: true,
+          blindSpotCrossTrafficBrake: true,
+          driverFatigueCamera: true,
+          sentryDashcam: true,
+          headUpDisplay: false,
+          driverInstrumentCluster: true,
+          wirelessCarPlay: true,
+          premiumAudio: true,
+          dualWirelessChargers: true,
+          v2l: true,
+          heatPump: true
+        },
+        notes: '800V 280kW charging, 570km range, 150kg towball, 360° cam, auto-park & Sentry dashcam; no glove box or roof blind.'
+      },
+      {
+        id: 'volvo-ex30-cross-country',
+        make: 'Volvo',
+        model: 'EX30',
+        variant: 'Cross Country Twin Motor AWD',
+        segment: 'Compact SUV',
+        drivetrain: 'AWD',
+        nswDriveAwayAud: 71395,
+        wltpRangeKm: 427,
+        batteryKwh: 69.0,
+        maxDcKw: 153,
+        towballDownloadKg: 100,
+        brakedTowingKg: 1600,
+        groundClearanceMm: 190,
+        features: {
+          massagingSeats: false,
+          ventilatedFrontSeats: false,
+          heatedRearSeats: false,
+          heatedSteeringWheel: true,
+          powerLegRest: false,
+          driverSeatMemory: true,
+          openingSunroof: false,
+          electricSunshade: false,
+          acousticGlass: true,
+          handsFreeTailgate: true,
+          gloveBox: true,
+          surroundView360: true,
+          frontBumperCamera: true,
+          digitalRearMirror: false,
+          autoParkAssist: true,
+          activeTrafficAssist: true,
+          trafficSignRecognition: true,
+          liveTrafficNav: true,
+          blindSpotCrossTrafficBrake: true,
+          driverFatigueCamera: true,
+          sentryDashcam: false,
+          headUpDisplay: false,
+          driverInstrumentCluster: false,
+          wirelessCarPlay: true,
+          premiumAudio: true,
+          dualWirelessChargers: false,
+          v2l: false,
+          heatPump: true
+        },
+        notes: '190mm lifted AWD, 100kg towball, 360° cam, Harman Kardon & auto-park; no ventilated seats or driver cluster.'
+      },
+      {
+        id: 'volvo-ex40-ultra-twin',
+        make: 'Volvo',
+        model: 'EX40',
+        variant: 'Ultra Twin Motor AWD',
+        segment: 'Compact SUV',
+        drivetrain: 'AWD',
+        nswDriveAwayAud: 78990,
+        wltpRangeKm: 500,
+        batteryKwh: 82.0,
+        maxDcKw: 205,
+        towballDownloadKg: 100,
+        brakedTowingKg: 1500,
+        groundClearanceMm: 175,
+        features: {
+          massagingSeats: false,
+          ventilatedFrontSeats: false,
+          heatedRearSeats: true,
+          heatedSteeringWheel: true,
+          powerLegRest: false,
+          driverSeatMemory: true,
+          openingSunroof: true,
+          electricSunshade: true,
+          acousticGlass: true,
+          handsFreeTailgate: true,
+          gloveBox: true,
+          surroundView360: true,
+          frontBumperCamera: true,
+          digitalRearMirror: false,
+          autoParkAssist: false,
+          activeTrafficAssist: true,
+          trafficSignRecognition: true,
+          liveTrafficNav: true,
+          blindSpotCrossTrafficBrake: true,
+          driverFatigueCamera: true,
+          sentryDashcam: false,
+          headUpDisplay: false,
+          driverInstrumentCluster: true,
+          wirelessCarPlay: true,
+          premiumAudio: true,
+          dualWirelessChargers: false,
+          v2l: false,
+          heatPump: true
+        },
+        notes: 'Opening panoramic sunroof + power blind, 360° cam, Harman Kardon & Google Built-In; lacks seat ventilation.'
+      },
+      {
+        id: 'bmw-ix1-xdrive30',
+        make: 'BMW',
+        model: 'iX1',
+        variant: 'xDrive30 M Sport',
+        segment: 'Compact SUV',
+        drivetrain: 'AWD',
+        nswDriveAwayAud: 89900,
+        wltpRangeKm: 440,
+        batteryKwh: 64.7,
+        maxDcKw: 130,
+        towballDownloadKg: 120,
+        brakedTowingKg: 1200,
+        groundClearanceMm: 170,
+        features: {
+          massagingSeats: true,
+          ventilatedFrontSeats: false,
+          heatedRearSeats: false,
+          heatedSteeringWheel: true,
+          powerLegRest: false,
+          driverSeatMemory: true,
+          openingSunroof: true,
+          electricSunshade: true,
+          acousticGlass: true,
+          handsFreeTailgate: true,
+          gloveBox: true,
+          surroundView360: true,
+          frontBumperCamera: true,
+          digitalRearMirror: false,
+          autoParkAssist: true,
+          activeTrafficAssist: true,
+          trafficSignRecognition: true,
+          liveTrafficNav: true,
+          blindSpotCrossTrafficBrake: true,
+          driverFatigueCamera: true,
+          sentryDashcam: true,
+          headUpDisplay: true,
+          driverInstrumentCluster: true,
+          wirelessCarPlay: true,
+          premiumAudio: true,
+          dualWirelessChargers: false,
+          v2l: false,
+          heatPump: true
+        },
+        notes: 'Just under $91,387 FBT cap with massaging front seats, opening sunroof, HUD, 360° cam & BMW Drive Recorder.'
+      },
+      {
+        id: 'leapmotor-c10-design',
+        make: 'Leapmotor',
+        model: 'C10',
+        variant: 'Design RWD',
+        segment: 'Mid-Size SUV',
+        drivetrain: 'RWD',
+        nswDriveAwayAud: 49990,
+        wltpRangeKm: 420,
+        batteryKwh: 69.9,
+        maxDcKw: 84,
+        towballDownloadKg: 75,
+        brakedTowingKg: 750,
+        groundClearanceMm: 180,
+        features: {
+          massagingSeats: false,
+          ventilatedFrontSeats: true,
+          heatedRearSeats: false,
+          heatedSteeringWheel: true,
+          powerLegRest: false,
+          driverSeatMemory: true,
+          openingSunroof: false,
+          electricSunshade: true,
+          acousticGlass: true,
+          handsFreeTailgate: true,
+          gloveBox: true,
+          surroundView360: true,
+          frontBumperCamera: true,
+          digitalRearMirror: false,
+          autoParkAssist: false,
+          activeTrafficAssist: true,
+          trafficSignRecognition: true,
+          liveTrafficNav: true,
+          blindSpotCrossTrafficBrake: true,
+          driverFatigueCamera: true,
+          sentryDashcam: true,
+          headUpDisplay: false,
+          driverInstrumentCluster: true,
+          wirelessCarPlay: false,
+          premiumAudio: true,
+          dualWirelessChargers: false,
+          v2l: true,
+          heatPump: true
+        },
+        notes: 'Sub-$50k mid-size cabin with ventilated seats, electric sunshade, 360° camera & V2L; lacks native CarPlay.'
+      },
+      {
+        id: 'cupra-tavascan-vz-awd',
+        make: 'Cupra',
+        model: 'Tavascan',
+        variant: 'VZ AWD',
+        segment: 'Mid-Size SUV',
+        drivetrain: 'AWD',
+        nswDriveAwayAud: 78990,
+        wltpRangeKm: 499,
+        batteryKwh: 77.0,
+        maxDcKw: 135,
+        towballDownloadKg: 120,
+        brakedTowingKg: 1200,
+        groundClearanceMm: 165,
+        features: {
+          massagingSeats: false,
+          ventilatedFrontSeats: false,
+          heatedRearSeats: true,
+          heatedSteeringWheel: true,
+          powerLegRest: false,
+          driverSeatMemory: true,
+          openingSunroof: false,
+          electricSunshade: true,
+          acousticGlass: true,
+          handsFreeTailgate: true,
+          gloveBox: true,
+          surroundView360: true,
+          frontBumperCamera: true,
+          digitalRearMirror: false,
+          autoParkAssist: true,
+          activeTrafficAssist: true,
+          trafficSignRecognition: true,
+          liveTrafficNav: true,
+          blindSpotCrossTrafficBrake: true,
+          driverFatigueCamera: true,
+          sentryDashcam: false,
+          headUpDisplay: true,
+          driverInstrumentCluster: true,
+          wirelessCarPlay: true,
+          premiumAudio: true,
+          dualWirelessChargers: false,
+          v2l: false,
+          heatPump: true
+        },
+        notes: '250kW AWD coupe-SUV with AR HUD, Sennheiser 12-spk audio, 360° camera & 120kg towball.'
+      },
+      {
+        id: 'polestar-4-long-range-dual',
+        make: 'Polestar',
+        model: '4',
+        variant: 'Long Range Dual Motor AWD',
+        segment: 'Fastback / Sedan',
+        drivetrain: 'AWD',
+        nswDriveAwayAud: 89900,
+        wltpRangeKm: 590,
+        batteryKwh: 100.0,
+        maxDcKw: 200,
+        towballDownloadKg: 150,
+        brakedTowingKg: 2000,
+        groundClearanceMm: 166,
+        features: {
+          massagingSeats: false,
+          ventilatedFrontSeats: false,
+          heatedRearSeats: true,
+          heatedSteeringWheel: true,
+          powerLegRest: false,
+          driverSeatMemory: true,
+          openingSunroof: false,
+          electricSunshade: false,
+          acousticGlass: true,
+          handsFreeTailgate: true,
+          gloveBox: true,
+          surroundView360: true,
+          frontBumperCamera: true,
+          digitalRearMirror: true,
+          autoParkAssist: true,
+          activeTrafficAssist: true,
+          trafficSignRecognition: true,
+          liveTrafficNav: true,
+          blindSpotCrossTrafficBrake: true,
+          driverFatigueCamera: true,
+          sentryDashcam: false,
+          headUpDisplay: true,
+          driverInstrumentCluster: true,
+          wirelessCarPlay: true,
+          premiumAudio: true,
+          dualWirelessChargers: false,
+          v2l: true,
+          heatPump: true
+        },
+        notes: '400kW fastback under $91,387 FBT cap with digital rear-view mirror, HUD, 360° cam, 150kg towball & V2L.'
+      },
+      {
+        id: 'byd-seal-performance-awd',
+        make: 'BYD',
+        model: 'Seal',
+        variant: 'Performance AWD',
+        segment: 'Fastback / Sedan',
+        drivetrain: 'AWD',
+        nswDriveAwayAud: 63990,
+        wltpRangeKm: 520,
+        batteryKwh: 82.5,
+        maxDcKw: 150,
+        towballDownloadKg: 75,
+        brakedTowingKg: 750,
+        groundClearanceMm: 145,
+        features: {
+          massagingSeats: false,
+          ventilatedFrontSeats: true,
+          heatedRearSeats: false,
+          heatedSteeringWheel: true,
+          powerLegRest: false,
+          driverSeatMemory: true,
+          openingSunroof: false,
+          electricSunshade: true,
+          acousticGlass: true,
+          handsFreeTailgate: false,
+          gloveBox: true,
+          surroundView360: true,
+          frontBumperCamera: true,
+          digitalRearMirror: false,
+          autoParkAssist: false,
+          activeTrafficAssist: true,
+          trafficSignRecognition: true,
+          liveTrafficNav: true,
+          blindSpotCrossTrafficBrake: true,
+          driverFatigueCamera: true,
+          sentryDashcam: false,
+          headUpDisplay: true,
+          driverInstrumentCluster: true,
+          wirelessCarPlay: true,
+          premiumAudio: true,
+          dualWirelessChargers: true,
+          v2l: true,
+          heatPump: true
+        },
+        notes: '3.8s AWD sedan with HUD, ventilated seats, Dynaudio, 360° camera & V2L.'
+      },
+      {
+        id: 'tesla-model-3-lr-awd',
+        make: 'Tesla',
+        model: 'Model 3',
+        variant: 'Long Range AWD',
+        segment: 'Fastback / Sedan',
+        drivetrain: 'AWD',
+        nswDriveAwayAud: 68900,
+        wltpRangeKm: 629,
+        batteryKwh: 78.0,
+        maxDcKw: 250,
+        towballDownloadKg: 100,
+        brakedTowingKg: 1000,
+        groundClearanceMm: 138,
+        features: {
+          massagingSeats: false,
+          ventilatedFrontSeats: true,
+          heatedRearSeats: true,
+          heatedSteeringWheel: true,
+          powerLegRest: false,
+          driverSeatMemory: true,
+          openingSunroof: false,
+          electricSunshade: false,
+          acousticGlass: true,
+          handsFreeTailgate: true,
+          gloveBox: true,
+          surroundView360: false,
+          frontBumperCamera: false,
+          digitalRearMirror: false,
+          autoParkAssist: true,
+          activeTrafficAssist: true,
+          trafficSignRecognition: true,
+          liveTrafficNav: true,
+          blindSpotCrossTrafficBrake: true,
+          driverFatigueCamera: true,
+          sentryDashcam: true,
+          headUpDisplay: false,
+          driverInstrumentCluster: false,
+          wirelessCarPlay: false,
+          premiumAudio: true,
+          dualWirelessChargers: true,
+          v2l: false,
+          heatPump: true
+        },
+        notes: '629km range, ventilated front & heated rear seats, 17-spk audio, 100kg towball & Sentry Mode.'
+      }
+    ];
+
+    /**
+     * =========================================================================
+     * 3. APPLICATION STATE
+     * =========================================================================
+     */
+    const LCT_FBT_THRESHOLD_AUD = 91387; // ATO Fuel-Efficient Luxury Car Tax Threshold
+    const YEAR5_RESIDUAL_RATE = 0.2813;  // ATO 5-Year Statutory Residual (28.13%)
+
+    let state = {
+      vehicles: structuredClone(DEFAULT_AU_EVS),
+      apiBaseUrl: window.location.origin.startsWith('http') ? window.location.origin : 'http://localhost:3000',
+      apiConnected: false,
+      activeFeatureCategory: 'all',
+      search: '',
+      make: '',
+      drivetrain: '',
+      maxPrice: 110000,
+      sortBy: 'score',
+      fbtOnly: false,
+      minRangeOnly: false,
+      towCapableOnly: false,
+      surround360Only: false,
+      massageSeatsOnly: false,
+      sunshadeOnly: false,
+      selectedCompareIds: [],
+      rivalFocusId: null,
+      rivalReasonsMap: {}
+    };
+
+    /**
+     * =========================================================================
+     * 4. DYNAMIC SCORING & NOVATED LEASE CALCULATOR
      * =========================================================================
      */
     const DEFAULT_AU_EVS = [
@@ -1051,7 +2568,7 @@
      * =========================================================================
      * Computes:
      *  1) ATO FBT exemption status & Year-5 balloon residual
-     *  2) Effective Net Novated Lease Cost (factoring ~22% pre-tax income tax
+     *  2) Effective Net Novated Lease Cost (factoring ~24% pre-tax income tax
      *     shield on FBT-exempt vehicles vs non-exempt)
      *  3) Dynamic 100-point score scaled ONLY across the buyer's checked features!
      */
@@ -1104,6 +2621,7 @@
 
         return {
           id: criterion.id,
+          category: criterion.category,
           label: criterion.shortLabel,
           checked: criterion.checked,
           ratio: res.ratio,
@@ -1221,10 +2739,15 @@
       document.getElementById('featureWeightLabel').textContent = featuresMaxPoints;
       document.getElementById('activeFeatureCount').textContent = activeFeatures.length;
 
-      container.innerHTML = BUYER_FEATURE_CRITERIA.map((item) => {
+      const visibleCriteria =
+        state.activeFeatureCategory === 'all'
+          ? BUYER_FEATURE_CRITERIA
+          : BUYER_FEATURE_CRITERIA.filter((item) => item.category === state.activeFeatureCategory);
+
+      container.innerHTML = visibleCriteria.map((item) => {
         const effectivePts =
           item.checked && rawFeatureWeightSum > 0
-            ? Math.round((item.weight / rawFeatureWeightSum) * featuresMaxPoints)
+            ? Math.max(1, Math.round((item.weight / rawFeatureWeightSum) * featuresMaxPoints))
             : 0;
 
         return `
@@ -1332,6 +2855,18 @@
 
       if (state.towCapableOnly) {
         list = list.filter((v) => (v.towballDownloadKg || 0) >= 100);
+      }
+
+      if (state.surround360Only) {
+        list = list.filter((v) => v.features?.surroundView360 === true);
+      }
+
+      if (state.massageSeatsOnly) {
+        list = list.filter((v) => v.features?.massagingSeats === true);
+      }
+
+      if (state.sunshadeOnly) {
+        list = list.filter((v) => v.features?.openingSunroof === true || v.features?.electricSunshade === true);
       }
 
       list.sort((a, b) => {
@@ -1782,24 +3317,92 @@
           `
         },
         {
-          label: 'V2L (Vehicle-to-Load)',
-          render: (v) => (v.features?.v2l ? '<span class="text-emerald-700 font-semibold">✓ Yes</span>' : '<span class="text-slate-400">— No</span>')
+          label: 'Massaging Front Seats',
+          render: (v) => (v.features?.massagingSeats ? '<span class="text-emerald-700 font-semibold">✓ Yes (Multi-mode)</span>' : '<span class="text-slate-400">— No</span>')
         },
         {
           label: 'Ventilated Front Seats',
           render: (v) => (v.features?.ventilatedFrontSeats ? '<span class="text-emerald-700 font-semibold">✓ Yes</span>' : '<span class="text-slate-400">— No</span>')
         },
         {
-          label: 'Head-Up Display (HUD)',
-          render: (v) => (v.features?.headUpDisplay ? '<span class="text-emerald-700 font-semibold">✓ Yes</span>' : '<span class="text-slate-400">— No</span>')
+          label: 'Heated Rear Seats',
+          render: (v) => (v.features?.heatedRearSeats ? '<span class="text-emerald-700 font-semibold">✓ Yes</span>' : '<span class="text-slate-400">— No</span>')
         },
         {
-          label: 'Wireless Apple CarPlay',
-          render: (v) => (v.features?.wirelessCarPlay ? '<span class="text-emerald-700 font-semibold">✓ Yes</span>' : '<span class="text-slate-400">— No</span>')
+          label: 'Power Leg-Rest Ottoman',
+          render: (v) => (v.features?.powerLegRest ? '<span class="text-emerald-700 font-semibold">✓ Yes</span>' : '<span class="text-slate-400">— No</span>')
+        },
+        {
+          label: 'Panoramic Roof & Sunshade',
+          render: (v) => {
+            if (v.features?.openingSunroof) return '<span class="text-emerald-700 font-semibold">✓ Opening Sunroof + Blind</span>';
+            if (v.features?.electricSunshade) return '<span class="text-indigo-700 font-semibold">✓ Fixed Glass + Power Blind</span>';
+            return '<span class="text-amber-600 font-medium">Fixed Glass (No Blind)</span>';
+          }
+        },
+        {
+          label: 'Acoustic Double-Glazed Glass',
+          render: (v) => (v.features?.acousticGlass ? '<span class="text-emerald-700 font-semibold">✓ Yes</span>' : '<span class="text-slate-400">— Standard</span>')
+        },
+        {
+          label: 'Hands-Free Power Tailgate',
+          render: (v) => (v.features?.handsFreeTailgate ? '<span class="text-emerald-700 font-semibold">✓ Yes</span>' : '<span class="text-slate-400">— Manual</span>')
         },
         {
           label: 'Traditional Glove Box',
           render: (v) => (v.features?.gloveBox !== false ? '<span class="text-emerald-700 font-semibold">✓ Yes</span>' : '<span class="text-amber-600 font-semibold">✕ Deleted</span>')
+        },
+        {
+          label: '360° HD Surround Camera',
+          render: (v) => (v.features?.surroundView360 ? '<span class="text-emerald-700 font-semibold">✓ True 360° View</span>' : '<span class="text-amber-600 font-medium">3D Vision Only</span>')
+        },
+        {
+          label: 'Front Bumper Camera',
+          render: (v) => (v.features?.frontBumperCamera ? '<span class="text-emerald-700 font-semibold">✓ Yes</span>' : '<span class="text-slate-400">— No</span>')
+        },
+        {
+          label: 'Digital Camera Rear Mirror',
+          render: (v) => (v.features?.digitalRearMirror ? '<span class="text-emerald-700 font-semibold">✓ Digital Camera</span>' : '<span class="text-slate-500">Auto-Dimming Mirror</span>')
+        },
+        {
+          label: 'Auto / Remote Park Assist',
+          render: (v) => (v.features?.autoParkAssist ? '<span class="text-emerald-700 font-semibold">✓ Yes</span>' : '<span class="text-slate-400">— No</span>')
+        },
+        {
+          label: 'Traffic Jam & Lane Centring',
+          render: (v) => (v.features?.activeTrafficAssist !== false ? '<span class="text-emerald-700 font-semibold">✓ ACC + Lane Centring</span>' : '<span class="text-slate-400">— Basic</span>')
+        },
+        {
+          label: 'Traffic Sign / Speed Reader',
+          render: (v) => (v.features?.trafficSignRecognition !== false ? '<span class="text-emerald-700 font-semibold">✓ Yes</span>' : '<span class="text-slate-400">— No</span>')
+        },
+        {
+          label: 'Blind-Spot + RCTA Auto-Brake',
+          render: (v) => (v.features?.blindSpotCrossTrafficBrake !== false ? '<span class="text-emerald-700 font-semibold">✓ Yes</span>' : '<span class="text-slate-400">— Warning Only</span>')
+        },
+        {
+          label: '360° Sentry Mode & Dashcam',
+          render: (v) => (v.features?.sentryDashcam ? '<span class="text-emerald-700 font-semibold">✓ Built-in Recording</span>' : '<span class="text-slate-400">— No</span>')
+        },
+        {
+          label: 'Head-Up Display (HUD)',
+          render: (v) => (v.features?.headUpDisplay ? '<span class="text-emerald-700 font-semibold">✓ Windshield HUD</span>' : '<span class="text-slate-400">— No</span>')
+        },
+        {
+          label: 'Driver Instrument Cluster',
+          render: (v) => (v.features?.driverInstrumentCluster !== false ? '<span class="text-emerald-700 font-semibold">✓ Yes</span>' : '<span class="text-amber-600 font-medium">Central Screen Only</span>')
+        },
+        {
+          label: 'Wireless Apple CarPlay / AA',
+          render: (v) => (v.features?.wirelessCarPlay ? '<span class="text-emerald-700 font-semibold">✓ Wireless</span>' : '<span class="text-rose-600 font-semibold">✕ Not Supported</span>')
+        },
+        {
+          label: 'Premium Audio (10+ Spk)',
+          render: (v) => (v.features?.premiumAudio ? '<span class="text-emerald-700 font-semibold">✓ 10+ Spk Premium</span>' : '<span class="text-slate-500">Standard Audio</span>')
+        },
+        {
+          label: 'V2L (Vehicle-to-Load Power)',
+          render: (v) => (v.features?.v2l ? '<span class="text-emerald-700 font-semibold">✓ Yes (240V)</span>' : '<span class="text-slate-400">— No</span>')
         }
       ];
 
@@ -1898,11 +3501,33 @@
         brakedTowingKg: Number(v.brakedTowingKg || (v.towballDownloadKg || 0) * 10),
         groundClearanceMm: Number(v.groundClearanceMm || 170),
         features: {
-          v2l: Boolean(v.features?.v2l),
+          massagingSeats: Boolean(v.features?.massagingSeats),
           ventilatedFrontSeats: Boolean(v.features?.ventilatedFrontSeats),
-          headUpDisplay: Boolean(v.features?.headUpDisplay),
-          wirelessCarPlay: v.features?.wirelessCarPlay !== false,
+          heatedRearSeats: Boolean(v.features?.heatedRearSeats),
+          heatedSteeringWheel: v.features?.heatedSteeringWheel !== false,
+          powerLegRest: Boolean(v.features?.powerLegRest),
+          driverSeatMemory: v.features?.driverSeatMemory !== false,
+          openingSunroof: Boolean(v.features?.openingSunroof),
+          electricSunshade: Boolean(v.features?.electricSunshade),
+          acousticGlass: v.features?.acousticGlass !== false,
+          handsFreeTailgate: v.features?.handsFreeTailgate !== false,
           gloveBox: v.features?.gloveBox !== false,
+          surroundView360: Boolean(v.features?.surroundView360),
+          frontBumperCamera: Boolean(v.features?.frontBumperCamera),
+          digitalRearMirror: Boolean(v.features?.digitalRearMirror),
+          autoParkAssist: Boolean(v.features?.autoParkAssist),
+          activeTrafficAssist: v.features?.activeTrafficAssist !== false,
+          trafficSignRecognition: v.features?.trafficSignRecognition !== false,
+          liveTrafficNav: v.features?.liveTrafficNav !== false,
+          blindSpotCrossTrafficBrake: v.features?.blindSpotCrossTrafficBrake !== false,
+          driverFatigueCamera: v.features?.driverFatigueCamera !== false,
+          sentryDashcam: Boolean(v.features?.sentryDashcam),
+          headUpDisplay: Boolean(v.features?.headUpDisplay),
+          driverInstrumentCluster: v.features?.driverInstrumentCluster !== false,
+          wirelessCarPlay: v.features?.wirelessCarPlay !== false,
+          premiumAudio: Boolean(v.features?.premiumAudio),
+          dualWirelessChargers: Boolean(v.features?.dualWirelessChargers),
+          v2l: Boolean(v.features?.v2l),
           heatPump: v.features?.heatPump !== false
         },
         notes: v.notes || ''
@@ -1926,11 +3551,33 @@
       document.getElementById('formDcKw').value = v.maxDcKw;
       document.getElementById('formTowball').value = v.towballDownloadKg;
       document.getElementById('formClearance').value = v.groundClearanceMm;
-      document.getElementById('formV2l').checked = Boolean(v.features?.v2l);
+      document.getElementById('formMassageSeats').checked = Boolean(v.features?.massagingSeats);
       document.getElementById('formVentSeats').checked = Boolean(v.features?.ventilatedFrontSeats);
-      document.getElementById('formHud').checked = Boolean(v.features?.headUpDisplay);
-      document.getElementById('formCarplay').checked = v.features?.wirelessCarPlay !== false;
+      document.getElementById('formHeatedRearSeats').checked = Boolean(v.features?.heatedRearSeats);
+      document.getElementById('formHeatedWheel').checked = v.features?.heatedSteeringWheel !== false;
+      document.getElementById('formLegRest').checked = Boolean(v.features?.powerLegRest);
+      document.getElementById('formSeatMemory').checked = v.features?.driverSeatMemory !== false;
+      document.getElementById('formOpeningSunroof').checked = Boolean(v.features?.openingSunroof);
+      document.getElementById('formElectricSunshade').checked = Boolean(v.features?.electricSunshade);
+      document.getElementById('formAcousticGlass').checked = v.features?.acousticGlass !== false;
+      document.getElementById('formHandsFreeTailgate').checked = v.features?.handsFreeTailgate !== false;
       document.getElementById('formGlovebox').checked = v.features?.gloveBox !== false;
+      document.getElementById('formSurround360').checked = Boolean(v.features?.surroundView360);
+      document.getElementById('formFrontCamera').checked = Boolean(v.features?.frontBumperCamera);
+      document.getElementById('formDigitalMirror').checked = Boolean(v.features?.digitalRearMirror);
+      document.getElementById('formAutoPark').checked = Boolean(v.features?.autoParkAssist);
+      document.getElementById('formTrafficAssist').checked = v.features?.activeTrafficAssist !== false;
+      document.getElementById('formTrafficSign').checked = v.features?.trafficSignRecognition !== false;
+      document.getElementById('formLiveTraffic').checked = v.features?.liveTrafficNav !== false;
+      document.getElementById('formBlindSpotBrake').checked = v.features?.blindSpotCrossTrafficBrake !== false;
+      document.getElementById('formDriverFatigue').checked = v.features?.driverFatigueCamera !== false;
+      document.getElementById('formSentryDashcam').checked = Boolean(v.features?.sentryDashcam);
+      document.getElementById('formHud').checked = Boolean(v.features?.headUpDisplay);
+      document.getElementById('formDriverCluster').checked = v.features?.driverInstrumentCluster !== false;
+      document.getElementById('formCarplay').checked = v.features?.wirelessCarPlay !== false;
+      document.getElementById('formPremiumAudio').checked = Boolean(v.features?.premiumAudio);
+      document.getElementById('formDualWireless').checked = Boolean(v.features?.dualWirelessChargers);
+      document.getElementById('formV2l').checked = Boolean(v.features?.v2l);
       document.getElementById('formHeatPump').checked = v.features?.heatPump !== false;
       document.getElementById('formNotes').value = v.notes || '';
 
@@ -1955,6 +3602,9 @@
       state.fbtOnly = false;
       state.minRangeOnly = false;
       state.towCapableOnly = false;
+      state.surround360Only = false;
+      state.massageSeatsOnly = false;
+      state.sunshadeOnly = false;
 
       document.getElementById('searchInput').value = '';
       document.getElementById('makeFilter').value = '';
@@ -1964,6 +3614,9 @@
       document.getElementById('fbtOnlyFilter').checked = false;
       document.getElementById('minRangeFilter').checked = false;
       document.getElementById('towCapableOnlyFilter').checked = false;
+      document.getElementById('surround360OnlyFilter').checked = false;
+      document.getElementById('massageSeatsOnlyFilter').checked = false;
+      document.getElementById('sunshadeOnlyFilter').checked = false;
 
       renderVehicleCards();
     };
@@ -1998,11 +3651,18 @@
         btn.addEventListener('click', () => {
           const preset = btn.getAttribute('data-preset');
           if (preset === 'adventure') {
-            BUYER_FEATURE_CRITERIA.forEach((f) => (f.checked = true));
-            showToast('Preset applied: Adventure & Towing (All 9 utility & luxury features scored)');
+            BUYER_FEATURE_CRITERIA.forEach((f) => {
+              f.checked = ['towbar100', 'heavyTow150', 'awd', 'clearance', 'v2l', 'surround360', 'digitalMirror', 'trafficAssist', 'blindSpotBrake'].includes(f.id);
+            });
+            showToast('Preset applied: Adventure & Towing (Towball, AWD, Clearance, V2L & 360° Cameras prioritized)');
+          } else if (preset === 'luxury') {
+            BUYER_FEATURE_CRITERIA.forEach((f) => {
+              f.checked = ['massageSeats', 'ventilatedSeats', 'heatedRearSeats', 'legRestOttoman', 'openingSunroof', 'electricSunshade', 'acousticGlass', 'surround360', 'hud', 'premiumAudio', 'carplay'].includes(f.id);
+            });
+            showToast('Preset applied: Cabin Luxury & 360° Tech (Massaging/ventilated seats, sunroof, HUD & 360° cam)');
           } else if (preset === 'urban') {
             BUYER_FEATURE_CRITERIA.forEach((f) => {
-              f.checked = !['towbar100', 'heavyTow150', 'awd', 'clearance'].includes(f.id);
+              f.checked = !['towbar100', 'heavyTow150', 'awd', 'clearance', 'digitalMirror'].includes(f.id);
             });
             showToast('Preset applied: Urban / Family (Towbar, AWD & Clearance penalties removed)');
           } else if (preset === 'value') {
@@ -2011,6 +3671,30 @@
           }
           refreshAll();
         });
+      });
+
+      // Category Filter Tabs inside Scoring Matrix
+      document.querySelectorAll('.feat-cat-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          state.activeFeatureCategory = btn.getAttribute('data-cat');
+          document.querySelectorAll('.feat-cat-btn').forEach((b) => {
+            b.className =
+              b === btn
+                ? 'feat-cat-btn px-3 py-1.5 rounded-xl font-semibold bg-indigo-600 text-white shadow-2xs cursor-pointer'
+                : 'feat-cat-btn px-3 py-1.5 rounded-xl font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer';
+          });
+          renderFeatureToggles();
+        });
+      });
+
+      document.getElementById('checkAllFeaturesBtn').addEventListener('click', () => {
+        BUYER_FEATURE_CRITERIA.forEach((f) => (f.checked = true));
+        refreshAll();
+      });
+
+      document.getElementById('uncheckAllFeaturesBtn').addEventListener('click', () => {
+        BUYER_FEATURE_CRITERIA.forEach((f) => (f.checked = false));
+        refreshAll();
       });
 
       // Quick Rival Dropdown
@@ -2080,6 +3764,21 @@
         renderVehicleCards();
       });
 
+      document.getElementById('surround360OnlyFilter').addEventListener('change', (e) => {
+        state.surround360Only = e.target.checked;
+        renderVehicleCards();
+      });
+
+      document.getElementById('massageSeatsOnlyFilter').addEventListener('change', (e) => {
+        state.massageSeatsOnly = e.target.checked;
+        renderVehicleCards();
+      });
+
+      document.getElementById('sunshadeOnlyFilter').addEventListener('change', (e) => {
+        state.sunshadeOnly = e.target.checked;
+        renderVehicleCards();
+      });
+
       document.getElementById('resetFiltersBtn').addEventListener('click', window.resetAllFilters);
 
       // Add / Edit Modal Controls
@@ -2124,11 +3823,33 @@
           brakedTowingKg: Number(document.getElementById('formTowball').value) * 10,
           groundClearanceMm: Number(document.getElementById('formClearance').value),
           features: {
-            v2l: document.getElementById('formV2l').checked,
+            massagingSeats: document.getElementById('formMassageSeats').checked,
             ventilatedFrontSeats: document.getElementById('formVentSeats').checked,
-            headUpDisplay: document.getElementById('formHud').checked,
-            wirelessCarPlay: document.getElementById('formCarplay').checked,
+            heatedRearSeats: document.getElementById('formHeatedRearSeats').checked,
+            heatedSteeringWheel: document.getElementById('formHeatedWheel').checked,
+            powerLegRest: document.getElementById('formLegRest').checked,
+            driverSeatMemory: document.getElementById('formSeatMemory').checked,
+            openingSunroof: document.getElementById('formOpeningSunroof').checked,
+            electricSunshade: document.getElementById('formElectricSunshade').checked,
+            acousticGlass: document.getElementById('formAcousticGlass').checked,
+            handsFreeTailgate: document.getElementById('formHandsFreeTailgate').checked,
             gloveBox: document.getElementById('formGlovebox').checked,
+            surroundView360: document.getElementById('formSurround360').checked,
+            frontBumperCamera: document.getElementById('formFrontCamera').checked,
+            digitalRearMirror: document.getElementById('formDigitalMirror').checked,
+            autoParkAssist: document.getElementById('formAutoPark').checked,
+            activeTrafficAssist: document.getElementById('formTrafficAssist').checked,
+            trafficSignRecognition: document.getElementById('formTrafficSign').checked,
+            liveTrafficNav: document.getElementById('formLiveTraffic').checked,
+            blindSpotCrossTrafficBrake: document.getElementById('formBlindSpotBrake').checked,
+            driverFatigueCamera: document.getElementById('formDriverFatigue').checked,
+            sentryDashcam: document.getElementById('formSentryDashcam').checked,
+            headUpDisplay: document.getElementById('formHud').checked,
+            driverInstrumentCluster: document.getElementById('formDriverCluster').checked,
+            wirelessCarPlay: document.getElementById('formCarplay').checked,
+            premiumAudio: document.getElementById('formPremiumAudio').checked,
+            dualWirelessChargers: document.getElementById('formDualWireless').checked,
+            v2l: document.getElementById('formV2l').checked,
             heatPump: document.getElementById('formHeatPump').checked
           },
           notes: document.getElementById('formNotes').value.trim()
