@@ -38,10 +38,10 @@
         </div>
       </div>
 
-      <div class="flex items-center gap-2 flex-wrap">
+        <div class="flex items-center gap-2 flex-wrap">
         <button id="apiConfigBtn" type="button" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold flex items-center gap-2 transition cursor-pointer">
           <span id="statusDot" class="w-2 h-2 rounded-full bg-amber-400"></span>
-          <span id="statusLabel">AU Catalog (42 EVs)</span>
+          <span id="statusLabel">AU Catalog (52 EVs)</span>
         </button>
         <button id="syncApiBtn" type="button" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-slate-200 transition cursor-pointer">
           ↻ Sync
@@ -137,19 +137,29 @@
         </div>
       </div>
 
-      <!-- NSW Drive-Away Price Slider & Must-Have Toggle Chips -->
+      <!-- External Search Destination & NSW Drive-Away Price Slider -->
       <div class="flex flex-wrap items-center justify-between gap-4 pt-2 border-t border-slate-100">
         <div class="flex-1 min-w-[240px] max-w-md space-y-1">
           <div class="flex items-center justify-between text-xs">
-            <span class="font-bold text-slate-700">Max NSW Drive-Away: <span id="priceValueLabel" class="text-emerald-700 font-extrabold">$110,000</span></span>
+            <span class="font-bold text-slate-700">Max NSW Drive-Away: <span id="priceValueLabel" class="text-emerald-700 font-extrabold">$165,000</span></span>
             <div class="flex gap-1">
               <button type="button" data-price="55000" class="price-preset px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-[11px] font-semibold cursor-pointer">$55k</button>
               <button type="button" data-price="80000" class="price-preset px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-[11px] font-semibold cursor-pointer">$80k</button>
               <button type="button" data-price="91387" class="price-preset px-2 py-0.5 rounded bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-[11px] font-semibold cursor-pointer">$91.3k LCT</button>
-              <button type="button" data-price="110000" class="price-preset px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-[11px] font-semibold cursor-pointer">All</button>
+              <button type="button" data-price="165000" class="price-preset px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-[11px] font-semibold cursor-pointer">All</button>
             </div>
           </div>
-          <input id="priceRange" type="range" min="35000" max="110000" step="1000" value="110000" class="w-full accent-emerald-600 cursor-pointer" />
+          <input id="priceRange" type="range" min="30000" max="165000" step="1000" value="165000" class="w-full accent-emerald-600 cursor-pointer" />
+        </div>
+
+        <!-- Preferred External Website Selector -->
+        <div class="flex items-center gap-2 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200 text-xs">
+          <label for="externalSiteSelect" class="font-bold text-slate-700 whitespace-nowrap">🔎 Card Link:</label>
+          <select id="externalSiteSelect" class="px-2.5 py-1 rounded-lg border border-slate-300 bg-white font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+            <option value="carsales">Carsales NSW (Listings)</option>
+            <option value="drive">Drive.com.au (Reviews & Specs)</option>
+            <option value="brand">Official Brand Website (AU)</option>
+          </select>
         </div>
 
         <!-- Hard Filter Pills -->
@@ -411,7 +421,7 @@
         <div class="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-slate-200">
           <button id="useEmbeddedBtn" type="button" class="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold cursor-pointer">Disconnect Cloud</button>
           <div class="flex gap-2">
-            <button id="seedSupabaseBtn" type="button" class="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold cursor-pointer">Push All 42 EVs to Supabase</button>
+            <button id="seedSupabaseBtn" type="button" class="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold cursor-pointer">Push Full AU Catalog to Supabase</button>
             <button id="connectApiBtn" type="button" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold cursor-pointer">Save & Sync</button>
           </div>
         </div>
@@ -489,7 +499,7 @@
       { id: 'heatPump', cat: 'tech', label: 'Heat Pump Efficiency', pts: 4, check: (v) => Boolean(v.features?.heatPump) }
     ];
 
-    // 2. Comprehensive 42-Vehicle 2026 Australian EV Catalog
+    // 2. Comprehensive 52-Vehicle 2026 Australian EV Catalog (All Major AU Brands & Segments)
     const DEFAULT_AU_EVS = [
       {
         id: 'subaru-trailseeker-awd-touring-2026',
@@ -1246,6 +1256,276 @@
           driverAttentionMonitor: true, sentryDashcam: false, headUpDisplay: false, driverInstrumentCluster: true,
           wirelessCarPlay: true, premiumAudio10Plus: true, dualWirelessChargers: false, v2l: false, v2lWatts: 0, heatPump: true
         }
+      },
+      {
+        id: 'geely-ex5-complete-fwd-2026',
+        make: 'Geely', model: 'EX5', variant: 'Complete FWD', year: 2026,
+        drivetrain: 'FWD', bodyType: 'Mid-Size SUV', nswDriveAwayAud: 43990,
+        powerKw: 160, torqueNm: 320, zeroToHundredSec: 7.4, batteryKwh: 68.4,
+        wltpRangeKm: 465, maxDcKw: 100, maxAcKw: 11, groundClearanceMm: 168,
+        towballDownloadKg: 0, brakedTowingKg: 0, bootLitres: 410, frunkLitres: 0,
+        notes: 'Entry-grade Geely EX5 under $45k drive-away with 465km WLTP range, heated front seats, 360 camera, wireless CarPlay, and 3.3kW V2L.',
+        features: {
+          massagingSeats: false, ventilatedFrontSeats: false, heatedFrontSeats: true, heatedRearSeats: false,
+          heatedSteeringWheel: false, powerLegRest: false, panoramicRoof: false, openingSunroof: false,
+          powerSunshade: false, acousticGlass: false, handsFreeTailgate: false, gloveBox: true,
+          surroundView360: true, frontBumperCamera: true, digitalRearMirror: false, autoParkAssist: false,
+          adaptiveCruiseLaneCenter: true, trafficSignRecognition: true, liveTrafficNav: true, blindSpotRctaBrake: true,
+          driverAttentionMonitor: true, sentryDashcam: false, headUpDisplay: false, driverInstrumentCluster: true,
+          wirelessCarPlay: true, premiumAudio10Plus: false, dualWirelessChargers: false, v2l: true, v2lWatts: 3300, heatPump: true
+        }
+      },
+      {
+        id: 'mg-s5-ev-essence-rwd-2026',
+        make: 'MG', model: 'S5 EV', variant: 'Essence 62 RWD', year: 2026,
+        drivetrain: 'RWD', bodyType: 'Compact SUV', nswDriveAwayAud: 44990,
+        powerKw: 125, torqueNm: 250, zeroToHundredSec: 8.0, batteryKwh: 62.2,
+        wltpRangeKm: 425, maxDcKw: 150, maxAcKw: 7, groundClearanceMm: 165,
+        towballDownloadKg: 75, brakedTowingKg: 750, bootLitres: 453, frunkLitres: 0,
+        notes: 'Successor to ZS EV built on MG4 RWD platform with 150kW DC fast charging, 360 camera, opening sunroof, and wireless CarPlay.',
+        features: {
+          massagingSeats: false, ventilatedFrontSeats: false, heatedFrontSeats: true, heatedRearSeats: false,
+          heatedSteeringWheel: true, powerLegRest: false, panoramicRoof: true, openingSunroof: true,
+          powerSunshade: true, acousticGlass: false, handsFreeTailgate: true, gloveBox: true,
+          surroundView360: true, frontBumperCamera: true, digitalRearMirror: false, autoParkAssist: false,
+          adaptiveCruiseLaneCenter: true, trafficSignRecognition: true, liveTrafficNav: true, blindSpotRctaBrake: true,
+          driverAttentionMonitor: true, sentryDashcam: false, headUpDisplay: false, driverInstrumentCluster: true,
+          wirelessCarPlay: true, premiumAudio10Plus: false, dualWirelessChargers: false, v2l: true, v2lWatts: 2200, heatPump: true
+        }
+      },
+      {
+        id: 'byd-atto-1-essential-fwd-2026',
+        make: 'BYD', model: 'Atto 1', variant: 'Extended FWD', year: 2026,
+        drivetrain: 'FWD', bodyType: 'Hatchback', nswDriveAwayAud: 32990,
+        powerKw: 65, torqueNm: 175, zeroToHundredSec: 11.2, batteryKwh: 43.2,
+        wltpRangeKm: 345, maxDcKw: 65, maxAcKw: 7, groundClearanceMm: 145,
+        towballDownloadKg: 0, brakedTowingKg: 0, bootLitres: 308, frunkLitres: 0,
+        notes: 'Australia’s most affordable new EV under $33k drive-away with Blade LFP battery, 360 camera, wireless CarPlay, and V2L.',
+        features: {
+          massagingSeats: false, ventilatedFrontSeats: false, heatedFrontSeats: true, heatedRearSeats: false,
+          heatedSteeringWheel: false, powerLegRest: false, panoramicRoof: false, openingSunroof: false,
+          powerSunshade: false, acousticGlass: false, handsFreeTailgate: false, gloveBox: true,
+          surroundView360: true, frontBumperCamera: true, digitalRearMirror: false, autoParkAssist: false,
+          adaptiveCruiseLaneCenter: true, trafficSignRecognition: true, liveTrafficNav: true, blindSpotRctaBrake: true,
+          driverAttentionMonitor: false, sentryDashcam: false, headUpDisplay: false, driverInstrumentCluster: true,
+          wirelessCarPlay: true, premiumAudio10Plus: false, dualWirelessChargers: false, v2l: true, v2lWatts: 2200, heatPump: true
+        }
+      },
+      {
+        id: 'vw-id4-pro-rwd-2026',
+        make: 'Volkswagen', model: 'ID.4', variant: 'Pro RWD', year: 2026,
+        drivetrain: 'RWD', bodyType: 'Mid-Size SUV', nswDriveAwayAud: 64990,
+        powerKw: 210, torqueNm: 545, zeroToHundredSec: 6.7, batteryKwh: 77.0,
+        wltpRangeKm: 544, maxDcKw: 175, maxAcKw: 11, groundClearanceMm: 163,
+        towballDownloadKg: 75, brakedTowingKg: 1000, bootLitres: 543, frunkLitres: 0,
+        notes: 'German-built mid-size SUV with 544km WLTP range, 545Nm rear motor, massaging ergoActive seats, 360 camera, and 543L boot.',
+        features: {
+          massagingSeats: true, ventilatedFrontSeats: false, heatedFrontSeats: true, heatedRearSeats: false,
+          heatedSteeringWheel: true, powerLegRest: false, panoramicRoof: true, openingSunroof: false,
+          powerSunshade: true, acousticGlass: true, handsFreeTailgate: true, gloveBox: true,
+          surroundView360: true, frontBumperCamera: true, digitalRearMirror: false, autoParkAssist: true,
+          adaptiveCruiseLaneCenter: true, trafficSignRecognition: true, liveTrafficNav: true, blindSpotRctaBrake: true,
+          driverAttentionMonitor: true, sentryDashcam: false, headUpDisplay: false, driverInstrumentCluster: true,
+          wirelessCarPlay: true, premiumAudio10Plus: false, dualWirelessChargers: false, v2l: false, v2lWatts: 0, heatPump: false
+        }
+      },
+      {
+        id: 'vw-id5-gtx-awd-2026',
+        make: 'Volkswagen', model: 'ID.5', variant: 'GTX Performance AWD', year: 2026,
+        drivetrain: 'AWD', bodyType: 'Mid-Size SUV', nswDriveAwayAud: 76990,
+        powerKw: 250, torqueNm: 679, zeroToHundredSec: 5.4, batteryKwh: 79.0,
+        wltpRangeKm: 522, maxDcKw: 185, maxAcKw: 11, groundClearanceMm: 165,
+        towballDownloadKg: 75, brakedTowingKg: 1200, bootLitres: 549, frunkLitres: 0,
+        notes: 'Dual-motor AWD coupe-SUV with adaptive suspension, AR-HUD, massaging sports seats, Harman Kardon audio, and 549L boot.',
+        features: {
+          massagingSeats: true, ventilatedFrontSeats: false, heatedFrontSeats: true, heatedRearSeats: false,
+          heatedSteeringWheel: true, powerLegRest: false, panoramicRoof: true, openingSunroof: false,
+          powerSunshade: true, acousticGlass: true, handsFreeTailgate: true, gloveBox: true,
+          surroundView360: true, frontBumperCamera: true, digitalRearMirror: false, autoParkAssist: true,
+          adaptiveCruiseLaneCenter: true, trafficSignRecognition: true, liveTrafficNav: true, blindSpotRctaBrake: true,
+          driverAttentionMonitor: true, sentryDashcam: false, headUpDisplay: true, driverInstrumentCluster: true,
+          wirelessCarPlay: true, premiumAudio10Plus: true, dualWirelessChargers: false, v2l: false, v2lWatts: 0, heatPump: false
+        }
+      },
+      {
+        id: 'ford-mustang-mach-e-premium-rwd-2026',
+        make: 'Ford', model: 'Mustang Mach-E', variant: 'Premium Extended Range RWD', year: 2026,
+        drivetrain: 'RWD', bodyType: 'Mid-Size SUV', nswDriveAwayAud: 72990,
+        powerKw: 216, torqueNm: 430, zeroToHundredSec: 6.2, batteryKwh: 91.0,
+        wltpRangeKm: 600, maxDcKw: 150, maxAcKw: 11, groundClearanceMm: 147,
+        towballDownloadKg: 75, brakedTowingKg: 1500, bootLitres: 402, frunkLitres: 134,
+        notes: '91kWh long-range battery delivering 600km WLTP range, 134L drainable frunk, 10-speaker B&O audio, and 360 surround camera.',
+        features: {
+          massagingSeats: false, ventilatedFrontSeats: false, heatedFrontSeats: true, heatedRearSeats: false,
+          heatedSteeringWheel: true, powerLegRest: false, panoramicRoof: true, openingSunroof: false,
+          powerSunshade: false, acousticGlass: true, handsFreeTailgate: true, gloveBox: true,
+          surroundView360: true, frontBumperCamera: true, digitalRearMirror: false, autoParkAssist: true,
+          adaptiveCruiseLaneCenter: true, trafficSignRecognition: true, liveTrafficNav: true, blindSpotRctaBrake: true,
+          driverAttentionMonitor: true, sentryDashcam: false, headUpDisplay: false, driverInstrumentCluster: true,
+          wirelessCarPlay: true, premiumAudio10Plus: true, dualWirelessChargers: false, v2l: false, v2lWatts: 0, heatPump: false
+        }
+      },
+      {
+        id: 'audi-q4-etron-45-rwd-2026',
+        make: 'Audi', model: 'Q4 e-tron', variant: '45 RWD', year: 2026,
+        drivetrain: 'RWD', bodyType: 'Mid-Size SUV', nswDriveAwayAud: 88900,
+        powerKw: 210, torqueNm: 545, zeroToHundredSec: 6.7, batteryKwh: 77.0,
+        wltpRangeKm: 528, maxDcKw: 175, maxAcKw: 11, groundClearanceMm: 180,
+        towballDownloadKg: 75, brakedTowingKg: 1000, bootLitres: 520, frunkLitres: 0,
+        notes: 'FBT-exempt luxury Audi SUV priced just below the $91,387 LCT cap with 528km WLTP range, Sonos 10-speaker sound, and 360 camera.',
+        features: {
+          massagingSeats: false, ventilatedFrontSeats: false, heatedFrontSeats: true, heatedRearSeats: false,
+          heatedSteeringWheel: true, powerLegRest: false, panoramicRoof: false, openingSunroof: true,
+          powerSunshade: true, acousticGlass: true, handsFreeTailgate: true, gloveBox: true,
+          surroundView360: true, frontBumperCamera: true, digitalRearMirror: false, autoParkAssist: true,
+          adaptiveCruiseLaneCenter: true, trafficSignRecognition: true, liveTrafficNav: true, blindSpotRctaBrake: true,
+          driverAttentionMonitor: true, sentryDashcam: false, headUpDisplay: false, driverInstrumentCluster: true,
+          wirelessCarPlay: true, premiumAudio10Plus: true, dualWirelessChargers: false, v2l: false, v2lWatts: 0, heatPump: true
+        }
+      },
+      {
+        id: 'mercedes-eqa-250-plus-fwd-2026',
+        make: 'Mercedes-Benz', model: 'EQA', variant: '250+ City Edition FWD', year: 2026,
+        drivetrain: 'FWD', bodyType: 'Compact SUV', nswDriveAwayAud: 89900,
+        powerKw: 140, torqueNm: 385, zeroToHundredSec: 8.6, batteryKwh: 70.5,
+        wltpRangeKm: 560, maxDcKw: 100, maxAcKw: 11, groundClearanceMm: 154,
+        towballDownloadKg: 75, brakedTowingKg: 750, bootLitres: 340, frunkLitres: 0,
+        notes: 'FBT-exempt Mercedes-Benz under $91,387 LCT with 560km WLTP range, MBUX dual screens, 360 camera, and opening panoramic sunroof.',
+        features: {
+          massagingSeats: false, ventilatedFrontSeats: false, heatedFrontSeats: true, heatedRearSeats: false,
+          heatedSteeringWheel: false, powerLegRest: false, panoramicRoof: true, openingSunroof: true,
+          powerSunshade: true, acousticGlass: true, handsFreeTailgate: true, gloveBox: true,
+          surroundView360: true, frontBumperCamera: true, digitalRearMirror: false, autoParkAssist: true,
+          adaptiveCruiseLaneCenter: true, trafficSignRecognition: true, liveTrafficNav: true, blindSpotRctaBrake: true,
+          driverAttentionMonitor: true, sentryDashcam: false, headUpDisplay: false, driverInstrumentCluster: true,
+          wirelessCarPlay: true, premiumAudio10Plus: false, dualWirelessChargers: false, v2l: false, v2lWatts: 0, heatPump: true
+        }
+      },
+      {
+        id: 'mini-countryman-se-all4-awd-2026',
+        make: 'Mini', model: 'Countryman', variant: 'SE ALL4 Favoured AWD', year: 2026,
+        drivetrain: 'AWD', bodyType: 'Compact SUV', nswDriveAwayAud: 76990,
+        powerKw: 230, torqueNm: 494, zeroToHundredSec: 5.6, batteryKwh: 64.7,
+        wltpRangeKm: 433, maxDcKw: 130, maxAcKw: 22, groundClearanceMm: 165,
+        towballDownloadKg: 75, brakedTowingKg: 1200, bootLitres: 460, frunkLitres: 0,
+        notes: 'Shares BMW iX1 AWD powertrain with 22kW AC charging, OLED circular display, HUD, Harman Kardon audio, and massaging driver seat.',
+        features: {
+          massagingSeats: true, ventilatedFrontSeats: false, heatedFrontSeats: true, heatedRearSeats: false,
+          heatedSteeringWheel: true, powerLegRest: false, panoramicRoof: true, openingSunroof: false,
+          powerSunshade: true, acousticGlass: true, handsFreeTailgate: true, gloveBox: true,
+          surroundView360: true, frontBumperCamera: true, digitalRearMirror: false, autoParkAssist: true,
+          adaptiveCruiseLaneCenter: true, trafficSignRecognition: true, liveTrafficNav: true, blindSpotRctaBrake: true,
+          driverAttentionMonitor: true, sentryDashcam: false, headUpDisplay: true, driverInstrumentCluster: false,
+          wirelessCarPlay: true, premiumAudio10Plus: true, dualWirelessChargers: false, v2l: false, v2lWatts: 0, heatPump: true
+        }
+      },
+      {
+        id: 'renault-megane-etech-techno-fwd-2026',
+        make: 'Renault', model: 'Megane E-Tech', variant: 'Techno EV60 FWD', year: 2026,
+        drivetrain: 'FWD', bodyType: 'Compact SUV', nswDriveAwayAud: 54990,
+        powerKw: 160, torqueNm: 300, zeroToHundredSec: 7.4, batteryKwh: 60.0,
+        wltpRangeKm: 454, maxDcKw: 130, maxAcKw: 22, groundClearanceMm: 135,
+        towballDownloadKg: 75, brakedTowingKg: 900, bootLitres: 440, frunkLitres: 0,
+        notes: 'French-built lightweight EV with 22kW 3-phase AC charging, Google built-in OS, digital rear-view mirror, and 360 camera.',
+        features: {
+          massagingSeats: false, ventilatedFrontSeats: false, heatedFrontSeats: true, heatedRearSeats: false,
+          heatedSteeringWheel: true, powerLegRest: false, panoramicRoof: false, openingSunroof: false,
+          powerSunshade: false, acousticGlass: true, handsFreeTailgate: false, gloveBox: true,
+          surroundView360: true, frontBumperCamera: true, digitalRearMirror: true, autoParkAssist: false,
+          adaptiveCruiseLaneCenter: true, trafficSignRecognition: true, liveTrafficNav: true, blindSpotRctaBrake: true,
+          driverAttentionMonitor: true, sentryDashcam: false, headUpDisplay: false, driverInstrumentCluster: true,
+          wirelessCarPlay: true, premiumAudio10Plus: false, dualWirelessChargers: false, v2l: false, v2lWatts: 0, heatPump: true
+        }
+      },
+      {
+        id: 'peugeot-e2008-gt-fwd-2026',
+        make: 'Peugeot', model: 'E-2008', variant: 'GT FWD', year: 2026,
+        drivetrain: 'FWD', bodyType: 'Compact SUV', nswDriveAwayAud: 54990,
+        powerKw: 115, torqueNm: 260, zeroToHundredSec: 9.1, batteryKwh: 54.0,
+        wltpRangeKm: 406, maxDcKw: 100, maxAcKw: 11, groundClearanceMm: 170,
+        towballDownloadKg: 0, brakedTowingKg: 0, bootLitres: 434, frunkLitres: 0,
+        notes: 'Stylish European compact SUV with 3D i-Cockpit cluster, massaging Alcantara driver seat, 360 camera, and opening sunroof.',
+        features: {
+          massagingSeats: true, ventilatedFrontSeats: false, heatedFrontSeats: true, heatedRearSeats: false,
+          heatedSteeringWheel: false, powerLegRest: false, panoramicRoof: true, openingSunroof: true,
+          powerSunshade: true, acousticGlass: false, handsFreeTailgate: false, gloveBox: true,
+          surroundView360: true, frontBumperCamera: true, digitalRearMirror: false, autoParkAssist: false,
+          adaptiveCruiseLaneCenter: true, trafficSignRecognition: true, liveTrafficNav: true, blindSpotRctaBrake: true,
+          driverAttentionMonitor: true, sentryDashcam: false, headUpDisplay: false, driverInstrumentCluster: true,
+          wirelessCarPlay: true, premiumAudio10Plus: false, dualWirelessChargers: false, v2l: false, v2lWatts: 0, heatPump: true
+        }
+      },
+      {
+        id: 'kia-ev9-gt-line-awd-2026',
+        make: 'Kia', model: 'EV9', variant: 'GT-Line 7-Seat AWD', year: 2026,
+        drivetrain: 'AWD', bodyType: 'Large SUV', nswDriveAwayAud: 126500,
+        powerKw: 283, torqueNm: 700, zeroToHundredSec: 5.3, batteryKwh: 99.8,
+        wltpRangeKm: 505, maxDcKw: 210, maxAcKw: 11, groundClearanceMm: 177,
+        towballDownloadKg: 125, brakedTowingKg: 2500, bootLitres: 828, frunkLitres: 52,
+        notes: 'Flagship 7-seat 800V family SUV (above LCT threshold) with 2,500kg towing, massaging/ventilated seats, HUD, and 14-speaker Meridian sound.',
+        features: {
+          massagingSeats: true, ventilatedFrontSeats: true, heatedFrontSeats: true, heatedRearSeats: true,
+          heatedSteeringWheel: true, powerLegRest: true, panoramicRoof: true, openingSunroof: true,
+          powerSunshade: true, acousticGlass: true, handsFreeTailgate: true, gloveBox: true,
+          surroundView360: true, frontBumperCamera: true, digitalRearMirror: true, autoParkAssist: true,
+          adaptiveCruiseLaneCenter: true, trafficSignRecognition: true, liveTrafficNav: true, blindSpotRctaBrake: true,
+          driverAttentionMonitor: true, sentryDashcam: false, headUpDisplay: true, driverInstrumentCluster: true,
+          wirelessCarPlay: true, premiumAudio10Plus: true, dualWirelessChargers: false, v2l: true, v2lWatts: 3600, heatPump: true
+        }
+      },
+      {
+        id: 'hyundai-ioniq-9-calligraphy-awd-2026',
+        make: 'Hyundai', model: 'IONIQ 9', variant: 'Calligraphy 7-Seat AWD', year: 2026,
+        drivetrain: 'AWD', bodyType: 'Large SUV', nswDriveAwayAud: 129900,
+        powerKw: 280, torqueNm: 700, zeroToHundredSec: 5.2, batteryKwh: 110.3,
+        wltpRangeKm: 600, maxDcKw: 233, maxAcKw: 11, groundClearanceMm: 174,
+        towballDownloadKg: 125, brakedTowingKg: 2500, bootLitres: 908, frunkLitres: 52,
+        notes: '110.3kWh 3-row 800V SUV (above LCT threshold) with 600km WLTP range, 2,500kg towing, relaxation massage seats, and Bose 14-speaker sound.',
+        features: {
+          massagingSeats: true, ventilatedFrontSeats: true, heatedFrontSeats: true, heatedRearSeats: true,
+          heatedSteeringWheel: true, powerLegRest: true, panoramicRoof: true, openingSunroof: true,
+          powerSunshade: true, acousticGlass: true, handsFreeTailgate: true, gloveBox: true,
+          surroundView360: true, frontBumperCamera: true, digitalRearMirror: true, autoParkAssist: true,
+          adaptiveCruiseLaneCenter: true, trafficSignRecognition: true, liveTrafficNav: true, blindSpotRctaBrake: true,
+          driverAttentionMonitor: true, sentryDashcam: false, headUpDisplay: true, driverInstrumentCluster: true,
+          wirelessCarPlay: true, premiumAudio10Plus: true, dualWirelessChargers: false, v2l: true, v2lWatts: 3600, heatPump: true
+        }
+      },
+      {
+        id: 'polestar-3-long-range-dual-motor-awd-2026',
+        make: 'Polestar', model: '3', variant: 'Long Range Dual Motor AWD', year: 2026,
+        drivetrain: 'AWD', bodyType: 'Large SUV', nswDriveAwayAud: 138500,
+        powerKw: 360, torqueNm: 840, zeroToHundredSec: 5.0, batteryKwh: 111.0,
+        wltpRangeKm: 610, maxDcKw: 250, maxAcKw: 11, groundClearanceMm: 201,
+        towballDownloadKg: 100, brakedTowingKg: 2200, bootLitres: 484, frunkLitres: 32,
+        notes: '111kWh luxury performance SUV (above LCT threshold) with adaptive air suspension (201mm clearance), 25-speaker Bowers & Wilkins audio, and HUD.',
+        features: {
+          massagingSeats: true, ventilatedFrontSeats: true, heatedFrontSeats: true, heatedRearSeats: true,
+          heatedSteeringWheel: true, powerLegRest: false, panoramicRoof: true, openingSunroof: false,
+          powerSunshade: false, acousticGlass: true, handsFreeTailgate: true, gloveBox: true,
+          surroundView360: true, frontBumperCamera: true, digitalRearMirror: false, autoParkAssist: true,
+          adaptiveCruiseLaneCenter: true, trafficSignRecognition: true, liveTrafficNav: true, blindSpotRctaBrake: true,
+          driverAttentionMonitor: true, sentryDashcam: false, headUpDisplay: true, driverInstrumentCluster: true,
+          wirelessCarPlay: true, premiumAudio10Plus: true, dualWirelessChargers: false, v2l: false, v2lWatts: 0, heatPump: true
+        }
+      },
+      {
+        id: 'zeekr-009-awd-2026',
+        make: 'Zeekr', model: '009', variant: '7-Seat Luxury MPV AWD', year: 2026,
+        drivetrain: 'AWD', bodyType: 'Large SUV', nswDriveAwayAud: 145900,
+        powerKw: 450, torqueNm: 693, zeroToHundredSec: 4.5, batteryKwh: 116.0,
+        wltpRangeKm: 582, maxDcKw: 205, maxAcKw: 11, groundClearanceMm: 150,
+        towballDownloadKg: 0, brakedTowingKg: 0, bootLitres: 574, frunkLitres: 29,
+        notes: 'Executive 7-seat luxury EV (above LCT threshold) with 116kWh battery, captain massage chairs, 30-speaker Yamaha audio, and air suspension.',
+        features: {
+          massagingSeats: true, ventilatedFrontSeats: true, heatedFrontSeats: true, heatedRearSeats: true,
+          heatedSteeringWheel: true, powerLegRest: true, panoramicRoof: true, openingSunroof: false,
+          powerSunshade: true, acousticGlass: true, handsFreeTailgate: true, gloveBox: true,
+          surroundView360: true, frontBumperCamera: true, digitalRearMirror: false, autoParkAssist: true,
+          adaptiveCruiseLaneCenter: true, trafficSignRecognition: true, liveTrafficNav: true, blindSpotRctaBrake: true,
+          driverAttentionMonitor: true, sentryDashcam: true, headUpDisplay: true, driverInstrumentCluster: true,
+          wirelessCarPlay: true, premiumAudio10Plus: true, dualWirelessChargers: true, v2l: true, v2lWatts: 3300, heatPump: true
+        }
       }
     ];
 
@@ -1263,7 +1543,7 @@
       search: '',
       make: '',
       drivetrain: '',
-      maxPrice: 110000,
+      maxPrice: 165000,
       fbtOnly: false,
       minRangeOnly: false,
       towCapableOnly: false,
@@ -1284,11 +1564,69 @@
       adminPin: savedSupabaseCfg.adminPin || DEFAULT_SUPABASE_CONFIG.adminPin,
       isAdmin: sessionStorage.getItem(ADMIN_SESSION_STORAGE_KEY) === 'true',
       apiBaseUrl: savedSupabaseCfg.apiBaseUrl || '',
-      supabaseConnected: false
+      supabaseConnected: false,
+      preferredExternalSite: 'carsales'
     };
 
     const formatAud = (val) =>
       new Intl.NumberFormat('en-AU', { style: 'currency', currency: 'AUD', maximumFractionDigits: 0 }).format(val || 0);
+
+    // Official Australian Brand Website Directory (all 27 brands in catalog)
+    const AU_BRAND_WEBSITES = {
+      Audi: 'https://www.audi.com.au/au/web/en/models/electric-models.html',
+      BMW: 'https://www.bmw.com/en-au/all-models.html',
+      BYD: 'https://bydautomotive.com.au/',
+      Chery: 'https://www.cherymotor.com.au/',
+      Cupra: 'https://www.cupraofficial.com.au/',
+      Deepal: 'https://www.deepal.com.au/',
+      Ford: 'https://www.ford.com.au/showroom/electric/',
+      Geely: 'https://www.geelyauto.com.au/',
+      GWM: 'https://www.gwmanz.com/au/',
+      Hyundai: 'https://www.hyundai.com/au/en/cars/eco',
+      Kia: 'https://www.kia.com/au/cars/electric-vehicles.html',
+      Leapmotor: 'https://www.leapmotor.com.au/',
+      'Mercedes-Benz': 'https://www.mercedes-benz.com.au/passengercars/models.html?group=electric',
+      MG: 'https://mgmotor.com.au/',
+      Mini: 'https://www.mini.com.au/',
+      Nissan: 'https://www.nissan.com.au/vehicles/browse-range/electric-vehicles.html',
+      Peugeot: 'https://www.peugeot.com.au/',
+      Polestar: 'https://www.polestar.com/au/',
+      Renault: 'https://www.renault.com.au/',
+      Skoda: 'https://www.skoda.com.au/models/electric-cars',
+      Smart: 'https://au.smart.com/',
+      Subaru: 'https://www.subaru.com.au/',
+      Tesla: 'https://www.tesla.com/en_au',
+      Toyota: 'https://www.toyota.com.au/electrified/battery-electric',
+      Volkswagen: 'https://www.volkswagen.com.au/en/models/electric-cars.html',
+      Volvo: 'https://www.volvocars.com/au/cars/electric-cars/',
+      XPeng: 'https://www.xpeng.com/au/',
+      Zeekr: 'https://www.zeekrlife.com/en-au/'
+    };
+
+    // Builds direct external links for Carsales NSW, Drive.com.au, or Official AU Brand Site
+    function getExternalLinksForVehicle(v) {
+      const makeRaw = String(v.make || '').trim();
+      const modelRaw = String(v.model || '').trim();
+      const makeSlug = makeRaw.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      const modelSlug = modelRaw.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+
+      const carsalesQuery = encodeURIComponent(
+        `(And.State.New South Wales._.FuelType.Electric._.Make.${makeRaw}._.Model.${modelRaw}.)`
+      );
+      const carsalesUrl = `https://www.carsales.com.au/cars/new-south-wales/electric/${encodeURIComponent(makeSlug)}/${encodeURIComponent(modelSlug)}/?q=${carsalesQuery}`;
+
+      const driveUrl = `https://www.drive.com.au/showroom/${encodeURIComponent(makeSlug)}/${encodeURIComponent(modelSlug)}/`;
+
+      const brandUrl =
+        AU_BRAND_WEBSITES[makeRaw] ||
+        `https://www.google.com.au/search?q=${encodeURIComponent(`${makeRaw} ${modelRaw} Australia official site`)}`;
+
+      return {
+        carsales: { label: '🔎 Carsales', url: carsalesUrl, badgeClass: 'bg-rose-600 hover:bg-rose-500 text-white' },
+        drive: { label: '📰 Drive.com.au', url: driveUrl, badgeClass: 'bg-sky-600 hover:bg-sky-500 text-white' },
+        brand: { label: `🏢 ${makeRaw} AU`, url: brandUrl, badgeClass: 'bg-slate-800 hover:bg-slate-700 text-white' }
+      };
+    }
 
     function loadInitialLocalVehicles() {
       let localOverrides = [];
@@ -1684,7 +2022,11 @@
 
               <!-- Card Footer Actions -->
               <div class="px-5 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between gap-2 text-xs">
-                <div class="flex items-center gap-1.5">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  ${(() => {
+                    const ext = getExternalLinksForVehicle(v)[state.preferredExternalSite] || getExternalLinksForVehicle(v).carsales;
+                    return `<a href="${ext.url}" target="_blank" rel="noopener noreferrer" title="Open ${v.make} ${v.model} on selected site" class="px-2.5 py-1.5 rounded-lg ${ext.badgeClass} font-semibold transition inline-flex items-center gap-1">${ext.label} ↗</a>`;
+                  })()}
                   <button type="button" data-action="rivals" data-id="${v.id}" class="px-2.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-semibold transition cursor-pointer">
                     ⚡ Rivals
                   </button>
@@ -1696,7 +2038,7 @@
                       : ''
                   }
                 </div>
-                <button type="button" data-action="compare" data-id="${v.id}" class="px-3 py-1.5 rounded-lg font-semibold transition cursor-pointer ${
+                <button type="button" data-action="compare" data-id="${v.id}" class="px-3 py-1.5 rounded-lg font-semibold transition cursor-pointer shrink-0 ${
                   isCompared
                     ? 'bg-emerald-600 text-white'
                     : 'bg-white hover:bg-emerald-50 text-emerald-700 border border-emerald-300'
@@ -1838,6 +2180,17 @@
           : `<span class="text-slate-400">❌ No</span>`;
 
       const rows = [
+        {
+          label: 'Australian Research Links',
+          fn: (v) => {
+            const links = getExternalLinksForVehicle(v);
+            return `<div class="flex flex-wrap gap-1.5">
+              <a href="${links.carsales.url}" target="_blank" rel="noopener noreferrer" class="px-2 py-1 rounded-md bg-rose-600 hover:bg-rose-500 text-white font-bold transition">Carsales ↗</a>
+              <a href="${links.drive.url}" target="_blank" rel="noopener noreferrer" class="px-2 py-1 rounded-md bg-sky-600 hover:bg-sky-500 text-white font-bold transition">Drive ↗</a>
+              <a href="${links.brand.url}" target="_blank" rel="noopener noreferrer" class="px-2 py-1 rounded-md bg-slate-800 hover:bg-slate-700 text-white font-bold transition">${v.make} AU ↗</a>
+            </div>`;
+          }
+        },
         { label: 'Buyer Match Score', fn: (v) => `<span class="px-2.5 py-1 rounded-lg bg-emerald-600 text-white font-extrabold">${v._eval.totalScore.toFixed(1)} / 100</span>` },
         { label: 'NSW Drive-Away Price', fn: (v) => `<span class="font-extrabold text-slate-900">${formatAud(v.nswDriveAwayAud)}</span>` },
         { label: 'FBT-Exempt (≤ $91,387)', fn: (v) => boolCell(v._eval.fbtExempt) },
@@ -2027,6 +2380,10 @@
         state.sortBy = e.target.value;
         renderVehicles();
       });
+      document.getElementById('externalSiteSelect').addEventListener('change', (e) => {
+        state.preferredExternalSite = e.target.value;
+        renderVehicles();
+      });
 
       const priceRange = document.getElementById('priceRange');
       const priceLabel = document.getElementById('priceValueLabel');
@@ -2070,7 +2427,7 @@
         state.search = '';
         state.make = '';
         state.drivetrain = '';
-        state.maxPrice = 110000;
+        state.maxPrice = 165000;
         state.fbtOnly = false;
         state.minRangeOnly = false;
         state.towCapableOnly = false;
@@ -2080,8 +2437,8 @@
         document.getElementById('searchInput').value = '';
         document.getElementById('makeFilter').value = '';
         document.getElementById('drivetrainFilter').value = '';
-        priceRange.value = 110000;
-        priceLabel.textContent = '$110,000';
+        priceRange.value = 165000;
+        priceLabel.textContent = '$165,000';
         togglePillMap.forEach(([btnId]) => {
           const btn = document.getElementById(btnId);
           btn.classList.remove('bg-emerald-600', 'text-white', 'border-emerald-600');
