@@ -11,3 +11,7 @@ Thumbs.db
 .env
 .env.*
 !.env.example
+
+# Scraper review/preview output
+data/au-market-overlay.preview.json
+data/scraped-unverified.json

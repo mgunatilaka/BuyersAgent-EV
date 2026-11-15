@@ -5,7 +5,10 @@
   "description": "REST API aggregating Australian EV specifications, feature options, and novated lease scoring",
   "scripts": {
     "start": "node src/server.js",
-    "dev": "node --watch src/server.js"
+    "dev": "node --watch src/server.js",
+    "test": "node --test \"src/**/*.test.js\"",
+    "scrape": "node src/au_ev_scraper_pipeline.js",
+    "scrape:dry": "node src/au_ev_scraper_pipeline.js --dry-run"
   },
   "dependencies": {
     "cors": "^2.8.5",

@@ -11,19 +11,34 @@
  * 4. Deduplicates & upserts the unified catalog into Supabase (`custom_evs`)
  *    and writes `data/au-market-overlay.json` for your BuyersAgent-EV app.
  *
- * Usage:
- *   SUPABASE_URL="https://xxx.supabase.co" SUPABASE_SERVICE_KEY="xxx" node au_ev_scraper_pipeline.js
+ * Usage (from the au-ev-api folder):
+ *   npm run scrape:dry   -> scrape + preview files only, nothing is overwritten or uploaded
+ *   npm run scrape       -> update data/au-market-overlay.json and upsert to Supabase
+ *
+ * Records that could not be matched to a verified OEM spec profile are never
+ * uploaded or merged; they are written to data/scraped-unverified.json for review.
  */
 
 import fs from 'node:fs/promises';
+import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const OUTPUT_JSON_PATH = path.join(__dirname, 'data', 'au-market-overlay.json');
+const DATA_DIR = path.join(__dirname, '..', 'data');
+const OVERLAY_PATH = path.join(DATA_DIR, 'au-market-overlay.json');
+const PREVIEW_PATH = path.join(DATA_DIR, 'au-market-overlay.preview.json');
+const UNVERIFIED_PATH = path.join(DATA_DIR, 'scraped-unverified.json');
+
+const DRY_RUN = process.argv.includes('--dry-run');
+
+// Load au-ev-api/.env (same file the server uses) without overriding real env vars
+const ENV_FILE = path.join(__dirname, '..', '.env');
+if (existsSync(ENV_FILE)) process.loadEnvFile(ENV_FILE);
 
 const SUPABASE_URL = process.env.SUPABASE_URL || '';
-const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_ANON_KEY || '';
+// Writes need the secret key; the publishable/anon key is blocked by RLS.
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY || '';
 
 const USER_AGENT =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36';
@@ -257,12 +272,33 @@ const OEM_SPEC_ENRICHMENT_DB = {
   }
 };
 
+/**
+ * True when the scraped make/model matches a verified OEM spec profile. Anything
+ * else would be filled with placeholder defaults, so it must not be published.
+ */
+function hasVerifiedOemProfile(rawRecord) {
+  const makeModelKey = `${rawRecord.make}|${rawRecord.model}`.toLowerCase().trim();
+  return Object.hasOwn(OEM_SPEC_ENRICHMENT_DB, makeModelKey);
+}
+
+/**
+ * Older overlay records use `nswDriveAwayPrice`; the website reads `nswDriveAwayAud`.
+ */
+function normalizeOverlayRecord(record) {
+  return {
+    ...record,
+    nswDriveAwayAud: record.nswDriveAwayAud ?? record.nswDriveAwayPrice ?? null
+  };
+}
+
 function enrichWithOemSpecs(rawRecord) {
   const makeModelKey = `${rawRecord.make}|${rawRecord.model}`.toLowerCase().trim();
   const oemTemplate = OEM_SPEC_ENRICHMENT_DB[makeModelKey] || {};
   const id = `${rawRecord.make}-${rawRecord.model}-${rawRecord.variant || 'standard'}-${rawRecord.year || 2026}`
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-');
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '') // must match the custom_evs id check constraint
+    .slice(0, 120);
 
   return {
     id,
@@ -327,8 +363,12 @@ function enrichWithOemSpecs(rawRecord) {
  * Push merged catalog into Supabase (`custom_evs` table)
  */
 async function upsertToSupabase(vehicles) {
+  if (DRY_RUN) {
+    console.log(`[4/4] Dry run: skipping Supabase upload (${vehicles.length} EVs would be upserted).`);
+    return;
+  }
   if (!SUPABASE_URL || !SUPABASE_KEY) {
-    console.log('[4/4] SUPABASE_URL / SUPABASE_SERVICE_KEY not set — skipping cloud DB push.');
+    console.log('[4/4] SUPABASE_URL / SUPABASE_SERVICE_KEY not set: skipping cloud DB push.');
     return;
   }
 
@@ -362,16 +402,16 @@ async function upsertToSupabase(vehicles) {
  * Main Orchestrator
  */
 async function runPipeline() {
-  console.log('=== Starting Australian EV Market Crawler & OEM Enrichment ===\n');
+  console.log(`=== Starting Australian EV Market Crawler & OEM Enrichment${DRY_RUN ? ' (DRY RUN)' : ''} ===\n`);
 
-  // Load existing local overlay so manual edits are preserved
+  // Load existing local overlay so manual edits are preserved. If it exists but
+  // can't be parsed, stop rather than overwrite it with a partial catalog.
   let existingOverlay = [];
-  try {
-    const raw = await fs.readFile(OUTPUT_JSON_PATH, 'utf-8');
-    existingOverlay = JSON.parse(raw);
-  } catch {
-    existingOverlay = [];
+  if (existsSync(OVERLAY_PATH)) {
+    const raw = await fs.readFile(OVERLAY_PATH, 'utf-8');
+    existingOverlay = JSON.parse(raw).map(normalizeOverlayRecord);
   }
+  console.log(`Loaded ${existingOverlay.length} existing EVs from ${OVERLAY_PATH}\n`);
 
   const [gvgList, driveList, carsalesList] = await Promise.all([
     fetchGreenVehicleGuideEvs(),
@@ -383,16 +423,31 @@ async function runPipeline() {
   for (const item of existingOverlay) {
     mergedMap.set(item.id, item);
   }
+
+  const unverifiedMap = new Map();
   for (const rawItem of [...gvgList, ...driveList, ...carsalesList]) {
     if (!rawItem.make || !rawItem.model) continue;
     const enriched = enrichWithOemSpecs(rawItem);
-    mergedMap.set(enriched.id, enriched);
+    if (hasVerifiedOemProfile(rawItem)) {
+      mergedMap.set(enriched.id, enriched);
+    } else {
+      unverifiedMap.set(enriched.id, { ...rawItem, id: enriched.id });
+    }
   }
 
   const finalCatalog = Array.from(mergedMap.values());
-  await fs.mkdir(path.dirname(OUTPUT_JSON_PATH), { recursive: true });
-  await fs.writeFile(OUTPUT_JSON_PATH, JSON.stringify(finalCatalog, null, 2), 'utf-8');
-  console.log(`\nSaved ${finalCatalog.length} unified Australian EVs to ${OUTPUT_JSON_PATH}`);
+  const unverified = Array.from(unverifiedMap.values());
+  const catalogPath = DRY_RUN ? PREVIEW_PATH : OVERLAY_PATH;
+
+  await fs.mkdir(DATA_DIR, { recursive: true });
+  await fs.writeFile(catalogPath, JSON.stringify(finalCatalog, null, 2), 'utf-8');
+  console.log(`\nSaved ${finalCatalog.length} verified Australian EVs to ${catalogPath}`);
+
+  await fs.writeFile(UNVERIFIED_PATH, JSON.stringify(unverified, null, 2), 'utf-8');
+  console.log(
+    `Skipped ${unverified.length} scraped EVs with no verified OEM spec profile (raw data in ${UNVERIFIED_PATH}).` +
+      (unverified.length ? ' Add them to OEM_SPEC_ENRICHMENT_DB to include them.' : '')
+  );
 
   await upsertToSupabase(finalCatalog);
   console.log('\n=== Pipeline Complete ===');
