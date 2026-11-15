@@ -495,3 +495,22 @@ describe('Admin auth & write protection', () => {
     assert.doesNotMatch(text, /Admin PIN/);
   });
 });
+// ============================================================================
+// 6. GET /api/v1/catalog
+// ============================================================================
+describe('GET /api/v1/catalog', () => {
+  it('serves the built catalog JSON', async () => {
+    const baseUrl = await startTestServer();
+    const res = await fetch(`${baseUrl}/api/v1/catalog`);
+    assert.equal(res.status, 200);
+    const body = await res.json();
+    assert.ok(Array.isArray(body.vehicles) && body.vehicles.length > 100);
+    assert.ok(body.states.NSW && body.states.VIC);
+  });
+
+  it('returns 503 when the catalog file is missing', async () => {
+    const baseUrl = await startTestServer({ catalogPath: '/nonexistent/catalog.json' });
+    const res = await fetch(`${baseUrl}/api/v1/catalog`);
+    assert.equal(res.status, 503);
+  });
+});

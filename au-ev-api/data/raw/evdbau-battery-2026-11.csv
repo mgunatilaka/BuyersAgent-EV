@@ -1,0 +1,301 @@
+make,model,variant,usable_kwh,battery_chemistry,country_of_manufacture,source_url
+BYD,Atto 1,Premium (2025),43.2,LFP,,https://evdbau.com/v/byd-atto-1#byd-atto-1-premium
+BYD,Atto 1,Essential (2025),30,LFP,,https://evdbau.com/v/byd-atto-1#byd-atto-1-essential
+BYD,Atto 2,Dynamic (2025),51.1,LFP,,https://evdbau.com/v/byd-atto-2#byd-atto-2-dynamic
+BYD,Atto 2,Premium (2025),51.1,LFP,,https://evdbau.com/v/byd-atto-2#byd-atto-2-premium
+BYD,Atto 3,Evo Dynamic (2026),60.5,LFP,,https://evdbau.com/v/byd-atto-3#byd-atto-3-evo-dynamic
+BYD,Atto 3,Evo Premium (2026),74.9,LFP,,https://evdbau.com/v/byd-atto-3#byd-atto-3-evo-premium
+BYD,Dolphin,Essential (2024),44.9,LFP,,https://evdbau.com/v/byd-dolphin#byd-dolphin-essential
+BYD,Dolphin,Premium (2024),60.5,LFP,,https://evdbau.com/v/byd-dolphin#byd-dolphin-premium
+BYD,Seal,Performance (2025),82.6,LFP,,https://evdbau.com/v/byd-seal#byd-seal-performance
+BYD,Seal,Premium (2025),82.6,LFP,,https://evdbau.com/v/byd-seal#byd-seal-premium
+BYD,Sealion 7,Performance (2025),82.5,LFP,,https://evdbau.com/v/byd-sealion-7#byd-sealion-7-performance
+BYD,Sealion 7,Premium (2025),82.5,LFP,,https://evdbau.com/v/byd-sealion-7#byd-sealion-7-premium
+Denza,D9,FWD (2026),103,LFP,,https://evdbau.com/v/denza-d9#denza-d9-fwd
+Denza,D9,AWD (2026),103,LFP,,https://evdbau.com/v/denza-d9#denza-d9-awd
+Tesla,Model 3,Performance (MY27) (2026),79,NMC,,https://evdbau.com/v/tesla-model-3#tesla-model-3-performance-my27
+Tesla,Model 3,Premium LR RWD (MY27) (2026),82,NMC,,https://evdbau.com/v/tesla-model-3#tesla-model-3-premium-lr-rwd-my27
+Tesla,Model 3,Premium RWD (MY27) (2026),60.9,LFP,,https://evdbau.com/v/tesla-model-3#tesla-model-3-premium-rwd-my27
+Tesla,Model 3,RWD (MY27) (2026),60.9,LFP,,https://evdbau.com/v/tesla-model-3#tesla-model-3-rwd-my27
+Tesla,Model Y,Premium RWD (MY27) (2026),60.5,LFP,,https://evdbau.com/v/tesla-model-y#tesla-model-y-premium-rwd-my27
+Tesla,Model Y,Premium LR AWD (MY27) (2026),79,NMC,,https://evdbau.com/v/tesla-model-y#tesla-model-y-premium-lr-awd-my27
+Tesla,Model Y,L (2026),86,NMC,,https://evdbau.com/v/tesla-model-y#tesla-model-y-l
+Tesla,Model Y,Performance (MY27) (2026),79,NMC,Shanghai,https://evdbau.com/v/tesla-model-y#tesla-model-y-performance-my27
+MG,4,Essence (MY26) (2026),61.7,LFP,,https://evdbau.com/v/mg-4#mg-4-essence-my26
+MG,4,XPower (MY26) (2026),61.7,NMC,,https://evdbau.com/v/mg-4#mg-4-xpower-my26
+MG,4 Urban,Essence 54 (2026),52.8,LFP,,https://evdbau.com/v/mg-4-urban#mg-4-urban-essence-54
+MG,4 Urban,Essence 43 (2026),41.9,LFP,,https://evdbau.com/v/mg-4-urban#mg-4-urban-essence-43
+MG,Cyberster,RWD (2024),74.4,NMC,,https://evdbau.com/v/mg-cyberster#mg-cyberster-rwd
+MG,Cyberster,AWD (2024),74.4,NMC,,https://evdbau.com/v/mg-cyberster#mg-cyberster-awd
+MG,IM5,Premium (2025),73.5,LFP,,https://evdbau.com/v/mg-im5#mg-im5-premium
+MG,IM5,Platinum (2025),96.5,NMC,,https://evdbau.com/v/mg-im5#mg-im5-platinum
+MG,IM5,Performance (2025),96.5,NMC,,https://evdbau.com/v/mg-im5#mg-im5-performance
+MG,IM6,Premium (2025),73.5,LFP,,https://evdbau.com/v/mg-im6#mg-im6-premium
+MG,IM6,Platinum (2025),96.5,NMC,,https://evdbau.com/v/mg-im6#mg-im6-platinum
+MG,IM6,Performance (2025),96.5,NMC,,https://evdbau.com/v/mg-im6#mg-im6-performance
+MG,S5 EV,49 Essence (2025),49,LFP,,https://evdbau.com/v/mg-s5-ev#mg-s5-ev-49-essence
+MG,S5 EV,62 Essence (2025),62,LFP,,https://evdbau.com/v/mg-s5-ev#mg-s5-ev-62-essence
+MG,S6 EV,Essence AWD (2026),74.3,NMC,,https://evdbau.com/v/mg-s6-ev#mg-s6-ev-essence-awd
+MG,S6 EV,Essence RWD (2026),74.3,NMC,,https://evdbau.com/v/mg-s6-ev#mg-s6-ev-essence-rwd
+MG,U9,EV (2026),102.2,LFP,,https://evdbau.com/v/mg-u9#mg-u9-ev
+GWM,Ora 5,Ultra (2026),58.3,LFP,,https://evdbau.com/v/gwm-ora-5#gwm-ora-5-ultra
+GWM,Ora 5,Lux (2026),58.3,LFP,,https://evdbau.com/v/gwm-ora-5#gwm-ora-5-lux
+Leapmotor,B03X,Style (2026),39,LFP,,https://evdbau.com/v/leapmotor-b03x#leapmotor-b03x-style
+Leapmotor,B03X,Design LR (2026),52,LFP,,https://evdbau.com/v/leapmotor-b03x#leapmotor-b03x-design-lr
+Leapmotor,B05,Style (2026),55,LFP,,https://evdbau.com/v/leapmotor-b05#leapmotor-b05-style
+Leapmotor,B05,Design LR (2026),65,LFP,,https://evdbau.com/v/leapmotor-b05#leapmotor-b05-design-lr
+Leapmotor,B10,Style (2025),55,LFP,,https://evdbau.com/v/leapmotor-b10#leapmotor-b10-style
+Leapmotor,B10,Design LR (2025),65,LFP,,https://evdbau.com/v/leapmotor-b10#leapmotor-b10-design-lr
+Leapmotor,C10,C10 (2024),66,LFP,,https://evdbau.com/v/leapmotor-c10#leapmotor-c10
+Leapmotor,C10,Design LR (2026),81.9,LFP,,https://evdbau.com/v/leapmotor-c10#leapmotor-c10-design-lr
+Leapmotor,C10,AWD Sports (2026),81.9,LFP,,https://evdbau.com/v/leapmotor-c10#leapmotor-c10-awd-sports
+Chery,E5,Ultimate (2025),61,LFP,,https://evdbau.com/v/chery-e5#chery-e5-ultimate
+Jaecoo,J5,J5 (2026),61.1,LFP,,https://evdbau.com/v/jaecoo-j5#jaecoo-j5
+Geely,EX2,Complete (2026),35.4,LFP,,https://evdbau.com/v/geely-ex2#geely-ex2-complete
+Geely,EX2,Inspire (2026),47.1,LFP,,https://evdbau.com/v/geely-ex2#geely-ex2-inspire
+Geely,EX5,Complete (MY26) (2026),68.4,LFP,,https://evdbau.com/v/geely-ex5#geely-ex5-complete-my26
+Geely,EX5,Inspire (MY26) (2026),68.4,LFP,,https://evdbau.com/v/geely-ex5#geely-ex5-inspire-my26
+Hyundai,Elexio,Elexio,88.1,LFP,Beijing Hyundai,https://evdbau.com/v/hyundai-elexio#hyundai-elexio
+Hyundai,Elexio,Elexio Elite,88.1,LFP,Beijing Hyundai,https://evdbau.com/v/hyundai-elexio#hyundai-elexio-elite
+Hyundai,Inster,Inster,39,NMC,,https://evdbau.com/v/hyundai-inster#hyundai-inster
+Hyundai,Inster,Inster Cross,46,NMC,,https://evdbau.com/v/hyundai-inster#hyundai-inster-cross
+Hyundai,Ioniq 5,IONIQ 5 RWD,80,NMC,,https://evdbau.com/v/hyundai-ioniq-5#hyundai-ioniq-5-rwd
+Hyundai,Ioniq 5,IONIQ 5 Elite,80,NMC,,https://evdbau.com/v/hyundai-ioniq-5#hyundai-ioniq-5-elite
+Hyundai,Ioniq 5,IONIQ 5 N-Line Premium,80,NMC,,https://evdbau.com/v/hyundai-ioniq-5#hyundai-ioniq-5-n-line-premium
+Hyundai,Ioniq 5 N,IONIQ 5 N,80,NMC,,https://evdbau.com/v/hyundai-ioniq-5-n#hyundai-ioniq-5-n
+Hyundai,Ioniq 9,IONIQ 9 Calligraphy 6,106,NMC,,https://evdbau.com/v/hyundai-ioniq-9#hyundai-ioniq-9-calligraphy-6
+Hyundai,Ioniq 9,IONIQ 9 Calligraphy 7,106,NMC,,https://evdbau.com/v/hyundai-ioniq-9#hyundai-ioniq-9-calligraphy-7
+Hyundai,Kona Electric,Kona Electric Standard,48.6,NMC,,https://evdbau.com/v/hyundai-kona-electric#hyundai-kona-electric-standard
+Hyundai,Kona Electric,Kona Electric Extended,64.8,NMC,,https://evdbau.com/v/hyundai-kona-electric#hyundai-kona-electric-extended
+Hyundai,Kona Electric,Kona Electric Elite,64.8,NMC,,https://evdbau.com/v/hyundai-kona-electric#hyundai-kona-electric-elite
+Hyundai,Kona Electric,Kona Electric Premium,64.8,NMC,,https://evdbau.com/v/hyundai-kona-electric#hyundai-kona-electric-premium
+Hyundai,Staria Load,Staria Load Electric,80,NMC,,https://evdbau.com/v/hyundai-staria-load#hyundai-staria-load-electric
+Kia,EV3,Air SR,55,NMC,,https://evdbau.com/v/kia-ev3#kia-ev3-air-sr
+Kia,EV3,Air LR,78,NMC,,https://evdbau.com/v/kia-ev3#kia-ev3-air-lr
+Kia,EV3,Earth,78,NMC,,https://evdbau.com/v/kia-ev3#kia-ev3-earth
+Kia,EV3,GT-Line FWD,78,NMC,,https://evdbau.com/v/kia-ev3#kia-ev3-gt-line-fwd
+Kia,EV3,GT-Line AWD,78,NMC,,https://evdbau.com/v/kia-ev3#kia-ev3-gt-line-awd
+Kia,EV4,Air SR,55,NMC,,https://evdbau.com/v/kia-ev4#kia-ev4-air-sr
+Kia,EV4,Earth LR,78,NMC,,https://evdbau.com/v/kia-ev4#kia-ev4-earth-lr
+Kia,EV4,GT-Line LR,78,NMC,,https://evdbau.com/v/kia-ev4#kia-ev4-gt-line-lr
+Kia,EV5,Air SR,61,LFP,,https://evdbau.com/v/kia-ev5#kia-ev5-air-sr
+Kia,EV5,Air LR,84,LFP,,https://evdbau.com/v/kia-ev5#kia-ev5-air-lr
+Kia,EV5,Earth,84,LFP,,https://evdbau.com/v/kia-ev5#kia-ev5-earth
+Kia,EV5,GT-Line,84,LFP,,https://evdbau.com/v/kia-ev5#kia-ev5-gt-line
+Kia,EV6,GT,80,NMC,,https://evdbau.com/v/kia-ev6#kia-ev6-gt-1
+Kia,EV6,GT-Line RWD,80,NMC,,https://evdbau.com/v/kia-ev6#kia-ev6-gt-line-rwd-1
+Kia,EV6,Air,80,NMC,,https://evdbau.com/v/kia-ev6#kia-ev6-air-1
+Kia,EV6,GT-Line AWD,80,NMC,,https://evdbau.com/v/kia-ev6#kia-ev6-gt-line-awd-1
+Kia,EV9,Air,74,NMC,,https://evdbau.com/v/kia-ev9#kia-ev9-air
+Kia,EV9,Earth,96,NMC,,https://evdbau.com/v/kia-ev9#kia-ev9-earth
+Kia,EV9,GT-Line,96,NMC,,https://evdbau.com/v/kia-ev9#kia-ev9-gt-line
+Kia,EV9,GT,96,NMC,,https://evdbau.com/v/kia-ev9#kia-ev9-gt
+Kia,PV5,PV5 Cargo,71.2,NMC,,https://evdbau.com/v/kia-pv5#kia-pv5-cargo
+Genesis,Electrified G80,Electrified G80,90,NMC,,https://evdbau.com/v/genesis-electrified-g80#genesis-electrified-g80
+Genesis,Electrified GV70,Electrified GV70,80,NMC,,https://evdbau.com/v/genesis-electrified-gv70#genesis-electrified-gv70
+Genesis,GV60,Advanced RWD,80,NMC,,https://evdbau.com/v/genesis-gv60#genesis-gv60-advanced-rwd
+Genesis,GV60,Magma,80,NMC,,https://evdbau.com/v/genesis-gv60#genesis-gv60-magma
+Toyota,bZ4X,2WD,71,NMC,,https://evdbau.com/v/toyota-bz4x#toyota-bz4x-2wd
+Toyota,bZ4X,AWD,71,NMC,,https://evdbau.com/v/toyota-bz4x#toyota-bz4x-awd-1
+Toyota,bZ4X,Touring,71,NMC,,https://evdbau.com/v/toyota-bz4x#toyota-bz4x-touring
+Toyota,Hilux BEV,Hilux SR BEV,56,NMC,,https://evdbau.com/v/toyota-hilux-bev#toyota-hilux-sr-bev
+Toyota,Hilux BEV,Hilux SR5 BEV,56,NMC,,https://evdbau.com/v/toyota-hilux-bev#toyota-hilux-sr5-bev
+Lexus,ES,ES 350e,71,NMC,,https://evdbau.com/v/lexus-es#lexus-es-350e
+Lexus,ES,ES 500e,71,NMC,,https://evdbau.com/v/lexus-es#lexus-es-500e
+Lexus,RZ,RZ 500e Luxury,74.7,NMC,,https://evdbau.com/v/lexus-rz#lexus-rz-500e-luxury
+Lexus,RZ,RZ 500e Sport Luxury,74.7,NMC,,https://evdbau.com/v/lexus-rz#lexus-rz-500e-sport-luxury
+Lexus,RZ,RZ 550e F Sport,72,NMC,,https://evdbau.com/v/lexus-rz#lexus-rz-550e-f-sport
+Subaru,Solterra,Solterra AWD (2025),74.7,NMC,,https://evdbau.com/v/subaru-solterra#subaru-solterra-awd-1
+Subaru,Solterra,Solterra AWD Touring (2025),74.7,NMC,,https://evdbau.com/v/subaru-solterra#subaru-solterra-awd-touring-1
+Subaru,Trailseeker,AWD,74.7,NMC,,https://evdbau.com/v/subaru-trailseeker#subaru-trailseeker-awd
+Subaru,Trailseeker,AWD Touring,74.7,NMC,,https://evdbau.com/v/subaru-trailseeker#subaru-trailseeker-awd-touring
+Subaru,Uncharted,AWD,74.7,NMC,,https://evdbau.com/v/subaru-uncharted#subaru-uncharted-awd
+Mazda,6e,GT,77,LFP,,https://evdbau.com/v/mazda-6e#mazda-6e-gt
+Mazda,6e,Atenza,77,LFP,,https://evdbau.com/v/mazda-6e#mazda-6e-atenza
+Mazda,CX-6e,GT,77,LFP,,https://evdbau.com/v/mazda-cx-6e#mazda-cx-6e-gt
+Mazda,CX-6e,Azami,77,LFP,,https://evdbau.com/v/mazda-cx-6e#mazda-cx-6e-azami
+Honda,Super-One,Super-One,29.6,NMC,,https://evdbau.com/v/honda-super-one#honda-super-one
+Nissan,Ariya,Engage,63,NMC,,https://evdbau.com/v/nissan-ariya#nissan-ariya-engage
+Nissan,Ariya,Advance,63,NMC,,https://evdbau.com/v/nissan-ariya#nissan-ariya-advance
+Nissan,Ariya,Advance Plus,87,NMC,,https://evdbau.com/v/nissan-ariya#nissan-ariya-advance-plus
+Nissan,Ariya,Evolve,87,NMC,,https://evdbau.com/v/nissan-ariya#nissan-ariya-evolve
+Suzuki,e Vitara,Ultra,59.8,LFP,,https://evdbau.com/v/suzuki-e-vitara#suzuki-e-vitara-ultra
+Suzuki,e Vitara,Motion,47.8,LFP,,https://evdbau.com/v/suzuki-e-vitara#suzuki-e-vitara-motion
+KGM,Musso,EV 2WD,80.6,LFP,,https://evdbau.com/v/kgm-musso#kgm-musso-ev-2wd
+KGM,Musso,EV AWD,80.6,LFP,,https://evdbau.com/v/kgm-musso#kgm-musso-ev-awd
+KGM,Torres EVX,Torres EVX,72,LFP,,https://evdbau.com/v/kgm-torres-evx#kgm-torres-evx
+Volkswagen,ID. Buzz,ID. Buzz Pro SWB (2024),79,NMC,,https://evdbau.com/v/volkswagen-id-buzz#volkswagen-id-buzz-pro-swb
+Volkswagen,ID. Buzz,ID. Buzz GTX (2025),86,NMC,,https://evdbau.com/v/volkswagen-id-buzz#volkswagen-id-buzz-gtx
+Volkswagen,ID. Buzz,ID. Buzz Cargo (2024),79,NMC,,https://evdbau.com/v/volkswagen-id-buzz#volkswagen-id-buzz-cargo
+Volkswagen,ID. Buzz,ID. Buzz Pro LWB (2024),86,NMC,,https://evdbau.com/v/volkswagen-id-buzz#volkswagen-id-buzz-pro-lwb
+Volkswagen,ID.4,ID.4 Pro (MY27) (2027),79,NMC,,https://evdbau.com/v/volkswagen-id4#volkswagen-id4-pro-my27
+Volkswagen,ID.4,ID.4 GTX (MY27) (2027),77,NMC,,https://evdbau.com/v/volkswagen-id4#volkswagen-id4-gtx-my27
+Volkswagen,Transporter,Transporter LWB (2025),63.8,NMC,,https://evdbau.com/v/volkswagen-transporter#volkswagen-transporter-lwb
+Volkswagen,Transporter,Transporter SWB (2025),63.8,NMC,,https://evdbau.com/v/volkswagen-transporter#volkswagen-transporter-swb
+Skoda,Elroq,Elroq Select 60 (MY27) (2027Q1),58,LFP,,https://evdbau.com/v/skoda-elroq#skoda-elroq-select-60-my27
+Skoda,Elroq,Elroq Select 60 (2025),59,NMC,,https://evdbau.com/v/skoda-elroq#skoda-elroq-select-60
+Skoda,Elroq,Elroq Select 85 (2025),77,NMC,,https://evdbau.com/v/skoda-elroq#skoda-elroq-select-85
+Skoda,Enyaq,Enyaq SUV 60 Select (2025),59,NMC,,https://evdbau.com/v/skoda-enyaq#skoda-enyaq-suv-60-select
+Skoda,Enyaq,Enyaq SUV 85 Sportline (2025),77,NMC,,https://evdbau.com/v/skoda-enyaq#skoda-enyaq-suv-85-sportline
+Skoda,Enyaq,Enyaq Coupe 85 Sportline (2025),77,NMC,,https://evdbau.com/v/skoda-enyaq#skoda-enyaq-coupe-85-sportline
+Skoda,Enyaq,Enyaq RS (2026),79,NMC,,https://evdbau.com/v/skoda-enyaq#skoda-enyaq-rs
+Skoda,Enyaq,Enyaq Coupe RS (2026),79,NMC,,https://evdbau.com/v/skoda-enyaq#skoda-enyaq-coupe-rs
+Cupra,Tavascan,Tavascan V (2026),58,LFP,,https://evdbau.com/v/cupra-tavascan#cupra-tavascan-v
+Cupra,Tavascan,Tavascan Endurance (2025),77,NMC,,https://evdbau.com/v/cupra-tavascan#cupra-tavascan-endurance
+Cupra,Tavascan,Tavascan VZ (2025),77,NMC,,https://evdbau.com/v/cupra-tavascan#cupra-tavascan-vz
+Renault,Kangoo E-Tech,Kangoo E-Tech (2024),45,NMC,,https://evdbau.com/v/renault-kangoo-e-tech#renault-kangoo-e-tech
+Renault,Master E-Tech,Master E-Tech MWB (2026),87,NMC,,https://evdbau.com/v/renault-master-e-tech#renault-master-e-tech-mwb
+Renault,Master E-Tech,Master E-Tech LWB (2026),87,NMC,,https://evdbau.com/v/renault-master-e-tech#renault-master-e-tech-lwb
+Renault,Megane E-Tech,Megane E-Tech esprit Alpine (2026),67,LFP,,https://evdbau.com/v/renault-megane-e-tech#renault-megane-e-tech-esprit-alpine
+Renault,Scenic E-Tech,Scenic E-Tech techno (2025),60,NMC,,https://evdbau.com/v/renault-scenic-e-tech#renault-scenic-e-tech-techno
+Renault,Scenic E-Tech,Scenic E-Tech techno LR (2025),87,NMC,,https://evdbau.com/v/renault-scenic-e-tech#renault-scenic-e-tech-techno-lr
+Renault,Scenic E-Tech,Scenic E-Tech Esprit Alpine (2025),87,NMC,,https://evdbau.com/v/renault-scenic-e-tech#renault-scenic-e-tech-esprit-alpine
+Peugeot,E-Expert,Pro Long Auto (2024),69,NMC,,https://evdbau.com/v/peugeot-e-expert#peugeot-e-expert-pro-long-auto
+Peugeot,E-Partner,E-Partner (2023),50,NMC,,https://evdbau.com/v/peugeot-e-partner#peugeot-e-partner
+Alfa Romeo,Junior Elettrica,Junior Elettrica (2025),51,NMC,,https://evdbau.com/v/alfa-romeo-junior-elettrica#alfa-romeo-junior-elettrica
+Mini,Aceman,Aceman SE JCW (2024),49.8,NMC,,https://evdbau.com/v/mini-aceman#mini-aceman-se-jcw
+Mini,Aceman,Aceman SE (2024),49.8,NMC,,https://evdbau.com/v/mini-aceman#mini-aceman-se
+Mini,Cooper,Cooper SE (2024),49.2,NMC,,https://evdbau.com/v/mini-cooper#mini-cooper-se
+Mini,Cooper,Cooper JCW (2024),49.2,NMC,,https://evdbau.com/v/mini-cooper#mini-cooper-jcw
+Mini,Countryman,Countryman SE All4 (MY26) (2026),64.6,NMC,,https://evdbau.com/v/mini-countryman#mini-countryman-se-all4-my26
+Mini,Countryman,Countryman E (MY26) (2026),64.6,NMC,,https://evdbau.com/v/mini-countryman#mini-countryman-e-my26
+Smart,#1,#1 Pro+ (2025),62,NMC,,https://evdbau.com/v/smart-1#smart-1-pro
+Smart,#1,#1 Premium (2025),62,NMC,,https://evdbau.com/v/smart-1#smart-1-premium
+Smart,#1,#1 BRABUS (2025),62,NMC,,https://evdbau.com/v/smart-1#smart-1-brabus
+Smart,#3,#3 Pro+ (2025),62,NMC,,https://evdbau.com/v/smart-3#smart-3-pro
+Smart,#3,#3 Premium (2025),62,NMC,,https://evdbau.com/v/smart-3#smart-3-premium
+Smart,#3,#3 BRABUS (2025),62,NMC,,https://evdbau.com/v/smart-3#smart-3-brabus
+Smart,#5,#5 Pro+ (2026),94,NMC,,https://evdbau.com/v/smart-5#smart-5-pro
+Smart,#5,#5 Premium (2026),94,NMC,,https://evdbau.com/v/smart-5#smart-5-premium
+Smart,#5,#5 BRABUS (2026),94,NMC,,https://evdbau.com/v/smart-5#smart-5-brabus
+Ford,E-Transit,E-Transit Custom Trend (2025),64,NMC,,https://evdbau.com/v/ford-e-transit#ford-e-transit-custom-trend
+Ford,E-Transit,E-Transit Custom Sport (2025),64,NMC,,https://evdbau.com/v/ford-e-transit#ford-e-transit-custom-sport
+Ford,Mustang Mach-E,Mustang Mach-E Select (MY25-26) (2025),72.6,LFP,,https://evdbau.com/v/ford-mustang-mach-e#ford-mustang-mach-e-select-my25-26
+Ford,Mustang Mach-E,Mustang Mach-E Premium (MY25-26) (2025),88,NMC,,https://evdbau.com/v/ford-mustang-mach-e#ford-mustang-mach-e-premium-my25-26
+Ford,Mustang Mach-E,Mustang Mach-E GT (MY25-26) (2025),91,NMC,,https://evdbau.com/v/ford-mustang-mach-e#ford-mustang-mach-e-gt-my25-26
+Ford,Transit City,Transit City (2026),56,LFP,,https://evdbau.com/v/ford-transit-city#ford-transit-city
+BMW,iX3,iX3 50 xDrive (2026),108.7,NMC,,https://evdbau.com/v/bmw-ix3#bmw-ix3-50-xdrive
+BMW,iX3,iX3 40 (2026),82.6,NMC,,https://evdbau.com/v/bmw-ix3#bmw-ix3-40
+BMW,i3,i3 50 xDrive (2027Q1),108.7,NMC,,https://evdbau.com/v/bmw-i3#bmw-i3-50-xdrive
+BMW,i3,i3 40 xDrive (2027Q1),82.8,NMC,,https://evdbau.com/v/bmw-i3#bmw-i3-40-xdrive
+BMW,i4,i4 eDrive35 (2026),66.4,NMC,,https://evdbau.com/v/bmw-i4#bmw-i4-edrive35-1
+BMW,i5,i5 eDrive 40 (2023),81.2,NMC,,https://evdbau.com/v/bmw-i5#bmw-i5-edrive-40
+BMW,i7,i7 60 xDrive (2026Q3),112.5,NMC,,https://evdbau.com/v/bmw-i7#bmw-i7-60-xdrive
+BMW,iX,iX xDrive 45 (2025),94.3,NMC,,https://evdbau.com/v/bmw-ix#bmw-ix-xdrive-45
+BMW,iX1,iX1 xDrive30 (2023),64.8,NMC,,https://evdbau.com/v/bmw-ix1#bmw-ix1-xdrive30
+BMW,iX2,iX2 xDrive 30 (2024),64.8,NMC,,https://evdbau.com/v/bmw-ix2#bmw-ix2-xdrive-30
+BMW,iX4,iX4 40 xDrive (2027Q1),82.6,NMC,,https://evdbau.com/v/bmw-ix4#bmw-ix4-40-xdrive
+BMW,iX4,iX4 50 xDrive (2027Q1),108.7,NMC,,https://evdbau.com/v/bmw-ix4#bmw-ix4-50-xdrive
+Mercedes-Benz,C-Class,C 400 4MATIC (2026),94,NMC,,https://evdbau.com/v/mercedes-benz-c-class#mercedes-benz-c-400-4matic
+Mercedes-Benz,CLA,CLA 200 electric (2026),58,LFP,,https://evdbau.com/v/mercedes-benz-cla#mercedes-benz-cla-200-electric
+Mercedes-Benz,CLA,CLA 200 Shooting Brake (2026),58,LFP,,https://evdbau.com/v/mercedes-benz-cla#mercedes-benz-cla-200-shooting-brake
+Mercedes-Benz,CLA,CLA 350 electric (2026),85,NMC,,https://evdbau.com/v/mercedes-benz-cla#mercedes-benz-cla-350-electric
+Mercedes-Benz,EQS,EQS 400 (MY26) (2026),112,NMC,,https://evdbau.com/v/mercedes-benz-eqs#mercedes-benz-eqs-400-my26
+Mercedes-Benz,eVito,eVito Panel Van (2024),60,NMC,,https://evdbau.com/v/mercedes-benz-evito#mercedes-benz-evito-panel-van
+Mercedes-Benz,eVito,eVito Tourer (2024),90,NMC,,https://evdbau.com/v/mercedes-benz-evito#mercedes-benz-evito-tourer
+Mercedes-Benz,G-Class,G580 (2025),116,NMC,,https://evdbau.com/v/mercedes-benz-g-class#mercedes-benz-g580
+Mercedes-Benz,GLB,GLB 350 (2026),85,NMC,,https://evdbau.com/v/mercedes-benz-glb#mercedes-benz-glb-350
+Mercedes-Benz,GLB,GLB 250+ (2026),85,NMC,,https://evdbau.com/v/mercedes-benz-glb#mercedes-benz-glb-250
+Mercedes-Benz,GLC,GLC 400 (2026),94,NMC,,https://evdbau.com/v/mercedes-benz-glc#mercedes-benz-glc-400
+Audi,e-tron GT,S e-tron GT (2025),97,NMC,,https://evdbau.com/v/audi-e-tron-gt#audi-s-e-tron-gt
+Audi,e-tron GT,RS e-tron GT (2025),97,NMC,,https://evdbau.com/v/audi-e-tron-gt#audi-rs-e-tron-gt-2025
+Audi,e-tron GT,RS e-tron GT performance (2025),97,NMC,,https://evdbau.com/v/audi-e-tron-gt#audi-rs-e-tron-gt-performance
+Audi,Q4 e-tron,Q4 e-tron (MY27) (2026),59,NMC,,https://evdbau.com/v/audi-q4-e-tron#audi-q4-e-tron-my27
+Audi,Q4 e-tron,Q4 Sportback e-tron (MY27) (2026),59,NMC,,https://evdbau.com/v/audi-q4-e-tron#audi-q4-sportback-e-tron-my27
+Audi,Q4 e-tron,Q4 e-tron quattro (MY27) (2026),77,NMC,,https://evdbau.com/v/audi-q4-e-tron#audi-q4-e-tron-quattro-my27
+Audi,Q4 e-tron,Q4 Sportback e-tron quattro (MY27) (2026),77,NMC,,https://evdbau.com/v/audi-q4-e-tron#audi-q4-sportback-e-tron-quattro-my27
+Audi,Q6 e-tron,Q6 e-tron (2025),75.8,NMC,,https://evdbau.com/v/audi-q6-e-tron#audi-q6-e-tron
+Audi,Q6 e-tron,Q6 Sportback e-tron (2025),75.8,NMC,,https://evdbau.com/v/audi-q6-e-tron#audi-q6-sportback-e-tron
+Audi,Q6 e-tron,SQ6 e-tron (2025),94.9,NMC,,https://evdbau.com/v/audi-q6-e-tron#audi-sq6-e-tron
+Audi,Q6 e-tron,SQ6 Sportback e-tron (2025),94.9,NMC,,https://evdbau.com/v/audi-q6-e-tron#audi-sq6-sportback-e-tron
+Porsche,Cayenne,Cayenne Electric (2026),108,NMC,,https://evdbau.com/v/porsche-cayenne#porsche-cayenne-electric
+Porsche,Cayenne,Cayenne Coupe Electric (2026),108,NMC,,https://evdbau.com/v/porsche-cayenne#porsche-cayenne-coupe-electric
+Porsche,Cayenne,Cayenne S Electric (2026),108,NMC,,https://evdbau.com/v/porsche-cayenne#porsche-cayenne-s-electric
+Porsche,Cayenne,Cayenne S Coupe Electric (2026),108,NMC,,https://evdbau.com/v/porsche-cayenne#porsche-cayenne-s-coupe-electric
+Porsche,Cayenne,Cayenne Turbo Electric (2026),108,NMC,,https://evdbau.com/v/porsche-cayenne#porsche-cayenne-turbo-electric
+Porsche,Cayenne,Cayenne Coupe Turbo Electric (2026),108,NMC,,https://evdbau.com/v/porsche-cayenne#porsche-cayenne-coupe-turbo-electric
+Porsche,Macan Electric,Macan Electric (2025),95,NMC,,https://evdbau.com/v/porsche-macan-electric#porsche-macan-electric
+Porsche,Macan Electric,Macan 4 Electric (2025),95,NMC,,https://evdbau.com/v/porsche-macan-electric#porsche-macan-4-electric
+Porsche,Macan Electric,Macan 4S Electric (2025),95,NMC,,https://evdbau.com/v/porsche-macan-electric#porsche-macan-4s-electric
+Porsche,Macan Electric,Macan Turbo Electric (2025),95,NMC,,https://evdbau.com/v/porsche-macan-electric#porsche-macan-turbo-electric
+Porsche,Macan Electric,Macan GTS (2025),95,NMC,,https://evdbau.com/v/porsche-macan-electric#porsche-macan-gts
+Porsche,Taycan,Taycan (2025),82.3,NMC,,https://evdbau.com/v/porsche-taycan#porsche-taycan
+Porsche,Taycan,Taycan 4 (2025),82.3,NMC,,https://evdbau.com/v/porsche-taycan#porsche-taycan-4
+Porsche,Taycan,Taycan Plus (2025),97,NMC,,https://evdbau.com/v/porsche-taycan#porsche-taycan-plus
+Porsche,Taycan,Taycan 4 Plus (2025),97,NMC,,https://evdbau.com/v/porsche-taycan#porsche-taycan-4-plus
+Porsche,Taycan,Taycan 4S (2025),97,NMC,,https://evdbau.com/v/porsche-taycan#porsche-taycan-4s
+Porsche,Taycan,Taycan GTS (2025),97,NMC,,https://evdbau.com/v/porsche-taycan#porsche-taycan-gts
+Porsche,Taycan,Taycan Turbo (2025),97,NMC,,https://evdbau.com/v/porsche-taycan#porsche-taycan-turbo
+Porsche,Taycan,Taycan Turbo S (2025),97,NMC,,https://evdbau.com/v/porsche-taycan#porsche-taycan-turbo-s
+Porsche,Taycan,Taycan Turbo GT (2025),97,NMC,,https://evdbau.com/v/porsche-taycan#porsche-taycan-turbo-gt
+Porsche,Taycan Cross Turismo,Taycan 4S Cross Turismo (2025),97,NMC,,https://evdbau.com/v/porsche-taycan-cross-turismo#porsche-taycan-4s-cross-turismo
+Porsche,Taycan Cross Turismo,Taycan Turbo Cross Turismo (2025),97,NMC,,https://evdbau.com/v/porsche-taycan-cross-turismo#porsche-taycan-turbo-cross-turismo
+Porsche,Taycan Cross Turismo,Taycan 4 Cross Turismo (2025),97,NMC,,https://evdbau.com/v/porsche-taycan-cross-turismo#porsche-taycan-4-cross-turismo
+Volvo,ES90,ES90 Single (2025),88,NMC,,https://evdbau.com/v/volvo-es90#volvo-es90-single
+Volvo,EX30,EX30 Single (2024),65,NMC,,https://evdbau.com/v/volvo-ex30#volvo-ex30-single
+Volvo,EX30,EX30 Cross Country (2025),65,NMC,,https://evdbau.com/v/volvo-ex30#volvo-ex30-cross-country
+Volvo,EX40,EX40 Single (2025),79,NMC,,https://evdbau.com/v/volvo-ex40#volvo-ex40-single
+Volvo,EX40,EX40 Twin (2025),79,NMC,,https://evdbau.com/v/volvo-ex40#volvo-ex40-twin
+Volvo,EX60,EX60 P10 (2026Q4),91,NMC,,https://evdbau.com/v/volvo-ex60#volvo-ex60-p10
+Volvo,EX60,EX60 P6 (2026Q4),80,NMC,,https://evdbau.com/v/volvo-ex60#volvo-ex60-p6
+Volvo,EX90,EX90 Single (MY26) (2026),88,NMC,,https://evdbau.com/v/volvo-ex90#volvo-ex90-single-my26
+Volvo,EX90,EX90 Twin (2025-2026),106,NMC,,https://evdbau.com/v/volvo-ex90#volvo-ex90-twin
+Volvo,EX90,EX90 Twin Performance (MY26) (2026),102,NMC,,https://evdbau.com/v/volvo-ex90#volvo-ex90-twin-performance-my26
+Polestar,2,2 LR Single (2024),79,NMC,,https://evdbau.com/v/polestar-2#polestar-2-lr-single
+Polestar,2,2 LR Dual (2024),79,NMC,,https://evdbau.com/v/polestar-2#polestar-2-lr-dual
+Polestar,2,2 LR Perfomance (2024),79,NMC,,https://evdbau.com/v/polestar-2#polestar-2-lr-perfomance
+Polestar,3,3 Rear Motor (MY27) (2026),88,NMC,,https://evdbau.com/v/polestar-3#polestar-3-rear-motor-my27
+Polestar,3,3 Dual Motor (MY27) (2026),102,NMC,,https://evdbau.com/v/polestar-3#polestar-3-dual-motor-my27
+Polestar,3,3 Performance (MY27) (2026),102,NMC,,https://evdbau.com/v/polestar-3#polestar-3-performance-my27
+Polestar,4,4 Coupe single (2025),94,NMC,,https://evdbau.com/v/polestar-4#polestar-4-coupe-single
+Polestar,4,4 SUV Single (MY27) (2026),94,NMC,,https://evdbau.com/v/polestar-4#polestar-4-suv-single-my27
+Polestar,4,4 Coupe Dual (2025),94,NMC,,https://evdbau.com/v/polestar-4#polestar-4-coupe-dual
+Polestar,4,4 SUV Dual (MY27) (2026),94,NMC,,https://evdbau.com/v/polestar-4#polestar-4-suv-dual-my27
+Polestar,5,5 Dual Motor (2025),106,NMC,,https://evdbau.com/v/polestar-5#polestar-5-dual-motor
+Polestar,5,5 Performance (2025),106,NMC,,https://evdbau.com/v/polestar-5#polestar-5-performance
+Lotus,Eletre,Eletre 600 Series (2025),109,NMC,,https://evdbau.com/v/lotus-eletre#lotus-eletre-600-series
+Lotus,Eletre,Eletre 900 (2025),109,NMC,,https://evdbau.com/v/lotus-eletre#lotus-eletre-900
+Lotus,Emeya,Emeya 600 Series (2025),98.9,NMC,,https://evdbau.com/v/lotus-emeya#lotus-emeya-600-series
+Lotus,Emeya,Emeya 900 (2025),98.9,NMC,,https://evdbau.com/v/lotus-emeya#lotus-emeya-900
+Rolls-Royce,Spectre,Spectre (2024),102,NMC,,https://evdbau.com/v/rolls-royce-spectre#rolls-royce-spectre
+Cadillac,Lyriq,Lyriq Sport (MY27) (2026),92,NMC,,https://evdbau.com/v/cadillac-lyriq#cadillac-lyriq-sport-my27
+Cadillac,Lyriq,Lyriq-V,92,NMC,,https://evdbau.com/v/cadillac-lyriq#cadillac-lyriq-v
+Cadillac,Optiq,Optiq Sport AWD (2026),75,NMC,,https://evdbau.com/v/cadillac-optiq#cadillac-optiq-sport-awd
+Cadillac,Vistiq,Vistiq Platinum AWD (2026),91,NMC,,https://evdbau.com/v/cadillac-vistiq#cadillac-vistiq-platinum-awd
+XPeng,L03,Long Range,69.5,LFP,,https://evdbau.com/v/xpeng-l03#xpeng-l03-long-range
+XPeng,L03,AWD Performance Ultra,69.5,LFP,,https://evdbau.com/v/xpeng-l03#xpeng-l03-awd-performance-ultra
+XPeng,L03,Standard Range,57,LFP,,https://evdbau.com/v/xpeng-l03#xpeng-l03-standard-range
+XPeng,G6,RWD Standard Range,67.8,LFP,,https://evdbau.com/v/xpeng-g6#xpeng-g6-rwd-standard-range
+XPeng,G6,RWD Long Range,80,LFP,,https://evdbau.com/v/xpeng-g6#xpeng-g6-rwd-long-range
+XPeng,G6,AWD Performance,80,LFP,,https://evdbau.com/v/xpeng-g6#xpeng-g6-awd-performance
+XPeng,X9,FWD,92,LFP,,https://evdbau.com/v/xpeng-x9#xpeng-x9-fwd
+XPeng,X9,AWD,103,NMC,,https://evdbau.com/v/xpeng-x9#xpeng-x9-awd
+Zeekr,X,RWD MY26,61,LFP,,https://evdbau.com/v/zeekr-x#zeekr-x-rwd-my26
+Zeekr,X,AWD MY26,66,NMC,,https://evdbau.com/v/zeekr-x#zeekr-x-awd-my26
+Zeekr,7X,RWD (MY27),71,LFP,,https://evdbau.com/v/zeekr-7x#zeekr-7x-rwd-my27
+Zeekr,7X,Long Range RWD (MY27),94,NMC,,https://evdbau.com/v/zeekr-7x#zeekr-7x-long-range-rwd-my27
+Zeekr,7X,Performance AWD (MY27),94,NMC,,https://evdbau.com/v/zeekr-7x#zeekr-7x-performance-awd-my27
+Zeekr,009,FWD,116,NMC,,https://evdbau.com/v/zeekr-009#zeekr-009-fwd
+Zeekr,009,7-seat,116,NMC,,https://evdbau.com/v/zeekr-009#zeekr-009-7-seat
+Zeekr,009,6-seat,116,NMC,,https://evdbau.com/v/zeekr-009#zeekr-009-6-seat
+Deepal,E07,RWD,90,NMC,,https://evdbau.com/v/deepal-e07#deepal-e07-rwd
+Deepal,E07,AWD,90,NMC,,https://evdbau.com/v/deepal-e07#deepal-e07-awd
+Deepal,S07,S07,80,NMC,,https://evdbau.com/v/deepal-s07#deepal-s07
+GAC,Aion UT,Premium,60,LFP,,https://evdbau.com/v/gac-aion-ut#gac-aion-ut-premium
+GAC,Aion UT,Luxury,60,LFP,,https://evdbau.com/v/gac-aion-ut#gac-aion-ut-luxury
+GAC,Aion V,Premium,75.3,LFP,,https://evdbau.com/v/gac-aion-v#gac-aion-v-premium
+GAC,Aion V,Luxury,75.3,LFP,,https://evdbau.com/v/gac-aion-v#gac-aion-v-luxury
+Forthing,Taikon,Luxury,64.4,LFP,,https://evdbau.com/v/forthing-taikon#forthing-taikon-luxury
+Forthing,Taikon,Exclusive,64.4,LFP,,https://evdbau.com/v/forthing-taikon#forthing-taikon-exclusive
+LDV,eDeliver 5,SWB,64,LFP,,https://evdbau.com/v/ldv-edeliver-5#ldv-edeliver-5-swb
+LDV,eDeliver 5,LWB Low,64,LFP,,https://evdbau.com/v/ldv-edeliver-5#ldv-edeliver-5-lwb-low
+LDV,eDeliver 5,LWB High,64,LFP,,https://evdbau.com/v/ldv-edeliver-5#ldv-edeliver-5-lwb-high
+LDV,eDeliver 7,SWB (2024),77,LFP,,https://evdbau.com/v/ldv-edeliver-7#ldv-edeliver-7-swb
+LDV,eDeliver 7,LWB (2024),77,LFP,,https://evdbau.com/v/ldv-edeliver-7#ldv-edeliver-7-lwb
+LDV,eDeliver 7,LWB Extended (2024),88,LFP,,https://evdbau.com/v/ldv-edeliver-7#ldv-edeliver-7-lwb-extended
+Farizon,SV,SWB (2025),83,LFP,,https://evdbau.com/v/farizon-sv#farizon-sv-swb
+Farizon,SV,LWB Low (2025),83,LFP,,https://evdbau.com/v/farizon-sv#farizon-sv-lwb-low
+Farizon,SV,LWB High (2025),83,LFP,,https://evdbau.com/v/farizon-sv#farizon-sv-lwb-high
+Farizon,SV,SLWB High (2026),106,NMC,,https://evdbau.com/v/farizon-sv#farizon-sv-slwb-high
+Farizon,V7E,SR,50,LFP,,https://evdbau.com/v/farizon-v7e#farizon-v7e-sr
+Farizon,V7E,LR,66,LFP,,https://evdbau.com/v/farizon-v7e#farizon-v7e-lr

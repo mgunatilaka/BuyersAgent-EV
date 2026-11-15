@@ -7,6 +7,7 @@
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
     "test": "node --test \"src/**/*.test.js\"",
+    "build:catalog": "node src/catalog/build.js",
     "scrape": "node src/au_ev_scraper_pipeline.js",
     "scrape:dry": "node src/au_ev_scraper_pipeline.js --dry-run"
   },

@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
+import fsp from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -99,6 +100,7 @@ export function createApp({
   resendApiKey = process.env.RESEND_API_KEY || '',
   resendFromEmail = process.env.RESEND_FROM_EMAIL || 'BuyersAgent EV <onboarding@resend.dev>',
   sessionSecret = process.env.SESSION_SECRET || '',
+  catalogPath = path.join(__dirname, '../data/au-bev-catalog.json'),
   fetchImpl = globalThis.fetch
 } = {}) {
   const app = express();
@@ -422,6 +424,25 @@ export function createApp({
     } catch (err) {
       console.error('[Supabase Seed Exception]', err);
       return res.status(500).json({ error: err.message });
+    }
+  });
+
+  /**
+   * GET /api/v1/catalog
+   * The full per-variant Australian BEV catalog (built by `npm run build:catalog`).
+   */
+  let catalogCache = null;
+  app.get('/api/v1/catalog', async (_req, res) => {
+    try {
+      if (!catalogCache) {
+        catalogCache = await fsp.readFile(catalogPath, 'utf-8');
+      }
+      res.setHeader('Content-Type', 'application/json; charset=utf-8');
+      res.setHeader('Cache-Control', 'public, max-age=300');
+      return res.status(200).send(catalogCache);
+    } catch (err) {
+      console.error('[Catalog Error]', err.message);
+      return res.status(503).json({ error: 'Catalog not built yet. Run npm run build:catalog.' });
     }
   });
 
