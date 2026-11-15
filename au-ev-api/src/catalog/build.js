@@ -16,7 +16,10 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DATA_DIR = path.join(__dirname, '..', '..', 'data');
 const RAW_VARIANTS = path.join(DATA_DIR, 'raw', 'evdbau-variants-2026-11.csv');
 const RAW_BATTERY = path.join(DATA_DIR, 'raw', 'evdbau-battery-2026-11.csv');
+const REVIEWS = path.join(DATA_DIR, 'reviews', 'expert-verdicts-2026-11.json');
 const OUT = path.join(DATA_DIR, 'au-bev-catalog.json');
+
+const REVIEW_LABEL_SCORE = { Excellent: 9, 'Very Good': 8, Good: 7, Average: 5, 'Below Average': 3 };
 
 // ---------------------------------------------------------------- CSV parsing
 export function parseCsv(text) {
@@ -171,11 +174,14 @@ function rate(v) {
 
 // ---------------------------------------------------------------- main
 export async function buildCatalog() {
-  const [variantsCsv, batteryCsv] = await Promise.all([
+  const [variantsCsv, batteryCsv, reviewsJson] = await Promise.all([
     fs.readFile(RAW_VARIANTS, 'utf-8'),
-    fs.readFile(RAW_BATTERY, 'utf-8')
+    fs.readFile(RAW_BATTERY, 'utf-8'),
+    fs.readFile(REVIEWS, 'utf-8')
   ]);
   const battery = new Map(parseCsv(batteryCsv).map((r) => [`${r.make}|${r.model}|${r.variant}`, r]));
+  const reviewsFile = JSON.parse(reviewsJson);
+  const reviews = new Map(reviewsFile.reviews.map((r) => [`${r.make}|${r.model}`, r]));
 
   const vehicles = [];
   const counts = { 'on-sale': 0, arriving: 0, upcoming: 0, previous: 0 };
@@ -236,6 +242,22 @@ export async function buildCatalog() {
       features: parseFeatures(raw.key_features || ''),
       keyFeatures: raw.key_features ? raw.key_features.split(';').map((s) => s.trim()).filter(Boolean) : [],
       reviews: reviewLinks(raw.make, raw.model),
+      expertReview: (() => {
+        const r = reviews.get(`${raw.make}|${raw.model}`);
+        if (!r) return null;
+        return {
+          source: 'CarExpert',
+          label: r.label,
+          labelScore: REVIEW_LABEL_SCORE[r.label] ?? null,
+          verdict: r.verdict,
+          pros: r.pros,
+          cons: r.cons,
+          url: r.reviewUrl,
+          date: r.reviewDate,
+          caveat: r.caveat || null
+        };
+      })(),
+      marketSlug: { make: slug(raw.make), model: slug(raw.model) },
       source: { name: 'EV Database Australia (evdbau.com)', url: raw.source_url, retrieved: DATA_AS_OF }
     };
     v.licence = licenceFlags(powerKw, kerbKg);
@@ -264,7 +286,9 @@ export async function buildCatalog() {
       'Stamp duty uses the list price as the dutiable value. Rego/CTP figures marked "estimate" are approximate. Dealer delivery is excluded.',
       'Depreciation is a brand/segment heuristic, not auction data.',
       'P-plate status uses kerb weight as a proxy for tare mass; always check the official state tool before buying.',
-      'Country of manufacture is an editorial reference, not from the source pages.'
+      'Country of manufacture is an editorial reference, not from the source pages.',
+      `Expert verdicts are short paraphrased summaries of CarExpert reviews (retrieved ${reviewsFile.retrieved}); read the full review via the link.`,
+      'Novated lease figures are estimates for illustration, not financial or tax advice. Get a quote from a licensed provider.'
     ],
     vehicles
   };

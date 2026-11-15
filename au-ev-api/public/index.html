@@ -8,7 +8,8 @@
   <meta name="theme-color" content="#0f172a" />
   <script src="https://cdn.tailwindcss.com/3.4.16"></script>
   <style>
-    :root { --safe-bottom: env(safe-area-inset-bottom, 0px); }
+    :root { --safe-bottom: env(safe-area-inset-bottom, 0px); --header-h: 6.5rem; }
+    @media (min-width: 1024px) { #filterPanel { position: sticky; } }
     body { -webkit-tap-highlight-color: transparent; }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { scrollbar-width: none; }
@@ -35,6 +36,7 @@
         <input id="search" type="search" placeholder="Search e.g. Model Y, EV5, ute…" autocomplete="off"
           class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
       </label>
+      <button id="advisorBtn" type="button" class="shrink-0 rounded-lg bg-emerald-500 text-slate-950 px-3 py-2 text-sm font-extrabold" title="Get a recommendation from your budget and lifestyle">✨<span class="hidden sm:inline"> Find my EV</span></button>
       <label class="shrink-0">
         <span class="sr-only">Your state</span>
         <select id="stateSelect" class="rounded-lg bg-slate-800 border border-slate-700 px-2 py-2 text-sm font-semibold"></select>
@@ -70,7 +72,8 @@
     <div id="filterBackdrop" class="hidden fixed inset-0 bg-slate-950/50 z-40 lg:hidden"></div>
     <aside id="filterPanel" aria-label="Filters"
       class="sheet fixed inset-x-0 bottom-0 z-50 max-h-[85vh] translate-y-full rounded-t-2xl bg-white shadow-2xl overflow-y-auto
-             lg:static lg:translate-y-0 lg:max-h-none lg:rounded-2xl lg:shadow-sm lg:border lg:border-slate-200 lg:self-start lg:sticky lg:top-28">
+             lg:inset-auto lg:z-10 lg:translate-y-0 lg:rounded-2xl lg:shadow-sm lg:border lg:border-slate-200 lg:self-start
+             lg:sticky lg:top-[var(--header-h)] lg:max-h-[calc(100vh-var(--header-h)-1rem)] lg:overscroll-contain">
       <div class="sticky top-0 bg-white z-10 flex items-center justify-between px-4 py-3 border-b border-slate-100">
         <h2 class="font-extrabold">Filters</h2>
         <div class="flex gap-2">
@@ -221,8 +224,8 @@
 
   <div id="toast" class="hidden fixed top-20 left-1/2 -translate-x-1/2 z-[70] bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-lg text-sm font-semibold"></div>
 
-<script>
-'use strict';
+<script type="module">
+import { novatedLease, ASSUMPTIONS as NOVATED } from './js/novated.js';
 
 // =============================================================== helpers
 function esc(value) {
@@ -258,14 +261,64 @@ const PRICE_STEPS = [0, 30000, 40000, 50000, 60000, 70000, 80000, 91387, 100000,
 const PAGE = 48;
 
 // =============================================================== state
+const PROFILE_KEY = 'ev_novated_profile';
+function loadProfile() {
+  const d = { salary: 0, termYears: 5, kmPerYear: 15000, ratePct: 8, centsPerKwh: 30 };
+  try { return { ...d, ...JSON.parse(localStorage.getItem(PROFILE_KEY) || '{}') }; } catch { return d; }
+}
+function saveProfile() {
+  try { localStorage.setItem(PROFILE_KEY, JSON.stringify(state.profile)); } catch { /* storage unavailable */ }
+}
 const state = {
   catalog: null,
   vehicles: [],
   isAdmin: false,
   shown: PAGE,
   compare: new Set(),
+  profile: loadProfile(),
   f: defaultFilters()
 };
+
+/** Novated lease estimate for a vehicle using the saved profile (null if no salary/price). */
+function novatedFor(v, profile = state.profile) {
+  const price = effectivePrice(v);
+  if (!profile.salary || !price) return null;
+  return novatedLease({
+    salary: profile.salary, price, termYears: profile.termYears, kmPerYear: profile.kmPerYear,
+    ratePct: profile.ratePct, centsPerKwh: profile.centsPerKwh,
+    kwhPer100km: v.efficiencyKwhPer100km || 17,
+    rego: state.catalog.states[state.f.st].regoCtp,
+    fbtExempt: Boolean(v.fbtExemptEligible)
+  });
+}
+
+/** Closest rivals: same body group, similar price, one best-matching variant per other model. */
+function findRivals(v, n = 4) {
+  const price = effectivePrice(v);
+  const group = bodyGroup(v.bodyType);
+  const best = new Map();
+  for (const c of state.vehicles) {
+    if (c.make === v.make && c.model === v.model) continue;
+    if (!['on-sale', 'arriving'].includes(c.status) || bodyGroup(c.bodyType) !== group) continue;
+    const cp = effectivePrice(c);
+    if (!price || !cp || Math.abs(cp - price) / price > 0.25) continue;
+    const dist = Math.abs(cp - price) / price
+      + Math.abs((c.rangeKm || 0) - (v.rangeKm || 0)) / 2000
+      + ((c.seats || 5) === (v.seats || 5) ? 0 : 0.1)
+      + (c.drivetrain === v.drivetrain ? 0 : 0.04);
+    const key = `${c.make}|${c.model}`;
+    if (!best.has(key) || best.get(key).dist > dist) best.set(key, { c, dist });
+  }
+  return [...best.values()].sort((a, b) => a.dist - b.dist).slice(0, n).map((x) => x.c);
+}
+
+function carsalesUrl(v) {
+  const states = { NSW: 'new-south-wales', VIC: 'victoria', QLD: 'queensland', WA: 'western-australia', SA: 'south-australia', TAS: 'tasmania', ACT: 'australian-capital-territory', NT: 'northern-territory' };
+  return `https://www.carsales.com.au/cars/${v.marketSlug.make}/${v.marketSlug.model}/${states[state.f.st]}-state/`;
+}
+function carsalesSearchUrl(v) {
+  return `https://www.google.com/search?q=${encodeURIComponent(`site:carsales.com.au ${v.make} ${v.model} ${v.variant}`)}`;
+}
 function defaultFilters() {
   return {
     q: '', st: 'NSW', lic: 'full', preset: 'balanced', sort: 'rating', view: 'grid',
@@ -416,7 +469,11 @@ function card(v) {
         </div>
         ${scoreRing(v._score)}
       </div>
-      ${priceBlock(v)}
+      <div class="flex items-end justify-between gap-2">${priceBlock(v)}${(() => {
+        const n = novatedFor(v);
+        return n ? `<div class="text-right"><div class="text-sm font-extrabold text-emerald-700">~${aud(n.outOfPocket.weekly)}/wk</div><div class="text-[11px] text-slate-500">novated, ${n.inputs.termYears} yr</div></div>` : '';
+      })()}</div>
+      ${v.expertReview?.label ? `<div class="text-xs text-slate-600">⭐ CarExpert: <b>${esc(v.expertReview.label)}</b></div>` : ''}
       <dl class="grid grid-cols-4 gap-1 text-center text-xs">
         <div class="bg-slate-50 rounded-lg py-1.5"><dt class="text-[10px] text-slate-500">Range</dt><dd class="font-bold">${fmt(v.rangeKm, ' km')}</dd></div>
         <div class="bg-slate-50 rounded-lg py-1.5"><dt class="text-[10px] text-slate-500">Usable</dt><dd class="font-bold">${fmt(v.battery.usableKwh ?? v.battery.grossKwh, ' kWh', 1)}</dd></div>
@@ -433,6 +490,7 @@ function card(v) {
     </button>
     <div class="flex border-t border-slate-100 text-sm font-semibold">
       <button type="button" data-cmp="${esc(v.id)}" class="flex-1 py-2.5 ${inCmp ? 'text-emerald-700' : 'text-slate-700'}">${inCmp ? '✓ Comparing' : '+ Compare'}</button>
+      <button type="button" data-rivals="${esc(v.id)}" class="flex-1 py-2.5 border-l border-slate-100 text-slate-700">⚔ Rivals</button>
       <button type="button" data-open="${esc(v.id)}" class="flex-1 py-2.5 border-l border-slate-100 text-slate-700">Details</button>
     </div>
   </article>`;
@@ -542,6 +600,8 @@ function openDetail(id) {
   const v = state.vehicles.find((x) => x.id === id);
   if (!v) return;
   v._score = weightedScore(v);
+  state.dialogMode = 'detail';
+  state.detailId = id;
   const cat = state.catalog;
   $('dialogTitle').textContent = `${v.make} ${v.model} ${v.variant}`;
   const costRows = STATE_CODES.map((s) => {
@@ -573,13 +633,41 @@ function openDetail(id) {
       <div class="mr-auto">${priceBlock(v)}</div>
       <div class="flex flex-wrap gap-2">
         <button type="button" data-cmp="${esc(v.id)}" class="rounded-lg bg-slate-900 text-white px-3 py-2 text-sm font-bold">${state.compare.has(v.id) ? '✓ In compare' : '+ Compare'}</button>
+        <button type="button" data-rivals="${esc(v.id)}" class="rounded-lg border border-slate-300 px-3 py-2 text-sm font-bold">⚔ Compare with rivals</button>
+        <a target="_blank" rel="noopener noreferrer" href="${esc(carsalesUrl(v))}" class="rounded-lg border border-slate-300 px-3 py-2 text-sm font-bold">🔎 Carsales ${esc(state.f.st)}</a>
         ${state.isAdmin ? `<button type="button" data-edit="${esc(v.id)}" class="rounded-lg bg-amber-100 text-amber-900 px-3 py-2 text-sm font-bold">Edit</button>` : ''}
       </div>
     </section>
 
     <nav class="flex gap-2 overflow-x-auto no-scrollbar text-xs font-semibold sticky top-0 bg-white py-2 -my-2 z-10">
-      ${['Specs', 'Costs', 'Licence', 'Value', 'Reviews'].map((t) => `<a href="#d-${t}" class="rounded-full bg-slate-100 px-3 py-1.5 shrink-0">${t}</a>`).join('')}
+      ${['Reviews', 'Specs', 'Costs', 'Novated', 'Licence', 'Value'].map((t) => `<a href="#d-${t}" class="rounded-full bg-slate-100 px-3 py-1.5 shrink-0">${t}</a>`).join('')}
     </nav>
+
+    ${v.expertReview ? `<section class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+      <div class="flex flex-wrap items-baseline gap-2 mb-1">
+        <h3 class="font-extrabold">Expert verdict</h3>
+        <span class="text-sm">CarExpert${v.expertReview.label ? `: <b>${esc(v.expertReview.label)}</b>` : ' (not rated)'}${v.expertReview.date ? ` · ${esc(v.expertReview.date)}` : ''}</span>
+      </div>
+      <p class="text-sm text-slate-700">${esc(v.expertReview.verdict)}</p>
+      <div class="grid sm:grid-cols-2 gap-3 mt-3 text-sm">
+        <ul class="space-y-1">${v.expertReview.pros.map((p) => `<li>👍 ${esc(p)}</li>`).join('')}</ul>
+        <ul class="space-y-1">${v.expertReview.cons.map((p) => `<li>👎 ${esc(p)}</li>`).join('')}</ul>
+      </div>
+      ${v.expertReview.caveat ? `<p class="text-xs text-amber-800 mt-2">Note: ${esc(v.expertReview.caveat)}</p>` : ''}
+      <a target="_blank" rel="noopener noreferrer" href="${esc(v.expertReview.url)}" class="inline-block mt-2 text-sm font-semibold text-emerald-700 underline">Read the full review ↗</a>
+      <p class="text-[11px] text-slate-400 mt-1">Paraphrased summary of the model-level review; the reviewed variant may differ.</p>
+    </section>` : ''}
+
+    <section id="d-Novated" class="rounded-xl border border-emerald-200 bg-emerald-50/40 p-4">
+      <h3 class="font-extrabold mb-2">Novated lease estimate</h3>
+      <form id="novForm" class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+        <label class="col-span-2 sm:col-span-1">Base salary (p.a.)<input name="salary" type="number" min="0" step="1000" inputmode="numeric" value="${state.profile.salary || ''}" placeholder="e.g. 95000" class="mt-1 w-full rounded-lg border border-slate-300 px-2 py-1.5 text-sm" /></label>
+        <label>Term<select name="termYears" class="mt-1 w-full rounded-lg border border-slate-300 px-2 py-1.5 text-sm">${[1, 2, 3, 4, 5].map((y) => `<option value="${y}" ${state.profile.termYears === y ? 'selected' : ''}>${y} yr</option>`).join('')}</select></label>
+        <label>km per year<input name="kmPerYear" type="number" min="1000" step="1000" value="${state.profile.kmPerYear}" class="mt-1 w-full rounded-lg border border-slate-300 px-2 py-1.5 text-sm" /></label>
+        <label>Interest %<input name="ratePct" type="number" min="0" max="20" step="0.1" value="${state.profile.ratePct}" class="mt-1 w-full rounded-lg border border-slate-300 px-2 py-1.5 text-sm" /></label>
+      </form>
+      <div id="novResult" class="mt-3"></div>
+    </section>
 
     <section id="d-Specs" class="grid sm:grid-cols-2 gap-x-8">
       <dl>
@@ -649,10 +737,62 @@ function openDetail(id) {
       <p class="text-xs text-slate-500 mt-3">Specs: <a class="underline" target="_blank" rel="noopener noreferrer" href="${esc(v.source.url)}">${esc(v.source.name)}</a>, retrieved ${esc(v.source.retrieved)}.${v.adminNote ? ` Admin note: ${esc(v.adminNote)}` : ''}</p>
     </section>
   </div>`;
+  const novForm = $('novForm');
+  const updateNov = () => {
+    const fd = new FormData(novForm);
+    state.profile = {
+      ...state.profile,
+      salary: Number(fd.get('salary')) || 0,
+      termYears: Number(fd.get('termYears')) || 5,
+      kmPerYear: Number(fd.get('kmPerYear')) || 15000,
+      ratePct: Number(fd.get('ratePct')) || 0
+    };
+    saveProfile();
+    $('novResult').innerHTML = novatedHtml(v);
+    render();
+  };
+  novForm.addEventListener('input', updateNov);
+  novForm.addEventListener('submit', (e) => e.preventDefault());
+  $('novResult').innerHTML = novatedHtml(v);
   showDialog();
 }
-function openCompare() {
-  const cars = [...state.compare].map((id) => state.vehicles.find((v) => v.id === id)).filter(Boolean);
+function novatedHtml(v) {
+  if (!effectivePrice(v)) return '<p class="text-sm text-slate-500">No price yet for this variant.</p>';
+  if (!state.profile.salary) return '<p class="text-sm text-slate-600">Enter your base salary to see your weekly out-of-pocket cost.</p>';
+  const n = novatedFor(v);
+  const big = (label, val, sub = '') => `<div class="rounded-lg bg-white border border-slate-200 p-3"><div class="text-[11px] text-slate-500">${label}</div><div class="text-xl font-extrabold">${val}</div>${sub ? `<div class="text-[11px] text-slate-500">${sub}</div>` : ''}</div>`;
+  return `<div class="grid grid-cols-3 gap-2">
+      ${big('Weekly out of pocket', aud(n.outOfPocket.weekly))}
+      ${big('Fortnightly', aud(n.outOfPocket.fortnightly))}
+      ${big('Monthly', aud(n.outOfPocket.monthly))}
+    </div>
+    <p class="text-sm mt-2">vs ~<b>${aud(n.comparison.afterTaxWeekly)}/wk</b> buying with a car loan from after-tax pay — about <b class="text-emerald-700">${aud(n.comparison.savingPerWeek)}/wk</b> saved (${aud(n.comparison.savingOverTerm)} over ${n.inputs.termYears} yr).</p>
+    <details class="mt-2 text-sm"><summary class="text-emerald-700 font-semibold">How it's worked out</summary>
+      <dl class="mt-2 text-xs grid sm:grid-cols-2 gap-x-6">
+        ${specRow('Price used', `${aud(n.inputs.price)} (${esc(state.f.st)})`)}
+        ${specRow('GST credit (lessor)', aud(n.vehicle.gstCredit))}
+        ${specRow('Amount financed', aud(n.vehicle.financed))}
+        ${specRow(`Residual / balloon (${Math.round(n.vehicle.residualPct * 1000) / 10}%)`, aud(n.vehicle.residual))}
+        ${specRow('Finance repayment', `${aud(n.vehicle.monthly)}/month`)}
+        ${specRow('Running costs (charging, insurance, tyres, servicing, rego, fees)', `${aud(n.running.annualExGst)}/yr ex-GST`)}
+        ${specRow('Pre-tax deduction', `${aud(n.annual.preTax)}/yr`)}
+        ${specRow('Post-tax contribution (ECM)', `${aud(n.annual.postTax)}/yr`)}
+        ${specRow('Income tax + Medicare saved', `${aud(n.annual.taxSaving)}/yr (marginal ${n.marginalRatePct}%)`)}
+        ${specRow('FBT', n.inputs.fbtExempt ? 'Exempt (BEV under LCT threshold)' : 'Not exempt: ECM used')}
+      </dl>
+      <p class="text-[11px] text-slate-500 mt-2">FY${NOVATED.financialYear} resident tax rates, 2% Medicare, LITO. Charging at ${state.profile.centsPerKwh}c/kWh; insurance $1,800, tyres $300, servicing $300, provider fee $480 per year (all editable assumptions in code). Residual is payable at lease end. Estimate only — not financial or tax advice; get a quote from a licensed novated lease provider.</p>
+    </details>`;
+}
+function openRivals(id) {
+  const v = state.vehicles.find((x) => x.id === id);
+  if (!v) return;
+  const rivals = findRivals(v);
+  if (!rivals.length) return toast('No close rivals found at this price and body type.');
+  openCompare([v, ...rivals], `${v.model} ${v.variant} vs rivals`);
+}
+function openCompare(list = null, title = null) {
+  state.cmpCtx = list ? { ids: list.map((c) => c.id), title } : null;
+  const cars = (list || [...state.compare].map((id) => state.vehicles.find((v) => v.id === id))).filter(Boolean);
   if (!cars.length) return;
   cars.forEach((v) => (v._score = weightedScore(v)));
   const best = (fn, dir = 1) => { const vals = cars.map(fn).filter((x) => x != null); return vals.length ? (dir > 0 ? Math.max(...vals) : Math.min(...vals)) : null; };
@@ -661,14 +801,20 @@ function openCompare() {
     return `<tr class="border-t border-slate-100"><th class="sticky-col bg-white text-left px-3 py-2 text-xs text-slate-500 font-semibold">${esc(label)}</th>
       ${cars.map((c) => { const val = fn(c); return `<td class="px-3 py-2 text-sm ${top != null && val === top ? 'font-extrabold text-emerald-700' : ''}">${fmtFn(val, c)}</td>`; }).join('')}</tr>`;
   };
-  $('dialogTitle').textContent = `Compare ${cars.length} EVs`;
-  $('dialogBody').innerHTML = `<div class="overflow-x-auto"><table class="min-w-full">
-    <thead><tr><th class="sticky-col bg-white"></th>${cars.map((c) => `<th class="px-3 py-3 text-left align-top min-w-[11rem]">
-      <div class="text-xs text-slate-500">${esc(c.make)}</div><div class="font-extrabold">${esc(c.model)}</div><div class="text-xs font-normal">${esc(c.variant)}</div>
-      <button type="button" data-cmp="${esc(c.id)}" class="text-xs text-red-600 font-semibold mt-1">Remove</button></th>`).join('')}</tr></thead>
+  const rivalsMode = Boolean(list);
+  state.dialogMode = rivalsMode ? 'rivals' : 'compare';
+  $('dialogTitle').textContent = title || `Compare ${cars.length} EVs`;
+  $('dialogBody').innerHTML = `${rivalsMode ? `<p class="px-4 pt-4 text-sm text-slate-600">Closest rivals by body type, price (±25%) and range. Tap a name for details or add any to your compare list.</p>` : ''}
+    <div class="overflow-x-auto"><table class="min-w-full">
+    <thead><tr><th class="sticky-col bg-white"></th>${cars.map((c, i) => `<th class="px-3 py-3 text-left align-top min-w-[11rem] ${rivalsMode && i === 0 ? 'bg-emerald-50' : ''}">
+      <div class="text-xs text-slate-500">${rivalsMode && i === 0 ? 'Your pick · ' : ''}${esc(c.make)}</div>
+      <button type="button" data-open="${esc(c.id)}" class="font-extrabold text-left hover:underline">${esc(c.model)}</button><div class="text-xs font-normal">${esc(c.variant)}</div>
+      <button type="button" data-cmp="${esc(c.id)}" class="text-xs ${state.compare.has(c.id) ? 'text-red-600' : 'text-emerald-700'} font-semibold mt-1">${state.compare.has(c.id) ? (rivalsMode ? '✓ In compare list' : 'Remove') : '+ Add to compare'}</button></th>`).join('')}</tr></thead>
     <tbody>
       ${row('Rating', (c) => c._score, (x) => x ?? '—', 1)}
+      ${row('CarExpert verdict', (c) => c.expertReview?.label || null, (x) => esc(x ?? 'Not reviewed'))}
       ${row(`Price (${state.f.st})`, (c) => effectivePrice(c), (x) => aud(x), -1)}
+      ${state.profile.salary ? row('Novated, per week (est.)', (c) => novatedFor(c)?.outOfPocket.weekly ?? null, (x) => aud(x), -1) : ''}
       ${row('WLTP range', (c) => c.rangeKm, (x) => fmt(x, ' km'), 1)}
       ${row('Usable battery', (c) => c.battery.usableKwh, (x) => fmt(x, ' kWh', 1), 1)}
       ${row('Chemistry', (c) => c.battery.chemistry)}
@@ -687,6 +833,9 @@ function openCompare() {
       ${row('FBT-exempt eligible', (c) => c.fbtExemptEligible, (x) => (x ? '✓' : '—'))}
       ${row('Built in', (c) => c.origin.country)}
       ${Object.entries(FEATURES).map(([k, l]) => row(l, (c) => c.features[k], (x) => (typeof x === 'number' ? `${x} kW` : x ? '✓' : '—'))).join('')}
+      ${row('Expert likes', (c) => c.expertReview?.pros?.slice(0, 2).join('; ') || null, (x) => `<span class="text-xs">${esc(x ?? '—')}</span>`)}
+      ${row('Expert dislikes', (c) => c.expertReview?.cons?.slice(0, 2).join('; ') || null, (x) => `<span class="text-xs">${esc(x ?? '—')}</span>`)}
+      ${row('Shop', (c) => c.id, (_x, c) => `<a target="_blank" rel="noopener noreferrer" href="${esc(carsalesUrl(c))}" class="text-emerald-700 underline text-xs font-semibold">Carsales ${esc(state.f.st)} ↗</a>`)}
     </tbody></table></div>
     <p class="text-xs text-slate-500 p-4">Green = best in this comparison. "—" means the source does not list it.</p>`;
   showDialog();
@@ -703,6 +852,232 @@ function closeDialog() {
   $('dialog').classList.add('hidden');
   document.body.style.overflow = '';
   lastFocus?.focus?.();
+}
+
+// =============================================================== advisor ("Find my EV")
+const LIFESTYLES = {
+  city:        { label: '🏙 City & short trips', preset: 'commuter' },
+  commute:     { label: '🛣 Long daily commute', preset: 'commuter' },
+  family:      { label: '👨‍👩‍👧 Family', preset: 'family' },
+  roadtrip:    { label: '🗺 Regular road trips', preset: 'roadtrip' },
+  towing:      { label: '🚤 Tow caravan / boat', preset: 'towing' },
+  offroad:     { label: '🏕 Gravel & light off-road', preset: 'family' },
+  tradie:      { label: '🧰 Tradie / cargo', preset: 'towing' },
+  performance: { label: '🏁 Fun to drive', preset: 'performance' },
+  luxury:      { label: '🛋 Comfort & tech', preset: null },
+  value:       { label: '💰 Lowest running cost', preset: 'value' }
+};
+const LUXURY_W = { value: 5, range: 15, efficiency: 5, charging: 10, practicality: 15, safety: 15, resale: 10, performance: 10 };
+const ADV_KEY = 'ev_advisor';
+function loadAdvisor() {
+  const d = { mode: 'buy', budget: 60000, weekly: 250, dailyKm: 40, homeCharging: true, seats: 5, tow: 0, life: ['family'] };
+  try { return { ...d, ...JSON.parse(localStorage.getItem(ADV_KEY) || '{}') }; } catch { return d; }
+}
+state.adv = loadAdvisor();
+
+function advisorWeights(life) {
+  const total = {};
+  const add = (w) => { for (const [k, x] of Object.entries(w)) total[k] = (total[k] || 0) + x; };
+  for (const l of life) add(LIFESTYLES[l]?.preset ? PRESETS[LIFESTYLES[l].preset].w : LUXURY_W);
+  if (!life.length) add(state.catalog.ratingWeights);
+  return total;
+}
+function scoreWith(v, w) {
+  let t = 0, wt = 0;
+  for (const [k, x] of Object.entries(w)) { const p = v.rating.breakdown[k]; if (p == null || !x) continue; t += p * x; wt += x; }
+  return wt ? (t / wt) * 10 : 0;
+}
+
+function advisorCandidates() {
+  const a = state.adv;
+  const life = new Set(a.life);
+  const w = advisorWeights(a.life);
+  const needRange = Math.max(life.has('roadtrip') ? 450 : 0, a.dailyKm * (a.homeCharging ? 1.3 : 3));
+  const seats = Math.max(a.seats, 0);
+  const tow = Math.max(a.tow, life.has('towing') ? 1500 : 0);
+  const scored = [];
+  for (const v of state.vehicles) {
+    if (!['on-sale', 'arriving'].includes(v.status)) continue;
+    const price = effectivePrice(v);
+    if (!price) continue;
+    let weekly = null;
+    if (a.mode === 'novated') {
+      weekly = novatedFor(v)?.outOfPocket.weekly ?? null;
+      if (weekly == null || weekly > a.weekly) continue;
+    } else if (price > a.budget) continue;
+    if ((v.seats || 0) < seats) continue;
+    if (tow && (v.towingBrakedKg || 0) < tow) continue;
+    if ((v.rangeKm || 0) < needRange) continue;
+    if (licenceStatus(v).code === 'banned') continue;
+    if (life.has('tradie') && !['Ute', 'Van'].includes(bodyGroup(v.bodyType)) && (v.bootL || 0) < 550) continue;
+
+    let score = scoreWith(v, w);
+    const er = v.expertReview;
+    score += er?.labelScore ? (er.labelScore - 7) * 4 : -2;
+    if (life.has('luxury')) score += ['massageSeats', 'ventilatedSeats', 'hud', 'premiumAudio', 'panoramicRoof'].filter((k) => v.features[k]).length * 1.5;
+    if (life.has('city') && ['Hatch', 'Sedan'].includes(bodyGroup(v.bodyType)) || (life.has('city') && /Small/.test(v.bodyType || ''))) score += 3;
+    if (life.has('offroad')) score += ((v.groundClearanceMm || 0) >= 180 ? 4 : -3) + (v.drivetrain === 'AWD' ? 3 : 0);
+    if (life.has('tradie') && ['Ute', 'Van'].includes(bodyGroup(v.bodyType))) score += 8;
+    if (life.has('roadtrip') && (v.charging.dcKw || 0) >= 150) score += 3;
+    if (life.has('family') && v.ancap === '5') score += 2;
+    if (a.mode === 'novated' && !v.fbtExemptEligible) score -= 6;
+    scored.push({ v, score, price, weekly });
+  }
+  // One (best) variant per model
+  const best = new Map();
+  for (const s of scored) {
+    const k = `${s.v.make}|${s.v.model}`;
+    if (!best.has(k) || best.get(k).score < s.score) best.set(k, s);
+  }
+  return { list: [...best.values()].sort((x, y) => y.score - x.score), needRange, total: scored.length };
+}
+
+function reasonsFor(s) {
+  const a = state.adv, v = s.v, life = new Set(a.life), out = [];
+  if (a.mode === 'novated') out.push(`≈ <b>${aud(s.weekly)}/wk</b> on a ${state.profile.termYears}-yr novated lease (your budget ${aud(a.weekly)}/wk)${v.fbtExemptEligible ? ', FBT-exempt' : ''}.`);
+  else out.push(`<b>${aud(s.price)}</b> ${v.priceBasis === 'driveaway' ? 'drive-away' : `est. on-road in ${esc(state.f.st)}`} — ${aud(a.budget - s.price)} under your budget.`);
+  if (v.rangeKm && a.dailyKm) out.push(`${v.rangeKm} km WLTP: roughly ${Math.max(1, Math.floor((v.rangeKm * 0.85) / a.dailyKm))} days of your ${a.dailyKm} km driving per charge (real-world ≈85%).`);
+  const fit = [];
+  if ((v.seats || 0) >= 7) fit.push(`${v.seats} seats`);
+  if (life.has('towing') || a.tow) fit.push(`tows ${fmt(v.towingBrakedKg, ' kg')} braked`);
+  if (life.has('offroad')) fit.push(`${fmt(v.groundClearanceMm, ' mm')} clearance${v.drivetrain === 'AWD' ? ' + AWD' : ''}`);
+  if (life.has('roadtrip')) fit.push(`${fmt(v.charging.dcKw, ' kW')} DC fast charging`);
+  if (life.has('tradie')) fit.push(`${esc(v.bodyType)}${v.bootL ? `, ${v.bootL} L cargo` : ''}`);
+  if (life.has('luxury')) { const f = Object.entries(FEATURES).filter(([k]) => v.features[k] === true).map(([, l]) => l); if (f.length) fit.push(f.slice(0, 4).join(', ')); }
+  if (life.has('value') || life.has('city') || life.has('commute')) fit.push(`${fmt(v.efficiencyKwhPer100km, ' kWh/100 km', 1)} (≈${aud(((v.efficiencyKwhPer100km || 16) / 100) * a.dailyKm * 365 * 0.3)}/yr to charge at home)`);
+  if (fit.length) out.push(`Fits your lifestyle: ${fit.join(' · ')}.`);
+  const er = v.expertReview;
+  if (er) {
+    out.push(`<b>Expert view</b> (CarExpert${er.label ? `, ${esc(er.label)}` : ''}): ${esc(er.verdict)}`);
+    if (er.cons?.[0]) out.push(`Watch out for: ${esc(er.cons[0].toLowerCase())}.`);
+    if (er.caveat) out.push(`<span class="text-amber-800">Review note: ${esc(er.caveat)}</span>`);
+  } else out.push('No expert review summarised yet — read reviews before buying.');
+  const own = [`keeps ~${v.depreciation.retained3yPct}% of its value after 3 yrs (est.)`];
+  if (a.homeCharging && v.battery.chemistry === 'LFP') own.push('LFP battery is happy charged to 100% daily');
+  out.push(`Ownership: ${own.join('; ')}.`);
+  const lic = licenceStatus(v);
+  if (lic.code === 'borderline') out.push(`⚠ ${esc(lic.text)}.`);
+  return out;
+}
+
+function openAdvisor() {
+  state.dialogMode = 'advisor';
+  const a = state.adv;
+  $('dialogTitle').textContent = '✨ Find my EV';
+  const chips = Object.entries(LIFESTYLES).map(([k, l]) => `<button type="button" class="chip rounded-full border border-slate-300 px-2.5 py-1 text-xs font-semibold" data-life="${k}" aria-pressed="${a.life.includes(k)}">${esc(l.label)}</button>`).join('');
+  $('dialogBody').innerHTML = `<div class="p-4 sm:p-6 grid lg:grid-cols-[20rem_1fr] gap-6">
+    <form id="advForm" class="space-y-4 text-sm">
+      <fieldset><legend class="font-bold mb-1.5">How will you pay?</legend>
+        <div class="inline-flex rounded-lg border border-slate-300 overflow-hidden">
+          <label class="px-3 py-1.5 cursor-pointer has-[:checked]:bg-slate-900 has-[:checked]:text-white"><input type="radio" name="mode" value="buy" class="sr-only" ${a.mode === 'buy' ? 'checked' : ''}/>Buy / loan</label>
+          <label class="px-3 py-1.5 cursor-pointer border-l border-slate-300 has-[:checked]:bg-slate-900 has-[:checked]:text-white"><input type="radio" name="mode" value="novated" class="sr-only" ${a.mode === 'novated' ? 'checked' : ''}/>Novated lease</label>
+        </div></fieldset>
+      <label class="block ${a.mode === 'buy' ? '' : 'hidden'}" id="advBudgetWrap">Max drive-away budget
+        <input name="budget" type="number" min="10000" step="1000" value="${a.budget}" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" /></label>
+      <div class="${a.mode === 'novated' ? '' : 'hidden'} grid grid-cols-2 gap-2" id="advNovWrap">
+        <label>Weekly budget<input name="weekly" type="number" min="50" step="10" value="${a.weekly}" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" /></label>
+        <label>Base salary<input name="salary" type="number" min="0" step="1000" value="${state.profile.salary || ''}" placeholder="95000" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" /></label>
+      </div>
+      <fieldset><legend class="font-bold mb-1.5">Your lifestyle (pick any)</legend><div class="flex flex-wrap gap-1.5">${chips}</div></fieldset>
+      <div class="grid grid-cols-2 gap-2">
+        <label>Daily driving (km)<input name="dailyKm" type="number" min="0" step="5" value="${a.dailyKm}" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" /></label>
+        <label>Seats needed<select name="seats" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2">${[2, 4, 5, 6, 7].map((n) => `<option ${a.seats === n ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
+        <label>Towing needed<select name="tow" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2">${[0, 750, 1500, 2000, 2500].map((n) => `<option value="${n}" ${a.tow === n ? 'selected' : ''}>${n ? n + ' kg+' : 'None'}</option>`).join('')}</select></label>
+        <label class="flex items-end gap-2 pb-2"><input name="homeCharging" type="checkbox" class="accent-emerald-600 w-4 h-4" ${a.homeCharging ? 'checked' : ''}/> I can charge at home</label>
+      </div>
+      <p class="text-xs text-slate-500">Using ${esc(state.f.st)} prices and your ${esc($('licenceSelect').selectedOptions[0].textContent)} — change these in the top bar.</p>
+    </form>
+    <div id="advResults" aria-live="polite"></div>
+  </div>`;
+  const form = $('advForm');
+  const sync = () => {
+    const fd = new FormData(form);
+    a.mode = fd.get('mode');
+    a.budget = Number(fd.get('budget')) || 0;
+    a.weekly = Number(fd.get('weekly')) || 0;
+    a.dailyKm = Number(fd.get('dailyKm')) || 0;
+    a.seats = Number(fd.get('seats')) || 0;
+    a.tow = Number(fd.get('tow')) || 0;
+    a.homeCharging = fd.get('homeCharging') === 'on';
+    if (fd.has('salary')) { state.profile.salary = Number(fd.get('salary')) || 0; saveProfile(); }
+    $('advBudgetWrap').classList.toggle('hidden', a.mode !== 'buy');
+    $('advNovWrap').classList.toggle('hidden', a.mode !== 'novated');
+    try { localStorage.setItem(ADV_KEY, JSON.stringify(a)); } catch { /* ignore */ }
+    renderAdvisorResults();
+  };
+  form.addEventListener('input', sync);
+  form.addEventListener('submit', (e) => e.preventDefault());
+  form.addEventListener('click', (e) => {
+    const c = e.target.closest('[data-life]');
+    if (!c) return;
+    const k = c.dataset.life;
+    a.life = a.life.includes(k) ? a.life.filter((x) => x !== k) : [...a.life, k];
+    c.setAttribute('aria-pressed', a.life.includes(k));
+    sync();
+  });
+  renderAdvisorResults();
+  showDialog();
+}
+
+function renderAdvisorResults() {
+  const box = $('advResults');
+  if (!box) return;
+  const a = state.adv;
+  if (a.mode === 'novated' && !state.profile.salary) {
+    box.innerHTML = '<p class="text-slate-600">Enter your base salary to work out weekly novated costs.</p>';
+    return;
+  }
+  const { list, needRange, total } = advisorCandidates();
+  state.advisorPicks = list.slice(0, 3).map((s) => s.v);
+  if (!list.length) {
+    box.innerHTML = `<div class="rounded-xl bg-amber-50 border border-amber-200 p-4 text-sm">No EV matches all of that. Try a higher budget, fewer must-haves, or turning on home charging (needs ${Math.round(needRange)} km+ range).</div>`;
+    return;
+  }
+  const [top, ...rest] = list;
+  const lifeText = a.life.map((l) => LIFESTYLES[l].label.replace(/^\S+\s/, '').toLowerCase()).join(', ') || 'general use';
+  const headline = `For ${a.mode === 'novated' ? `${aud(a.weekly)}/wk on a novated lease` : `a ${aud(a.budget)} budget`} in ${esc(state.f.st)} and ${esc(lifeText)}, the <b>${esc(top.v.make)} ${esc(top.v.model)} ${esc(top.v.variant)}</b> is the strongest all-round pick${top.v.expertReview?.label ? ` (CarExpert: ${esc(top.v.expertReview.label)})` : ''}.`;
+  const pick = (s, i) => `<article class="rounded-xl border ${i === 0 ? 'border-emerald-500 ring-2 ring-emerald-500/20' : 'border-slate-200'} bg-white p-4">
+      <div class="flex items-start gap-3 mb-2">
+        <div class="text-2xl font-extrabold text-emerald-600">${i + 1}</div>
+        <div class="min-w-0 flex-1"><div class="text-xs text-slate-500">${esc(s.v.make)} · ${esc(s.v.bodyType || '')}</div>
+          <h3 class="font-extrabold leading-tight">${esc(s.v.model)} <span class="font-semibold text-slate-600">${esc(s.v.variant)}</span></h3></div>
+        ${scoreRing(Math.round(Math.max(0, Math.min(100, s.score))), 'w-11 h-11 text-xs')}
+      </div>
+      <ul class="text-sm space-y-1.5 text-slate-700">${reasonsFor(s).map((r) => `<li>• ${r}</li>`).join('')}</ul>
+      <div class="flex flex-wrap gap-2 mt-3 text-xs font-semibold">
+        <button type="button" data-open="${esc(s.v.id)}" class="rounded-lg bg-slate-900 text-white px-3 py-1.5">Details & novated</button>
+        <button type="button" data-rivals="${esc(s.v.id)}" class="rounded-lg border border-slate-300 px-3 py-1.5">⚔ Rivals</button>
+        ${s.v.expertReview ? `<a target="_blank" rel="noopener noreferrer" href="${esc(s.v.expertReview.url)}" class="rounded-lg border border-slate-300 px-3 py-1.5">Read review ↗</a>` : ''}
+        <a target="_blank" rel="noopener noreferrer" href="${esc(carsalesUrl(s.v))}" class="rounded-lg border border-slate-300 px-3 py-1.5">Carsales ${esc(state.f.st)} ↗</a>
+      </div>
+    </article>`;
+  box.innerHTML = `<p class="text-base mb-3">${headline}</p>
+    <div class="space-y-3">${list.slice(0, 3).map(pick).join('')}</div>
+    ${rest.length > 2 ? `<h4 class="font-bold mt-5 mb-2 text-sm">Also worth a look</h4>
+      <div class="flex flex-wrap gap-2">${rest.slice(2, 8).map((s) => `<button type="button" data-open="${esc(s.v.id)}" class="rounded-full border border-slate-300 px-3 py-1 text-xs font-semibold">${esc(s.v.make)} ${esc(s.v.model)} · ${a.mode === 'novated' ? aud(s.weekly) + '/wk' : aud(s.price)}</button>`).join('')}</div>` : ''}
+    <div class="flex flex-wrap gap-2 mt-5">
+      <button type="button" data-advisor-compare class="rounded-lg bg-emerald-600 text-white px-4 py-2 text-sm font-bold">Compare top ${Math.min(3, list.length)}</button>
+      <button type="button" data-advisor-apply class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-bold">Show all ${total} matching variants</button>
+    </div>
+    <p class="text-[11px] text-slate-500 mt-4">Picks combine specs, your priorities, CarExpert's published rating and the key points of its review (paraphrased). It's a shortlist to research, not financial advice — test drive and read the full reviews.</p>`;
+}
+
+function applyAdvisorFilters() {
+  const a = state.adv;
+  const keep = { st: state.f.st, lic: state.f.lic, view: state.f.view };
+  state.f = { ...defaultFilters(), ...keep };
+  if (a.mode === 'buy') state.f.pmax = a.budget;
+  else state.f.fbt = true;
+  state.f.seats = a.seats >= 5 ? a.seats : 0;
+  state.f.tow = Math.max(a.tow, a.life.includes('towing') ? 1500 : 0);
+  state.f.range = Math.round(Math.max(a.life.includes('roadtrip') ? 450 : 0, a.dailyKm * (a.homeCharging ? 1.3 : 3)) / 25) * 25;
+  state.f.legal = state.f.lic !== 'full';
+  const firstPreset = a.life.map((l) => LIFESTYLES[l].preset).find(Boolean);
+  state.f.preset = firstPreset || 'balanced';
+  state.shown = PAGE;
+  renderControls();
+  render();
+  toast('Filters set from your answers.');
 }
 
 // =============================================================== compare tray
@@ -817,12 +1192,20 @@ function wire() {
     if (cmp) {
       toggleCompare(cmp.dataset.cmp);
       if (!$('dialog').classList.contains('hidden')) {
-        if ($('dialogTitle').textContent.startsWith('Compare')) state.compare.size ? openCompare() : closeDialog();
+        const mode = state.dialogMode;
+        if (mode === 'rivals' && state.cmpCtx) openCompare(state.cmpCtx.ids.map((id) => state.vehicles.find((v) => v.id === id)), state.cmpCtx.title);
+        else if (mode === 'compare') state.compare.size ? openCompare() : closeDialog();
+        else if (mode === 'advisor') renderAdvisorResults();
         else openDetail(cmp.dataset.cmp);
       }
       return;
     }
+    const riv = e.target.closest('[data-rivals]'); if (riv) return openRivals(riv.dataset.rivals);
     const open = e.target.closest('[data-open]'); if (open) return openDetail(open.dataset.open);
+    if (e.target.closest('[data-advisor-compare]')) {
+      state.compare = new Set(state.advisorPicks.map((v) => v.id)); render(); return openCompare();
+    }
+    if (e.target.closest('[data-advisor-apply]')) { applyAdvisorFilters(); return closeDialog(); }
     const edit = e.target.closest('[data-edit]'); if (edit) return openEdit(edit.dataset.edit);
     if (e.target.closest('[data-close]')) return closeDialog();
     const view = e.target.closest('.view-btn'); if (view) { state.f.view = view.dataset.view; return render(); }
@@ -839,7 +1222,8 @@ function wire() {
   $('resetFilters').addEventListener('click', reset); $('emptyReset').addEventListener('click', reset);
   $('moreBtn').addEventListener('click', () => { state.shown += PAGE; render(); });
   $('compareClear').addEventListener('click', () => { state.compare.clear(); render(); });
-  $('compareOpen').addEventListener('click', openCompare);
+  $('compareOpen').addEventListener('click', () => openCompare());
+  $('advisorBtn').addEventListener('click', openAdvisor);
   $('shareBtn').addEventListener('click', async () => {
     try { await navigator.clipboard.writeText(location.href); toast('Link copied — it keeps your filters.'); }
     catch { prompt('Copy this link:', location.href); }
@@ -880,7 +1264,13 @@ function wire() {
 }
 
 // =============================================================== boot
+function syncHeaderHeight() {
+  const h = document.querySelector('header').offsetHeight;
+  document.documentElement.style.setProperty('--header-h', `${h + 12}px`);
+}
 async function init() {
+  syncHeaderHeight();
+  window.addEventListener('resize', syncHeaderHeight);
   state.f = readUrl();
   wire();
   try {
