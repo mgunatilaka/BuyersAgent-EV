@@ -46,11 +46,17 @@
         <button id="syncApiBtn" type="button" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-slate-200 transition cursor-pointer">
           ↻ Sync
         </button>
-        <button id="seedCloudBtn" type="button" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-indigo-300 transition cursor-pointer" title="Push all 52 built-in EVs to Supabase via server environment variables">
+        <button id="seedCloudBtn" type="button" class="admin-only hidden px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-indigo-300 transition cursor-pointer" title="Push all built-in EVs to Supabase">
           ☁ Seed Cloud DB
         </button>
-        <button id="openAddModalBtn" type="button" class="px-3.5 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold transition shadow-xs cursor-pointer">
+        <button id="openAddModalBtn" type="button" class="admin-only hidden px-3.5 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold transition shadow-xs cursor-pointer">
           + Add / Edit AU Car
+        </button>
+        <button id="adminLoginBtn" type="button" class="hidden px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-amber-300 transition cursor-pointer">
+          🔒 Admin
+        </button>
+        <button id="adminLogoutBtn" type="button" class="admin-only hidden px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-slate-300 transition cursor-pointer">
+          Log out
         </button>
       </div>
     </div>
@@ -383,6 +389,28 @@
     </div>
   </div>
 
+  <!-- Admin Login Modal (email one-time code) -->
+  <div id="adminLoginModal" class="hidden fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-sm w-full overflow-hidden shadow-2xl border border-slate-200 text-xs">
+      <div class="px-5 py-4 bg-slate-900 text-white flex items-center justify-between">
+        <h3 class="text-sm font-extrabold">Site admin sign-in</h3>
+        <button id="closeAdminLoginBtn" type="button" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 font-bold cursor-pointer" aria-label="Close">✕</button>
+      </div>
+      <form id="adminEmailForm" class="p-5 space-y-3">
+        <label for="adminEmailInput" class="block font-bold text-slate-700">Admin email</label>
+        <input id="adminEmailInput" type="email" required autocomplete="email" class="w-full px-3 py-2 rounded-xl border border-slate-300" />
+        <button type="submit" class="w-full px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold cursor-pointer">Email me a code</button>
+      </form>
+      <form id="adminCodeForm" class="hidden p-5 space-y-3">
+        <p class="text-slate-600">Enter the 6-digit code we emailed you. It expires in 10 minutes.</p>
+        <label for="adminCodeInput" class="block font-bold text-slate-700">Code</label>
+        <input id="adminCodeInput" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required autocomplete="one-time-code" class="w-full px-3 py-2 rounded-xl border border-slate-300 tracking-widest text-center text-base font-bold" />
+        <button type="submit" class="w-full px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold cursor-pointer">Sign in</button>
+      </form>
+      <p id="adminLoginError" class="hidden px-5 pb-4 text-red-600 font-semibold"></p>
+    </div>
+  </div>
+
   <!-- Toast Notification -->
   <div id="toastBanner" class="hidden fixed top-16 right-5 z-50 bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-lg border border-slate-700 text-xs font-semibold"></div>
 
@@ -390,6 +418,17 @@
     const LCT_FBT_THRESHOLD_AUD = 91387;
     const ATO_5YR_RESIDUAL_RATE = 0.2813;
     const LOCAL_OVERLAY_STORAGE_KEY = 'au_ev_custom_overlay_v4';
+
+    // Escape any value before it is placed inside an HTML string (prevents XSS
+    // from vehicle records stored in the database).
+    function esc(value) {
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
 
     const SCORED_CRITERIA = [
       { id: 'towball', label: 'Towball ≥ 100 kg', cat: 'utility' },
@@ -582,8 +621,34 @@
       sortBy: 'scoreDesc',
       compareIds: new Set(),
       supabaseConnected: false,
+      isAdmin: false,
       preferredExternalSite: 'carsales'
     };
+
+    // Admin state comes from the server (HttpOnly session cookie). Hiding buttons
+    // is only cosmetic: the server rejects writes without a valid session.
+    function applyAdminUi(loginEnabled = true) {
+      document.querySelectorAll('.admin-only').forEach((el) => el.classList.toggle('hidden', !state.isAdmin));
+      document.getElementById('adminLoginBtn').classList.toggle('hidden', state.isAdmin || !loginEnabled);
+    }
+
+    async function refreshAdminSession() {
+      try {
+        const res = await fetch('/api/v1/admin/session', { credentials: 'same-origin' });
+        const data = await res.json();
+        state.isAdmin = Boolean(data.admin);
+        applyAdminUi(data.loginEnabled !== false);
+      } catch {
+        state.isAdmin = false;
+        applyAdminUi(false);
+      }
+    }
+
+    function handleAuthFailure() {
+      state.isAdmin = false;
+      applyAdminUi();
+      renderVehicles();
+    }
 
     function showToast(msg) {
       const el = document.getElementById('toastBanner');
@@ -677,11 +742,12 @@
       const mergedMap = new Map();
       for (const item of DEFAULT_AU_EVS) mergedMap.set(item.id, item);
 
+      // Edits used to be cached in this browser's storage; the server is now the
+      // only source of truth, so drop any stale local overlay.
       try {
-        const localSaved = JSON.parse(localStorage.getItem(LOCAL_OVERLAY_STORAGE_KEY) || '[]');
-        for (const item of localSaved) mergedMap.set(item.id, item);
+        localStorage.removeItem(LOCAL_OVERLAY_STORAGE_KEY);
       } catch {
-        // Ignore corrupt localStorage
+        // Storage unavailable (private mode etc.)
       }
 
       try {
@@ -717,13 +783,13 @@
       const currentMake = makeSelect.value;
       const makes = Array.from(new Set(state.vehicles.map((v) => v.make))).sort();
       makeSelect.innerHTML = '<option value="">All Brands (' + makes.length + ')</option>' +
-        makes.map((m) => `<option value="${m}">${m}</option>`).join('');
+        makes.map((m) => `<option value="${esc(m)}">${esc(m)}</option>`).join('');
       makeSelect.value = currentMake;
 
       const rivalSelect = document.getElementById('quickRivalSelect');
       const sortedByName = [...state.vehicles].sort((a, b) => `${a.make} ${a.model}`.localeCompare(`${b.make} ${b.model}`));
       rivalSelect.innerHTML = '<option value="">⚡ Quick Rivals: Pick any EV...</option>' +
-        sortedByName.map((v) => `<option value="${v.id}">${v.make} ${v.model} ${v.variant} (${formatAud(v.nswDriveAwayAud)})</option>`).join('');
+        sortedByName.map((v) => `<option value="${esc(v.id)}">${esc(v.make)} ${esc(v.model)} ${esc(v.variant)} (${formatAud(v.nswDriveAwayAud)})</option>`).join('');
     }
 
     function renderScoredFeaturesGrid() {
@@ -795,7 +861,7 @@
         const activeUrl = extLinks[state.preferredExternalSite] || extLinks.carsales;
         const activeLinkLabel =
           state.preferredExternalSite === 'drive' ? '🔎 Drive.com.au' :
-          state.preferredExternalSite === 'brand' ? `🌐 ${ev.make} AU` : '🔎 Carsales NSW';
+          state.preferredExternalSite === 'brand' ? `🌐 ${esc(ev.make)} AU` : '🔎 Carsales NSW';
 
         const badges = [];
         if (f.massagingSeats) badges.push('💆 Massage Seats');
@@ -805,7 +871,7 @@
         if (f.headUpDisplay) badges.push('🖥️ HUD');
         if (f.sentryDashcam) badges.push('🛡️ Sentry Cam');
         if (f.digitalRearMirror) badges.push('🪞 Digital Mirror');
-        if (f.v2l) badges.push(`🔌 V2L ${f.v2lWatts ? (f.v2lWatts / 1000).toFixed(1) + 'kW' : ''}`);
+        if (f.v2l) badges.push(`🔌 V2L ${Number(f.v2lWatts) ? (Number(f.v2lWatts) / 1000).toFixed(1) + 'kW' : ''}`);
 
         return `
           <article class="bg-white rounded-2xl border ${isCompared ? 'border-emerald-500 ring-2 ring-emerald-500/20' : 'border-slate-200'} shadow-xs hover:shadow-md transition flex flex-col justify-between overflow-hidden">
@@ -813,14 +879,14 @@
               <div class="flex items-start justify-between gap-2">
                 <div>
                   <div class="flex items-center gap-1.5 flex-wrap">
-                    <span class="px-2 py-0.5 rounded-md bg-slate-900 text-white text-[10px] font-bold">${ev.drivetrain}</span>
+                    <span class="px-2 py-0.5 rounded-md bg-slate-900 text-white text-[10px] font-bold">${esc(ev.drivetrain)}</span>
                     <span class="px-2 py-0.5 rounded-md ${evalData.fbtExempt ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'} text-[10px] font-bold">
                       ${evalData.fbtExempt ? '✓ FBT-Exempt' : 'Above LCT'}
                     </span>
-                    <span class="text-[11px] text-slate-400 font-medium">${ev.bodyType}</span>
+                    <span class="text-[11px] text-slate-400 font-medium">${esc(ev.bodyType)}</span>
                   </div>
-                  <h3 class="text-base font-extrabold text-slate-900 mt-1.5">${ev.make} ${ev.model}</h3>
-                  <p class="text-xs font-semibold text-slate-500">${ev.variant}</p>
+                  <h3 class="text-base font-extrabold text-slate-900 mt-1.5">${esc(ev.make)} ${esc(ev.model)}</h3>
+                  <p class="text-xs font-semibold text-slate-500">${esc(ev.variant)}</p>
                 </div>
                 <div class="text-right shrink-0">
                   <div class="inline-flex items-center px-2.5 py-1 rounded-xl bg-emerald-600 text-white font-extrabold text-xs">
@@ -844,19 +910,19 @@
               <div class="grid grid-cols-4 gap-1.5 text-center text-xs">
                 <div class="bg-slate-50 rounded-lg p-2 border border-slate-100">
                   <div class="text-[10px] text-slate-400 font-semibold">WLTP</div>
-                  <div class="font-extrabold text-slate-800">${ev.wltpRangeKm} km</div>
+                  <div class="font-extrabold text-slate-800">${esc(ev.wltpRangeKm)} km</div>
                 </div>
                 <div class="bg-slate-50 rounded-lg p-2 border border-slate-100">
                   <div class="text-[10px] text-slate-400 font-semibold">Towball</div>
-                  <div class="font-extrabold text-slate-800">${ev.towballDownloadKg || 0} kg</div>
+                  <div class="font-extrabold text-slate-800">${esc(ev.towballDownloadKg || 0)} kg</div>
                 </div>
                 <div class="bg-slate-50 rounded-lg p-2 border border-slate-100">
                   <div class="text-[10px] text-slate-400 font-semibold">Clearance</div>
-                  <div class="font-extrabold text-slate-800">${ev.groundClearanceMm || 160} mm</div>
+                  <div class="font-extrabold text-slate-800">${esc(ev.groundClearanceMm || 160)} mm</div>
                 </div>
                 <div class="bg-slate-50 rounded-lg p-2 border border-slate-100">
                   <div class="text-[10px] text-slate-400 font-semibold">Boot</div>
-                  <div class="font-extrabold text-slate-800">${ev.bootLitres || 450} L</div>
+                  <div class="font-extrabold text-slate-800">${esc(ev.bootLitres || 450)} L</div>
                 </div>
               </div>
 
@@ -864,25 +930,25 @@
                 ${badges.slice(0, 6).map((b) => `<span class="px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-800 border border-indigo-100 text-[10px] font-semibold">${b}</span>`).join('')}
               </div>
 
-              ${ev.notes ? `<p class="text-[11px] text-slate-500 line-clamp-2">${ev.notes}</p>` : ''}
+              ${ev.notes ? `<p class="text-[11px] text-slate-500 line-clamp-2">${esc(ev.notes)}</p>` : ''}
             </div>
 
             <div class="px-4 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between gap-2 text-xs">
               <div class="flex items-center gap-1.5">
-                <button type="button" data-compare-id="${ev.id}" class="compare-toggle-btn px-2.5 py-1.5 rounded-lg font-bold border transition cursor-pointer ${
+                <button type="button" data-compare-id="${esc(ev.id)}" class="compare-toggle-btn px-2.5 py-1.5 rounded-lg font-bold border transition cursor-pointer ${
                   isCompared ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-100'
                 }">
                   ${isCompared ? '✓ Comparing' : '+ Compare'}
                 </button>
-                <button type="button" data-rival-id="${ev.id}" class="find-rivals-btn px-2.5 py-1.5 rounded-lg font-bold bg-indigo-50 hover:bg-indigo-100 text-indigo-800 border border-indigo-200 transition cursor-pointer">
+                <button type="button" data-rival-id="${esc(ev.id)}" class="find-rivals-btn px-2.5 py-1.5 rounded-lg font-bold bg-indigo-50 hover:bg-indigo-100 text-indigo-800 border border-indigo-200 transition cursor-pointer">
                   Rivals
                 </button>
               </div>
               <div class="flex items-center gap-1.5">
-                <a href="${activeUrl}" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-bold transition">
+                <a href="${esc(activeUrl)}" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-bold transition">
                   ${activeLinkLabel}
                 </a>
-                <button type="button" data-edit-id="${ev.id}" class="edit-ev-btn px-2 py-1.5 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold cursor-pointer">Edit</button>
+                ${state.isAdmin ? `<button type="button" data-edit-id="${esc(ev.id)}" class="edit-ev-btn px-2 py-1.5 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold cursor-pointer">Edit</button>` : ''}
               </div>
             </div>
           </article>
@@ -935,8 +1001,8 @@
         banner.innerHTML = cars.map((c, idx) => `
           <div class="bg-white rounded-xl p-2.5 border ${idx === 0 ? 'border-indigo-400' : 'border-indigo-200'}">
             <div class="text-[10px] font-bold uppercase text-indigo-600">${idx === 0 ? 'Anchor EV' : `Rival #${idx}`}</div>
-            <div class="font-extrabold text-slate-900">${c.make} ${c.model}</div>
-            <div class="text-slate-600">${formatAud(c.nswDriveAwayAud)} • ${c.wltpRangeKm}km</div>
+            <div class="font-extrabold text-slate-900">${esc(c.make)} ${esc(c.model)}</div>
+            <div class="text-slate-600">${formatAud(c.nswDriveAwayAud)} • ${esc(c.wltpRangeKm)}km</div>
           </div>
         `).join('');
       } else {
@@ -946,12 +1012,12 @@
       const rows = [
         { label: 'NSW Drive-Away Price', fn: (c) => `<strong>${formatAud(c.nswDriveAwayAud)}</strong>` },
         { label: 'Buyer Match Score', fn: (c) => `<strong>${evaluateVehicle(c).score}%</strong>` },
-        { label: 'Drivetrain / Body', fn: (c) => `${c.drivetrain} • ${c.bodyType}` },
-        { label: 'WLTP Range / Max DC', fn: (c) => `${c.wltpRangeKm} km • ${c.maxDcKw || 150} kW` },
-        { label: '0–100 km/h', fn: (c) => `${c.zeroToHundredSec || '—'} s` },
-        { label: 'Towball Download Limit', fn: (c) => `${c.towballDownloadKg || 0} kg` },
-        { label: 'Ground Clearance', fn: (c) => `${c.groundClearanceMm || 160} mm` },
-        { label: 'Boot / Frunk Volume', fn: (c) => `${c.bootLitres || 0} L / ${c.frunkLitres || 0} L` },
+        { label: 'Drivetrain / Body', fn: (c) => `${esc(c.drivetrain)} • ${esc(c.bodyType)}` },
+        { label: 'WLTP Range / Max DC', fn: (c) => `${esc(c.wltpRangeKm)} km • ${esc(c.maxDcKw || 150)} kW` },
+        { label: '0–100 km/h', fn: (c) => `${esc(c.zeroToHundredSec || '—')} s` },
+        { label: 'Towball Download Limit', fn: (c) => `${esc(c.towballDownloadKg || 0)} kg` },
+        { label: 'Ground Clearance', fn: (c) => `${esc(c.groundClearanceMm || 160)} mm` },
+        { label: 'Boot / Frunk Volume', fn: (c) => `${esc(c.bootLitres || 0)} L / ${esc(c.frunkLitres || 0)} L` },
         ...SCORED_CRITERIA.slice(5).map((crit) => ({
           label: crit.label,
           fn: (c) => (evaluateVehicle(c).checks[crit.id] ? '✅ Yes' : '—')
@@ -961,9 +1027,9 @@
           fn: (c) => {
             const links = getExternalLinksForVehicle(c);
             return `<div class="flex flex-col gap-1">
-              <a href="${links.carsales}" target="_blank" rel="noopener noreferrer" class="text-emerald-700 font-bold underline">Carsales NSW</a>
-              <a href="${links.drive}" target="_blank" rel="noopener noreferrer" class="text-indigo-700 font-bold underline">Drive.com.au</a>
-              <a href="${links.brand}" target="_blank" rel="noopener noreferrer" class="text-slate-700 font-bold underline">${c.make} Official AU</a>
+              <a href="${esc(links.carsales)}" target="_blank" rel="noopener noreferrer" class="text-emerald-700 font-bold underline">Carsales NSW</a>
+              <a href="${esc(links.drive)}" target="_blank" rel="noopener noreferrer" class="text-indigo-700 font-bold underline">Drive.com.au</a>
+              <a href="${esc(links.brand)}" target="_blank" rel="noopener noreferrer" class="text-slate-700 font-bold underline">${esc(c.make)} Official AU</a>
             </div>`;
           }
         }
@@ -974,7 +1040,7 @@
           <thead class="bg-slate-100 sticky top-0">
             <tr>
               <th class="p-3 border-b border-slate-200 font-extrabold text-slate-700 w-48">Specification</th>
-              ${cars.map((c) => `<th class="p-3 border-b border-slate-200 font-extrabold text-slate-900">${c.make} ${c.model}<div class="font-normal text-slate-500">${c.variant}</div></th>`).join('')}
+              ${cars.map((c) => `<th class="p-3 border-b border-slate-200 font-extrabold text-slate-900">${esc(c.make)} ${esc(c.model)}<div class="font-normal text-slate-500">${esc(c.variant)}</div></th>`).join('')}
             </tr>
           </thead>
           <tbody>
@@ -1028,29 +1094,21 @@
     }
 
     async function persistVehicleRecord(record) {
-      const idx = state.vehicles.findIndex((v) => v.id === record.id);
-      if (idx >= 0) state.vehicles[idx] = record;
-      else state.vehicles.unshift(record);
-
-      try {
-        const localSaved = JSON.parse(localStorage.getItem(LOCAL_OVERLAY_STORAGE_KEY) || '[]');
-        const lIdx = localSaved.findIndex((v) => v.id === record.id);
-        if (lIdx >= 0) localSaved[lIdx] = record;
-        else localSaved.push(record);
-        localStorage.setItem(LOCAL_OVERLAY_STORAGE_KEY, JSON.stringify(localSaved));
-      } catch {
-        // Ignore storage quota issues
-      }
-
       const res = await fetch('/api/v1/evs', {
         method: 'POST',
+        credentials: 'same-origin',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(record)
       });
       if (!res.ok) {
+        if (res.status === 401) handleAuthFailure();
         const errData = await res.json().catch(() => ({}));
         throw new Error(errData.error || `HTTP ${res.status}`);
       }
+
+      const idx = state.vehicles.findIndex((v) => v.id === record.id);
+      if (idx >= 0) state.vehicles[idx] = record;
+      else state.vehicles.unshift(record);
       state.supabaseConnected = true;
       updateConnectionBadge();
     }
@@ -1201,7 +1259,7 @@
           return;
         }
         const editBtn = e.target.closest('.edit-ev-btn');
-        if (editBtn) {
+        if (editBtn && state.isAdmin) {
           openVehicleModal(editBtn.dataset.editId);
         }
       });
@@ -1217,7 +1275,9 @@
       });
 
       // Add / Edit Vehicle Modal
-      document.getElementById('openAddModalBtn').addEventListener('click', () => openVehicleModal(null));
+      document.getElementById('openAddModalBtn').addEventListener('click', () => {
+        if (state.isAdmin) openVehicleModal(null);
+      });
       document.getElementById('closeModalBtn').addEventListener('click', () => document.getElementById('vehicleModal').classList.add('hidden'));
       document.getElementById('cancelModalBtn').addEventListener('click', () => document.getElementById('vehicleModal').classList.add('hidden'));
 
@@ -1261,10 +1321,8 @@
           renderVehicles();
           showToast(`Saved ${make} ${model} ${variant} to Supabase.`);
         } catch (err) {
-          document.getElementById('vehicleModal').classList.add('hidden');
-          populateFilterDropdowns();
-          renderVehicles();
-          showToast(`Saved locally (${err.message}).`);
+          if (!state.isAdmin) document.getElementById('vehicleModal').classList.add('hidden');
+          showToast(`Not saved: ${err.message}`);
         }
       });
 
@@ -1274,10 +1332,12 @@
         try {
           const res = await fetch('/api/v1/evs/seed', {
             method: 'POST',
+            credentials: 'same-origin',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ vehicles: state.vehicles })
           });
           const data = await res.json().catch(() => ({}));
+          if (res.status === 401) handleAuthFailure();
           if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
           state.supabaseConnected = true;
           updateConnectionBadge();
@@ -1286,12 +1346,73 @@
           showToast(`Supabase seed failed: ${err.message}`);
         }
       });
+
+      // Admin login (email one-time code -> HttpOnly session cookie)
+      const loginModal = document.getElementById('adminLoginModal');
+      const emailForm = document.getElementById('adminEmailForm');
+      const codeForm = document.getElementById('adminCodeForm');
+      const loginError = document.getElementById('adminLoginError');
+      const showLoginError = (msg) => {
+        loginError.textContent = msg || '';
+        loginError.classList.toggle('hidden', !msg);
+      };
+      const postJson = (url, body) => fetch(url, {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+
+      document.getElementById('adminLoginBtn').addEventListener('click', () => {
+        emailForm.classList.remove('hidden');
+        codeForm.classList.add('hidden');
+        showLoginError('');
+        loginModal.classList.remove('hidden');
+        document.getElementById('adminEmailInput').focus();
+      });
+      document.getElementById('closeAdminLoginBtn').addEventListener('click', () => loginModal.classList.add('hidden'));
+
+      emailForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        showLoginError('');
+        const res = await postJson('/api/v1/admin/send-otp', { email: document.getElementById('adminEmailInput').value });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) return showLoginError(data.error || `HTTP ${res.status}`);
+        emailForm.classList.add('hidden');
+        codeForm.classList.remove('hidden');
+        document.getElementById('adminCodeInput').value = '';
+        document.getElementById('adminCodeInput').focus();
+      });
+
+      codeForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        showLoginError('');
+        const res = await postJson('/api/v1/admin/verify-otp', {
+          email: document.getElementById('adminEmailInput').value,
+          pin: document.getElementById('adminCodeInput').value
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) return showLoginError(data.error || `HTTP ${res.status}`);
+        loginModal.classList.add('hidden');
+        await refreshAdminSession();
+        renderVehicles();
+        showToast('Signed in as site admin.');
+      });
+
+      document.getElementById('adminLogoutBtn').addEventListener('click', async () => {
+        await postJson('/api/v1/admin/logout', {}).catch(() => {});
+        document.getElementById('vehicleModal').classList.add('hidden');
+        await refreshAdminSession();
+        renderVehicles();
+        showToast('Signed out.');
+      });
     }
 
-    function initApp() {
+    async function initApp() {
       renderScoredFeaturesGrid();
       populateFilterDropdowns();
       wireEventListeners();
+      await refreshAdminSession();
       syncAllDatasets({ notify: false });
     }
 
