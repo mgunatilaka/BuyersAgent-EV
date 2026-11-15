@@ -1,0 +1,3757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2026 Australian EV Explorer & Novated Lease Buyer's Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    /* Custom subtle scrollbars for tables and comparison drawer */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+    input[type="range"] {
+      accent-color: #059669;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 font-sans antialiased selection:bg-emerald-100 selection:text-emerald-900">
+
+  <!-- Toast Notification Banner (Replaces alert()) -->
+  <div id="toastBanner" class="fixed bottom-5 right-5 z-50 hidden transform transition-all duration-300 translate-y-2 opacity-0">
+    <div class="bg-slate-900 text-white px-4 py-3 rounded-xl shadow-xl border border-slate-700 flex items-center gap-3 text-sm font-medium">
+      <span id="toastIcon" class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+      <span id="toastMessage">Copied comparison summary to clipboard.</span>
+    </div>
+  </div>
+
+  <!-- Top Navigation & Brand Header -->
+  <header class="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-950/50 shrink-0">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-base sm:text-lg font-bold tracking-tight">AU EV Explorer 2026</h1>
+            <span class="text-[11px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">NSW Novated Edition</span>
+          </div>
+          <p class="text-xs text-slate-400">Live <code class="text-emerald-300">au-ev-api</code> + 52 AU BEVs • ATO FBT ($91,387 LCT) &amp; Year-5 28.13% Residual Scorer</p>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2 self-start sm:self-auto">
+        <button id="openAddCarModalBtn" type="button" class="px-3 py-2 rounded-xl bg-teal-600/90 hover:bg-teal-500 text-white text-xs font-semibold border border-teal-400/30 transition flex items-center gap-1.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+          </svg>
+          <span>Add / Edit AU Car</span>
+        </button>
+
+        <button id="toggleWeightsBtn" type="button" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition flex items-center gap-1.5">
+          <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+          </svg>
+          <span>Tune Score Weights</span>
+        </button>
+
+        <button id="openCompareBtn" type="button" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-sm transition flex items-center gap-1.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          </svg>
+          <span>Compare (<span id="compareCountBadge">3</span>/4)</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Live au-ev-api Connection & Upstream Sync Strip -->
+    <div class="bg-slate-950/90 border-t border-slate-800/90">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 flex flex-col md:flex-row md:items-center justify-between gap-2 text-xs">
+        <div class="flex items-center gap-2.5 flex-wrap">
+          <span id="apiStatusBadge" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full font-semibold bg-amber-500/15 text-amber-300 border border-amber-500/30">
+            <span id="apiStatusDot" class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+            <span id="apiStatusText">Connecting to au-ev-api...</span>
+          </span>
+          <span id="apiSyncMeta" class="text-slate-400 text-[11px]">Checking endpoint...</span>
+        </div>
+
+        <div class="flex items-center gap-2 flex-wrap">
+          <label for="apiBaseUrlInput" class="text-[11px] text-slate-400 font-medium">API URL:</label>
+          <input id="apiBaseUrlInput" type="text" placeholder="http://localhost:3000" class="w-44 sm:w-52 px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-700 text-slate-200 text-[11px] font-mono focus:outline-none focus:border-emerald-500" />
+          <button id="apiConnectBtn" type="button" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-[11px] font-semibold transition">
+            Connect
+          </button>
+          <button id="apiSyncUpstreamBtn" type="button" class="px-2.5 py-1 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 text-[11px] font-semibold transition flex items-center gap-1">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            <span>Sync Upstream OpenEV</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Collapsible Scoring Weight Tuning Drawer -->
+  <section id="weightsPanel" class="hidden bg-slate-900/95 text-white border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+        <div>
+          <h2 class="text-sm font-bold text-white flex items-center gap-2">
+            <span>Custom Buyer's Agent 100-Point Weighting Engine</span>
+            <span id="weightSumBadge" class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Total: 100%</span>
+          </h2>
+          <p class="text-xs text-slate-400">Adjust sliders to match your priorities—scores normalize automatically to 100 points in real time.</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <label class="inline-flex items-center gap-2 text-xs text-slate-300 bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700 cursor-pointer">
+            <input id="requireTowingScoreToggle" type="checkbox" checked class="rounded text-emerald-500 focus:ring-emerald-500" />
+            <span>Penalise 0 kg Towball Vehicles</span>
+          </label>
+          <button id="resetWeightsBtn" type="button" class="text-xs px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition">
+            Reset Default
+          </button>
+        </div>
+      </div>
+
+      <div id="weightSlidersGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <!-- Populated dynamically via JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Container -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+    <!-- KPI Summary Bar -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
+      <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm">
+        <div class="text-xs font-medium text-slate-500">Matching AU EV Variants</div>
+        <div class="mt-1 flex items-baseline justify-between">
+          <span id="kpiTotalCount" class="text-2xl font-extrabold text-slate-900">0</span>
+          <span id="kpiCatalogTotalText" class="text-xs font-medium text-slate-400">of 52 catalogued</span>
+        </div>
+      </div>
+
+      <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm">
+        <div class="text-xs font-medium text-slate-500">FBT-Exempt (&le; $91,387)</div>
+        <div class="mt-1 flex items-baseline justify-between">
+          <span id="kpiFbtCount" class="text-2xl font-extrabold text-emerald-600">0</span>
+          <span class="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">0% FBT Eligible</span>
+        </div>
+      </div>
+
+      <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm">
+        <div class="text-xs font-medium text-slate-500">Top Ranked Match</div>
+        <div class="mt-1">
+          <div id="kpiTopCar" class="text-sm font-bold text-slate-900 truncate">—</div>
+          <div id="kpiTopScore" class="text-xs font-semibold text-amber-600">Score: — / 100</div>
+        </div>
+      </div>
+
+      <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm">
+        <div class="text-xs font-medium text-slate-500">Lowest Year-5 Balloon (28.13%)</div>
+        <div class="mt-1">
+          <div id="kpiLowestBalloon" class="text-xl font-extrabold text-slate-900">—</div>
+          <div id="kpiLowestBalloonCar" class="text-xs text-slate-500 truncate">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Scenario Presets Bar -->
+    <div class="mb-5 flex flex-wrap items-center gap-2">
+      <span class="text-xs font-semibold uppercase tracking-wider text-slate-400 mr-1">Quick Presets:</span>
+      <button type="button" data-preset="all" class="preset-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-900 text-white shadow-sm transition">
+        All Australian EVs
+      </button>
+      <button type="button" data-preset="shortlist" class="preset-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-white text-slate-700 border border-slate-200 hover:border-emerald-400 hover:text-emerald-700 transition">
+        AWD + Bike Rack (Default)
+      </button>
+      <button type="button" data-preset="budget2wd" class="preset-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-white text-slate-700 border border-slate-200 hover:border-emerald-400 hover:text-emerald-700 transition">
+        2WD Commuter &amp; Budget (&le;$55k)
+      </button>
+      <button type="button" data-preset="comfortFirst" class="preset-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-white text-slate-700 border border-slate-200 hover:border-emerald-400 hover:text-emerald-700 transition">
+        Comfort &amp; Cabin Tech First
+      </button>
+      <button type="button" data-preset="maxResale" class="preset-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-white text-slate-700 border border-slate-200 hover:border-emerald-400 hover:text-emerald-700 transition">
+        Max Resale Equity (FBT-Exempt)
+      </button>
+    </div>
+
+    <!-- Main Layout: Sidebar Filters + Results Area -->
+    <div class="flex flex-col lg:flex-row gap-6 items-start">
+
+      <!-- Left Filter Sidebar -->
+      <aside class="w-full lg:w-72 shrink-0 bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4 space-y-5">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+          <h2 class="text-sm font-bold text-slate-900">Filter Australian EVs</h2>
+          <button id="clearFiltersBtn" type="button" class="text-xs font-semibold text-emerald-600 hover:text-emerald-700">Reset</button>
+        </div>
+
+        <!-- Search Input -->
+        <div>
+          <label for="searchInput" class="block text-xs font-semibold text-slate-700 mb-1.5">Search Brand, Model or Feature</label>
+          <div class="relative">
+            <input id="searchInput" type="text" placeholder="e.g. Trailseeker, Sealion, Geely..." class="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition" />
+            <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+        </div>
+
+        <!-- Make Dropdown -->
+        <div>
+          <label for="makeSelect" class="block text-xs font-semibold text-slate-700 mb-1.5">Manufacturer (Make)</label>
+          <select id="makeSelect" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500">
+            <option value="ALL">All Manufacturers (27 Brands)</option>
+          </select>
+        </div>
+
+        <!-- Drivetrain Pills -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1.5">Drivetrain</label>
+          <div id="drivetrainGroup" class="grid grid-cols-4 gap-1.5">
+            <button type="button" data-drive="ALL" class="drive-pill py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 text-white">All</button>
+            <button type="button" data-drive="AWD" class="drive-pill py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200">AWD</button>
+            <button type="button" data-drive="RWD" class="drive-pill py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200">RWD</button>
+            <button type="button" data-drive="FWD" class="drive-pill py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200">FWD</button>
+          </div>
+        </div>
+
+        <!-- Body Type Filter -->
+        <div>
+          <label for="bodySelect" class="block text-xs font-semibold text-slate-700 mb-1.5">Body Style / Segment</label>
+          <select id="bodySelect" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500">
+            <option value="ALL">All Body Types</option>
+            <option value="SUV">SUV / Crossover</option>
+            <option value="Sedan/Hatch">Sedan / Hatchback</option>
+            <option value="People Mover">People Mover / Van</option>
+          </select>
+        </div>
+
+        <!-- Max NSW Drive-Away Price Slider -->
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label for="maxPriceSlider" class="text-xs font-semibold text-slate-700">Max NSW Drive-Away</label>
+            <span id="maxPriceLabel" class="text-xs font-bold text-emerald-700">$250,000</span>
+          </div>
+          <input id="maxPriceSlider" type="range" min="30000" max="250000" step="2000" value="250000" class="w-full cursor-pointer" />
+          <div class="flex items-center justify-between text-[10px] text-slate-400 mt-1">
+            <div class="flex gap-1">
+              <button type="button" data-pricecap="55000" class="quick-price-btn px-1.5 py-0.5 rounded bg-slate-100 hover:bg-emerald-100 text-slate-700 font-semibold">$55k</button>
+              <button type="button" data-pricecap="80000" class="quick-price-btn px-1.5 py-0.5 rounded bg-slate-100 hover:bg-emerald-100 text-slate-700 font-semibold">$80k</button>
+              <button type="button" data-pricecap="91387" class="quick-price-btn px-1.5 py-0.5 rounded bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold">$91.3k LCT</button>
+            </div>
+            <button type="button" data-pricecap="250000" class="quick-price-btn text-slate-500 hover:text-slate-800 font-medium">Max</button>
+          </div>
+        </div>
+
+        <!-- Min Towball Download Limit -->
+        <div>
+          <label for="minTowballSelect" class="block text-xs font-semibold text-slate-700 mb-1.5">Min Towball Download (Bike Rack)</label>
+          <select id="minTowballSelect" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500">
+            <option value="0">Any (Include 0 kg / No Towbar)</option>
+            <option value="75">&ge; 75 kg (2 Light Bikes)</option>
+            <option value="100">&ge; 100 kg (2–3 Bikes / Light E-Bikes)</option>
+            <option value="150">&ge; 150 kg (Heavy Multi / E-Bike Rack)</option>
+          </select>
+        </div>
+
+        <!-- Min Ground Clearance Slider -->
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label for="minClearanceSlider" class="text-xs font-semibold text-slate-700">Min Ground Clearance</label>
+            <span id="minClearanceLabel" class="text-xs font-bold text-slate-800">Any (0 mm)</span>
+          </div>
+          <input id="minClearanceSlider" type="range" min="0" max="220" step="10" value="0" class="w-full cursor-pointer" />
+          <div class="flex justify-between text-[10px] text-slate-400 mt-0.5">
+            <span>0 mm</span>
+            <span>170 mm</span>
+            <span>210+ mm (Trail)</span>
+          </div>
+        </div>
+
+        <!-- Required Equipment & Cabin Features -->
+        <div class="border-t border-slate-100 pt-4">
+          <div class="text-xs font-semibold text-slate-700 mb-2.5">Must-Have Features</div>
+          <div class="space-y-2 text-xs text-slate-600">
+            <label class="flex items-center gap-2 cursor-pointer hover:text-slate-900">
+              <input type="checkbox" id="featFbt" class="rounded text-emerald-600 focus:ring-emerald-500" />
+              <span>FBT-Exempt Only (&le; $91,387)</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer hover:text-slate-900">
+              <input type="checkbox" id="featV2l" class="rounded text-emerald-600 focus:ring-emerald-500" />
+              <span>Vehicle-to-Load (V2L Power)</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer hover:text-slate-900">
+              <input type="checkbox" id="featVentilated" class="rounded text-emerald-600 focus:ring-emerald-500" />
+              <span>Ventilated (Cooled) Front Seats</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer hover:text-slate-900">
+              <input type="checkbox" id="featHud" class="rounded text-emerald-600 focus:ring-emerald-500" />
+              <span>Head-Up Display (HUD)</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer hover:text-slate-900">
+              <input type="checkbox" id="featCarplay" class="rounded text-emerald-600 focus:ring-emerald-500" />
+              <span>Apple CarPlay / Android Auto</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer hover:text-slate-900">
+              <input type="checkbox" id="featGlovebox" class="rounded text-emerald-600 focus:ring-emerald-500" />
+              <span>Traditional Glove Box</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer hover:text-slate-900">
+              <input type="checkbox" id="featAc22" class="rounded text-emerald-600 focus:ring-emerald-500" />
+              <span>22 kW 3-Phase AC Charging</span>
+            </label>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Right Results Column -->
+      <div class="flex-1 min-w-0 w-full">
+        <!-- Toolbar: Sort & View Toggle -->
+        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm px-4 py-3 mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="text-xs text-slate-600">
+            Showing <span id="showingCountText" class="font-bold text-slate-900">0</span> Australian EVs sorted by
+            <span id="currentSortLabel" class="font-semibold text-emerald-700">Buyer's Agent Score</span>
+          </div>
+
+          <div class="flex items-center gap-2.5">
+            <label for="sortSelect" class="text-xs font-medium text-slate-500 hidden sm:inline">Sort:</label>
+            <select id="sortSelect" class="px-3 py-1.5 text-xs font-semibold rounded-xl border border-slate-200 bg-slate-50 text-slate-800 focus:outline-none focus:border-emerald-500">
+              <option value="scoreDesc">Buyer's Agent Score (High → Low)</option>
+              <option value="priceAsc">NSW Drive-Away Price (Low → High)</option>
+              <option value="priceDesc">NSW Drive-Away Price (High → Low)</option>
+              <option value="rangeDesc">WLTP Range (Longest First)</option>
+              <option value="towballDesc">Towball Download Limit (Highest First)</option>
+              <option value="clearanceDesc">Ground Clearance (Highest First)</option>
+              <option value="accelAsc">0–100 km/h (Fastest First)</option>
+            </select>
+
+            <div class="inline-flex rounded-xl bg-slate-100 p-1 border border-slate-200/70">
+              <button id="viewGridBtn" type="button" title="Card Grid View" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-white text-slate-900 shadow-sm transition">
+                Cards
+              </button>
+              <button id="viewTableBtn" type="button" title="Compact Table View" class="px-2.5 py-1 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition">
+                Table
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="hidden bg-white rounded-2xl border border-slate-200 p-12 text-center">
+          <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-3">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h3 class="text-base font-bold text-slate-900">No EVs match your exact filter combination</h3>
+          <p class="text-xs text-slate-500 mt-1 max-w-md mx-auto">Try lowering the minimum towball limit, increasing the max NSW drive-away budget, or resetting filters.</p>
+          <button id="emptyResetBtn" type="button" class="mt-4 px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-semibold hover:bg-emerald-500 transition">
+            Reset All Filters
+          </button>
+        </div>
+
+        <!-- Card Grid Container -->
+        <div id="cardsContainer" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          <!-- Cards rendered dynamically -->
+        </div>
+
+        <!-- Table View Container -->
+        <div id="tableContainer" class="hidden bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-slate-900 text-white text-[11px] uppercase tracking-wider">
+                  <th class="py-3 px-3.5 font-semibold">Vehicle &amp; Variant</th>
+                  <th class="py-3 px-3 font-semibold">NSW Drive-Away</th>
+                  <th class="py-3 px-3 font-semibold">Yr-5 Balloon</th>
+                  <th class="py-3 px-3 font-semibold">Drive / 0–100</th>
+                  <th class="py-3 px-3 font-semibold">WLTP / DC</th>
+                  <th class="py-3 px-3 font-semibold">Towball / Clear.</th>
+                  <th class="py-3 px-3 font-semibold">Key Cabin</th>
+                  <th class="py-3 px-3 font-semibold text-right">Score</th>
+                  <th class="py-3 px-3.5 font-semibold text-center">Compare</th>
+                </tr>
+              </thead>
+              <tbody id="tableBody" class="divide-y divide-slate-100 text-xs">
+                <!-- Rows rendered dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Floating Compare Sticky Pill (when items selected) -->
+  <div id="floatingCompareBar" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 bg-slate-900/95 backdrop-blur text-white px-4 py-2.5 rounded-2xl shadow-2xl border border-slate-700 flex items-center gap-3 text-xs">
+    <span class="font-semibold text-slate-300">Compare Tray:</span>
+    <div id="compareTrayChips" class="flex items-center gap-1.5 flex-wrap"></div>
+    <button id="trayOpenCompareBtn" type="button" class="px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold transition shrink-0">
+      Side-by-Side
+    </button>
+  </div>
+
+  <!-- Side-by-Side Comparison Modal -->
+  <div id="compareModal" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6">
+    <div class="bg-white w-full max-w-6xl max-h-[90vh] rounded-2xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden">
+      <div class="px-5 py-4 bg-slate-900 text-white flex items-center justify-between">
+        <div>
+          <h2 class="text-base font-bold">Side-by-Side Buyer's Agent Comparison</h2>
+          <p class="text-xs text-slate-400">NSW Drive-Away Pricing, ATO Year-5 28.13% Residual, Towball Capacity &amp; Cabin Features</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="copyComparisonBtn" type="button" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            </svg>
+            <span>Copy Report</span>
+          </button>
+          <button id="closeCompareModalBtn" type="button" class="p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div id="compareModalBody" class="p-5 overflow-auto flex-1">
+        <!-- Populated dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Vehicle Detail Modal -->
+  <div id="detailModal" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6">
+    <div class="bg-white w-full max-w-2xl max-h-[90vh] rounded-2xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden">
+      <div id="detailModalHeader" class="px-5 py-4 bg-slate-900 text-white flex items-center justify-between">
+        <!-- Dynamic title -->
+      </div>
+      <div id="detailModalBody" class="p-5 overflow-y-auto space-y-5">
+        <!-- Dynamic breakdown -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Add / Edit Any Australian EV Modal (Syncs to POST /api/v1/evs + Local Storage) -->
+  <div id="addCarModal" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6">
+    <div class="bg-white w-full max-w-2xl max-h-[92vh] rounded-2xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden">
+      <div class="px-5 py-4 bg-slate-900 text-white flex items-center justify-between">
+        <div>
+          <h2 id="addCarModalTitle" class="text-base font-bold">Add or Update Any Australian Market EV</h2>
+          <p class="text-xs text-slate-400">Saves to <code class="text-emerald-300">POST /api/v1/evs</code> when connected and persists locally in your browser</p>
+        </div>
+        <button id="closeAddCarModalBtn" type="button" class="p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <form id="addCarForm" class="p-5 overflow-y-auto space-y-4 text-xs">
+        <input type="hidden" id="formCarId" />
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Make (Brand) *</label>
+            <input id="formMake" type="text" required placeholder="e.g. XPeng, Kia, Subaru" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-emerald-500 focus:outline-none" />
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Model *</label>
+            <input id="formModel" type="text" required placeholder="e.g. G6, EV6, Trailseeker" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-emerald-500 focus:outline-none" />
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Variant / Badge *</label>
+            <input id="formVariant" type="text" required placeholder="e.g. Performance AWD" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-emerald-500 focus:outline-none" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Drivetrain *</label>
+            <select id="formDrivetrain" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50">
+              <option value="AWD">AWD</option>
+              <option value="RWD">RWD</option>
+              <option value="FWD">FWD</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Body Type *</label>
+            <select id="formBody" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50">
+              <option value="SUV">SUV</option>
+              <option value="Sedan">Sedan</option>
+              <option value="Hatch">Hatch</option>
+              <option value="People Mover / Van">People Mover / Van</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">NSW Drive-Away ($) *</label>
+            <input id="formNswPrice" type="number" required min="20000" max="500000" value="69990" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50" />
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Demo / Promo Price ($)</label>
+            <input id="formPromoPrice" type="number" min="20000" max="500000" placeholder="Optional" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">WLTP Range (km) *</label>
+            <input id="formRange" type="number" required value="500" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50" />
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Battery (kWh)</label>
+            <input id="formBattery" type="number" step="0.1" value="75.0" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50" />
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Power (kW)</label>
+            <input id="formPower" type="number" value="220" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50" />
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">0–100 km/h (sec)</label>
+            <input id="formAccel" type="number" step="0.1" value="5.5" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Towball Limit (kg)</label>
+            <input id="formTowball" type="number" value="100" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50" />
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Clearance (mm)</label>
+            <input id="formClearance" type="number" value="170" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50" />
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Max DC / AC (kW)</label>
+            <div class="flex gap-1.5">
+              <input id="formDc" type="number" value="150" title="Max DC kW" class="w-1/2 px-2.5 py-2 rounded-xl border border-slate-200 bg-slate-50" />
+              <input id="formAc" type="number" value="11" title="Max AC kW" class="w-1/2 px-2.5 py-2 rounded-xl border border-slate-200 bg-slate-50" />
+            </div>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Boot + Frunk (L)</label>
+            <div class="flex gap-1.5">
+              <input id="formBoot" type="number" value="500" title="Boot L" class="w-1/2 px-2.5 py-2 rounded-xl border border-slate-200 bg-slate-50" />
+              <input id="formFrunk" type="number" value="0" title="Frunk L" class="w-1/2 px-2.5 py-2 rounded-xl border border-slate-200 bg-slate-50" />
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-1">
+          <label class="flex items-center gap-2 text-slate-700"><input type="checkbox" id="formV2l" class="rounded text-emerald-600" /> <span>V2L Power Outlet</span></label>
+          <label class="flex items-center gap-2 text-slate-700"><input type="checkbox" id="formVentilated" class="rounded text-emerald-600" /> <span>Ventilated Front Seats</span></label>
+          <label class="flex items-center gap-2 text-slate-700"><input type="checkbox" id="formMassage" class="rounded text-emerald-600" /> <span>Massaging Front Seats</span></label>
+          <label class="flex items-center gap-2 text-slate-700"><input type="checkbox" id="formHud" class="rounded text-emerald-600" /> <span>Head-Up Display (HUD)</span></label>
+          <label class="flex items-center gap-2 text-slate-700"><input type="checkbox" id="formCarplay" checked class="rounded text-emerald-600" /> <span>Apple CarPlay / Android Auto</span></label>
+          <label class="flex items-center gap-2 text-slate-700"><input type="checkbox" id="formGlovebox" checked class="rounded text-emerald-600" /> <span>Traditional Glove Box</span></label>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Delivery Status &amp; Buyer's Agent Notes</label>
+          <input id="formNotes" type="text" placeholder="e.g. Immediate NSW stock; 800V fast charging and 150kg towball support." class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50" />
+        </div>
+
+        <div class="pt-2 border-t border-slate-100 flex items-center justify-end gap-2">
+          <button type="button" id="cancelAddCarBtn" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold">Cancel</button>
+          <button type="submit" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold shadow-sm">Save Vehicle to Catalog</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * Comprehensive 2026 Australian Electric Vehicle Dataset (52 Variants)
+     * Serves as instant embedded catalog AND seamless fallback when au-ev-api is offline.
+     */
+    const EMBEDDED_AU_EV_CATALOG = [
+      // --- SUBARU ---
+      {
+        id: "subaru-trailseeker-awd-touring-2026",
+        make: "Subaru",
+        model: "Trailseeker",
+        variant: "AWD Touring",
+        year: 2026,
+        body: "SUV",
+        drivetrain: "AWD",
+        nswDriveAway: 75821,
+        promoDriveAway: 71990,
+        promoNote: "Sydney Demo Stock",
+        powerKw: 280,
+        torqueNm: 536,
+        accelSec: 4.5,
+        batteryKwh: 74.7,
+        wltpKm: 488,
+        maxDcKw: 150,
+        maxAcKw: 22,
+        clearanceMm: 211,
+        brakedTowKg: 1500,
+        towballKg: 150,
+        bootL: 595,
+        frunkL: 0,
+        wheelIn: 20,
+        warrantyYrs: 5,
+        deliveryStatus: "1–2 wks (Demo) / 12 wks (Order)",
+        features: { v2l: true, v2lW: 1500, ventilated: true, massage: false, hud: false, panoRoof: true, carplay: true, glovebox: false, offroad: "Dual X-Mode" },
+        notes: "211mm clearance, 150kg towball, 22kW AC, Harman Kardon audio. Optional 18\" wheel set boosts range to ~533km. No glove box."
+      },
+      {
+        id: "subaru-trailseeker-awd-2026",
+        make: "Subaru",
+        model: "Trailseeker",
+        variant: "AWD (Base)",
+        year: 2026,
+        body: "SUV",
+        drivetrain: "AWD",
+        nswDriveAway: 69450,
+        promoDriveAway: 67657,
+        promoNote: "NSW Dealer Stock",
+        powerKw: 280,
+        torqueNm: 536,
+        accelSec: 4.5,
+        batteryKwh: 74.7,
+        wltpKm: 533,
+        maxDcKw: 150,
+        maxAcKw: 22,
+        clearanceMm: 211,
+        brakedTowKg: 1500,
+        towballKg: 150,
+        bootL: 609,
+        frunkL: 0,
+        wheelIn: 18,
+        warrantyYrs: 5,
+        deliveryStatus: "2–4 wks",
+        features: { v2l: false, v2lW: 0, ventilated: false, massage: false, hud: false, panoRoof: false, carplay: true, glovebox: false, offroad: "Dual X-Mode" },
+        notes: "Standard 18\" alloys deliver 533km WLTP range, 211mm clearance, 150kg towball, and 14\" screen without panoramic glass roof."
+      },
+      {
+        id: "subaru-solterra-awd-touring-2026",
+        make: "Subaru",
+        model: "Solterra",
+        variant: "AWD Touring",
+        year: 2026,
+        body: "SUV",
+        drivetrain: "AWD",
+        nswDriveAway: 75500,
+        promoDriveAway: 68990,
+        promoNote: "Run-out / Demo",
+        powerKw: 252,
+        torqueNm: 438,
+        accelSec: 5.1,
+        batteryKwh: 74.7,
+        wltpKm: 485,
+        maxDcKw: 150,
+        maxAcKw: 22,
+        clearanceMm: 212,
+        brakedTowKg: 1500,
+        towballKg: 150,
+        bootL: 452,
+        frunkL: 0,
+        wheelIn: 20,
+        warrantyYrs: 5,
+        deliveryStatus: "Immediate",
+        features: { v2l: true, v2lW: 1500, ventilated: true, massage: false, hud: false, panoRoof: true, carplay: true, glovebox: false, offroad: "Dual X-Mode" },
+        notes: "Shorter fastback sibling to Trailseeker with 212mm ground clearance and 150kg towball."
+      },
+      {
+        id: "subaru-uncharted-awd-2026",
+        make: "Subaru",
+        model: "Uncharted",
+        variant: "AWD",
+        year: 2026,
+        body: "SUV",
+        drivetrain: "AWD",
+        nswDriveAway: 67673,
+        promoDriveAway: 64990,
+        promoNote: "Intro Offer",
+        powerKw: 252,
+        torqueNm: 438,
+        accelSec: 5.0,
+        batteryKwh: 74.7,
+        wltpKm: 522,
+        maxDcKw: 150,
+        maxAcKw: 22,
+        clearanceMm: 211,
+        brakedTowKg: 1500,
+        towballKg: 150,
+        bootL: 465,
+        frunkL: 0,
+        wheelIn: 18,
+        warrantyYrs: 5,
+        deliveryStatus: "2–4 wks",
+        features: { v2l: false, v2lW: 0, ventilated: false, massage: false, hud: false, panoRoof: false, carplay: true, glovebox: false, offroad: "X-Mode" },
+        notes: "Compact-midsize Subaru AWD EV with 211mm clearance and 522km range."
+      },
+
+      // --- TOYOTA ---
+      {
+        id: "toyota-bz4x-touring-awd-2026",
+        make: "Toyota",
+        model: "bZ4X Touring",
+        variant: "AWD",
+        year: 2026,
+        body: "SUV",
+        drivetrain: "AWD",
+        nswDriveAway: 76850,
+        promoDriveAway: 74500,
+        promoNote: "Fleet / Demo",
+        powerKw: 280,
+        torqueNm: 537,
+        accelSec: 4.4,
+        batteryKwh: 74.7,
+        wltpKm: 488,
+        maxDcKw: 150,
+        maxAcKw: 22,
+        clearanceMm: 211,
+        brakedTowKg: 1500,
+        towballKg: 150,
+        bootL: 603,
+        frunkL: 0,
+        wheelIn: 20,
+        warrantyYrs: 7,
+        deliveryStatus: "3–6 wks",
+        features: { v2l: true, v2lW: 1500, ventilated: true, massage: false, hud: false, panoRoof: true, carplay: true, glovebox: false, offroad: "Dual X-Mode" },
+        notes: "Mechanical twin to Subaru Trailseeker Touring with JBL 9-speaker audio, Toyota resale strength, and up to 10-yr battery warranty."
+      },
+      {
+        id: "toyota-bz4x-2wd-2026",
+        make: "Toyota",
+        model: "bZ4X",
+        variant: "2WD (FWD)",
+        year: 2026,
+        body: "SUV",
+        drivetrain: "FWD",
+        nswDriveAway: 62500,
+        promoDriveAway: 59990,
+        promoNote: "NSW Stock",
+        powerKw: 165,
+        torqueNm: 268,
+        accelSec: 7.4,
+        batteryKwh: 74.7,
+        wltpKm: 569,
+        maxDcKw: 150,
+        maxAcKw: 22,
+        clearanceMm: 210,
+        brakedTowKg: 750,
+        towballKg: 75,
+        bootL: 452,
+        frunkL: 0,
+        wheelIn: 18,
+        warrantyYrs: 7,
+        deliveryStatus: "1–3 wks",
+        features: { v2l: false, v2lW: 0, ventilated: false, massage: false, hud: false, panoRoof: false, carplay: true, glovebox: false, offroad: null },
+        notes: "569km WLTP range on 18\" wheels with 22kW AC charging and Toyota capped servicing."
+      },
+
+      // --- TESLA ---
+      {
+        id: "tesla-model-y-lr-awd-2026",
+        make: "Tesla",
+        model: "Model Y",
+        variant: "Premium Long Range AWD",
+        year: 2026,
+        body: "SUV",
+        drivetrain: "AWD",
+        nswDriveAway: 76020,
+        promoDriveAway: 72570,
+        promoNote: "$3,450 Inventory Cut",
+        powerKw: 378,
+        torqueNm: 493,
+        accelSec: 4.8,
+        batteryKwh: 79.0,
+        wltpKm: 600,
+        maxDcKw: 250,
+        maxAcKw: 11,
+        clearanceMm: 167,
+        brakedTowKg: 1600,
+        towballKg: 160,
+        bootL: 854,
+        frunkL: 117,
+        wheelIn: 19,
+        warrantyYrs: 4,
+        deliveryStatus: "1–2 wks (NSW Inventory)",
+        features: { v2l: false, v2lW: 0, ventilated: true, massage: false, hud: false, panoRoof: true, carplay: false, glovebox: true, offroad: "Off-Road Assist" },
+        notes: "600km range, 160kg towball limit, 971L total cargo, zero mandatory servicing, and strongest 5-year used resale liquidity."
+      },
+      {
+        id: "tesla-model-y-rwd-2026",
+        make: "Tesla",
+        model: "Model Y",
+        variant: "Premium RWD",
+        year: 2026,
+        body: "SUV",
+        drivetrain: "RWD",
+        nswDriveAway: 64900,
+        promoDriveAway: 62065,
+        promoNote: "NSW Inventory / Demo",
+        powerKw: 220,
+        torqueNm: 350,
+        accelSec: 5.9,
+        batteryKwh: 62.5,
+        wltpKm: 466,
+        maxDcKw: 175,
+        maxAcKw: 11,
+        clearanceMm: 167,
+        brakedTowKg: 1600,
+        towballKg: 160,
+        bootL: 854,
+        frunkL: 117,
+        wheelIn: 19,
+        warrantyYrs: 4,
+        deliveryStatus: "1–2 wks",
+        features: { v2l: false, v2lW: 0, ventilated: true, massage: false, hud: false, panoRoof: true, carplay: false, glovebox: true, offroad: null },
+        notes: "LFP battery tolerates daily 100% charging; retains full 160kg towball rating and massive cargo space."
+      },
+      {
+        id: "tesla-model-y-performance-2026",
+        make: "Tesla",
+        model: "Model Y",
+        variant: "Performance AWD",
+        year: 2026,
+        body: "SUV",
+        drivetrain: "AWD",
+        nswDriveAway: 95988,
+        promoDriveAway: 87980,
+        promoNote: "Alexandria Demo (Over LCT)",
+        powerKw: 393,
+        torqueNm: 693,
+        accelSec: 3.5,
+        batteryKwh: 79.0,
+        wltpKm: 580,
+        maxDcKw: 250,
+        maxAcKw: 11,
+        clearanceMm: 151,
+        brakedTowKg: 1600,
+        towballKg: 160,
+        bootL: 854,
+        frunkL: 117,
+        wheelIn: 21,
+        warrantyYrs: 4,
+        deliveryStatus: "Immediate (Demo)",
+        features: { v2l: false, v2lW: 0, ventilated: true, massage: false, hud: false, panoRoof: true, carplay: false, glovebox: true, offroad: null },
+        notes: "3.5s 0-100km/h & adaptive dampers, but exceeds $91,387 LCT threshold (not FBT-exempt) and sits lower on 21\" tyres."
+      },
+      {
+        id: "tesla-model-3-lr-awd-2026",
+        make: "Tesla",
+        model: "Model 3",
+        variant: "Long Range AWD",
+        year: 2026,
+        body: "Sedan",
+        drivetrain: "AWD",
+        nswDriveAway: 69800,
+        promoDriveAway: 67500,
+        promoNote: "Inventory Discount",
+        powerKw: 366,
+        torqueNm: 493,
+        accelSec: 4.4,
+        batteryKwh: 79.0,
+        wltpKm: 629,
+        maxDcKw: 250,
+        maxAcKw: 11,
+        clearanceMm: 138,
+        brakedTowKg: 1000,
+        towballKg: 100,
+        bootL: 594,
+        frunkL: 88,
+        wheelIn: 18,
+        warrantyYrs: 4,
+        deliveryStatus: "1–3 wks",
+        features: { v2l: false, v2lW: 0, ventilated: true, massage: false, hud: false, panoRoof: true, carplay: false, glovebox: true, offroad: null },
+        notes: "629km WLTP efficiency leader on 18\" wheels with 100kg towball rating."
+      },
+      {
+        id: "tesla-model-3-rwd-2026",
+        make: "Tesla",
+        model: "Model 3",
+        variant: "RWD",
+        year: 2026,
+        body: "Sedan",
+        drivetrain: "RWD",
+        nswDriveAway: 59500,
+        promoDriveAway: 57900,
+        promoNote: "NSW Stock",
+        powerKw: 208,
+        torqueNm: 350,
+        accelSec: 6.1,
+        batteryKwh: 62.5,
+        wltpKm: 513,
+        maxDcKw: 170,
+        maxAcKw: 11,
+        clearanceMm: 138,
+        brakedTowKg: 1000,
+        towballKg: 100,
+        bootL: 594,
+        frunkL: 88,
+        wheelIn: 18,
+        warrantyYrs: 4,
+        deliveryStatus: "1–2 wks",
+        features: { v2l: false, v2lW: 0, ventilated: true, massage: false, hud: false, panoRoof: true, carplay: false, glovebox: true, offroad: null },
+        notes: "Ultra-low running costs, ventilated seats, rear screen, and strong resale."
+      },
+
+      // --- BYD ---
+      {
+        id: "byd-sealion-7-perf-awd-2026",
+        make: "BYD",
+        model: "Sealion 7",
+        variant: "Performance AWD",
+        year: 2026,
+        body: "SUV",
+        drivetrain: "AWD",
+        nswDriveAway: 68400,
+        promoDriveAway: 63990,
+        promoNote: "$4k Cashback / 6% NL",
+        powerKw: 390,
+        torqueNm: 690,
+        accelSec: 4.5,
+        batteryKwh: 82.6,
+        wltpKm: 456,
+        maxDcKw: 150,
+        maxAcKw: 11,
+        clearanceMm: 163,
+        brakedTowKg: 1500,
+        towballKg: 150,
+        bootL: 500,
+        frunkL: 58,
+        wheelIn: 20,
+        warrantyYrs: 6,
+        deliveryStatus: "Immediate (Port Kembla Stock)",
+        features: { v2l: true, v2lW: 3300, ventilated: true, massage: false, hud: true, panoRoof: true, carplay: true, glovebox: true, offroad: null },
+        notes: "390kW Nappa leather luxury SUV with HUD, ventilated seats, 3.3kW V2L, and 150kg ADR towbar support."
+      },
+      {
+        id: "byd-sealion-7-prem-rwd-2026",
+        make: "BYD",
+        model: "Sealion 7",
+        variant: "Premium RWD",
+        year: 2026,
+        body: "SUV",
+        drivetrain: "RWD",
+        nswDriveAway: 58990,
+        promoDriveAway: 54990,
+        promoNote: "$4k Cashback Promo",
+        powerKw: 230,
+        torqueNm: 380,
+        accelSec: 6.7,
+        batteryKwh: 82.6,
+        wltpKm: 482,
+        maxDcKw: 150,
+        maxAcKw: 11,
+        clearanceMm: 163,
+        brakedTowKg: 750,
+        towballKg: 75,
+        bootL: 500,
+        frunkL: 58,
+        wheelIn: 19,
+        warrantyYrs: 6,
+        deliveryStatus: "Immediate",
+        features: { v2l: true, v2lW: 3300, ventilated: true, massage: false, hud: true, panoRoof: true, carplay: true, glovebox: true, offroad: null },
+        notes: "19\" wheels give softer ride and 482km range while keeping HUD, Dynaudio, and ventilated seats."
+      },
+      {
+        id: "byd-atto-3-extended-2026",
+        make: "BYD",
+        model: "Atto 3",
+        variant: "Extended Range FWD",
+        year: 2026,
+        body: "SUV",
+        drivetrain: "FWD",
+        nswDriveAway: 47990,
+        promoDriveAway: 44990,
+        promoNote: "EOFY / Stock Deal",
+        powerKw: 150,
+        torqueNm: 310,
+        accelSec: 7.3,
+        batteryKwh: 60.5,
+        wltpKm: 420,
+        maxDcKw: 88,
+        maxAcKw: 7,
+        clearanceMm: 175,
+        brakedTowKg: 750,
+        towballKg: 75,
+        bootL: 440,
+        frunkL: 0,
+        wheelIn: 18,
+        warrantyYrs: 6,
+        deliveryStatus: "Immediate",
+        features: { v2l: true, v2lW: 2200, ventilated: false, massage: false, hud: false, panoRoof: true, carplay: true, glovebox: true, offroad: null },
+        notes: "Proven compact family EV with 75kg towball rating and Blade LFP battery."
+      },
+      {
+        id: "byd-seal-perf-awd-2026",
+        make: "BYD",
+        model: "Seal",
+        variant: "Performance AWD",
+        year: 2026,
+        body: "Sedan",
+        drivetrain: "AWD",
+        nswDriveAway: 64990,
+        promoDriveAway: 61490,
+        promoNote: "6% Novated Discount",
+        powerKw: 390,
+        torqueNm: 670,
+        accelSec: 3.8,
+        batteryKwh: 82.6,
+        wltpKm: 520,
+        maxDcKw: 150,
+        maxAcKw: 11,
+        clearanceMm: 145,
+        brakedTowKg: 1500,
+        towballKg: 100,
+        bootL: 400,
+        frunkL: 53,
+        wheelIn: 19,
+        warrantyYrs: 6,
+        deliveryStatus: "1–2 wks",
+        features: { v2l: true, v2lW: 3300, ventilated: true, massage: false, hud: true, panoRoof: true, carplay: true, glovebox: true, offroad: null },
+        notes: "3.8s sports sedan with adaptive dampers, HUD, and ventilated seats."
+      },
+      {
+        id: "byd-dolphin-premium-2026",
+        make: "BYD",
+        model: "Dolphin",
+        variant: "Premium FWD",
+        year: 2026,
+        body: "Hatch",
+        drivetrain: "FWD",
+        nswDriveAway: 42990,
+        promoDriveAway: 39990,
+        promoNote: "NSW Stock",
+        powerKw: 150,
+        torqueNm: 310,
+        accelSec: 7.0,
+        batteryKwh: 60.5,
+        wltpKm: 427,
+        maxDcKw: 88,
+        maxAcKw: 7,
+        clearanceMm: 150,
+        brakedTowKg: 0,
+        towballKg: 0,
+        bootL: 345,
+        frunkL: 0,
+        wheelIn: 17,
+        warrantyYrs: 6,
+        deliveryStatus: "Immediate",
+        features: { v2l: true, v2lW: 2200, ventilated: true, massage: false, hud: false, panoRoof: true, carplay: true, glovebox: true, offroad: null },
+        notes: "Sub-$40k urban hatch with ventilated front seats and multi-link rear suspension; 0kg towing."
+      },
+
+      // --- GEELY ---
+      {
+        id: "geely-ex5-inspire-fwd-2026",
+        make: "Geely",
+        model: "EX5",
+        variant: "Inspire FWD",
+        year: 2026,
+        body: "SUV",
+        drivetrain: "FWD",
+        nswDriveAway: 49990,
+        promoDriveAway: 47462,
+        promoNote: "6% Novated Lease Promo",
+        powerKw: 160,
+        torqueNm: 320,
+        accelSec: 7.6,
+        batteryKwh: 68.4,
+        wltpKm: 450,
+        maxDcKw: 100,
+        maxAcKw: 11,
+        clearanceMm: 168,
+        brakedTowKg: 0,
+        towballKg: 0,
+        bootL: 410,
+        frunkL: 0,
+        wheelIn: 19,
+        warrantyYrs: 7,
+        deliveryStatus: "Immediate",
+        features: { v2l: true, v2lW: 3300, ventilated: true, massage: true, hud: true, panoRoof: true, carplay: true, glovebox: true, offroad: null },
+        notes: "Unbeatable sub-$50k cabin luxury (massaging/ventilated seats, passenger ottoman, HUD, 16-spk audio) if 0kg towing is acceptable."
+      },
+      {
+        id: "geely-ex5-complete-fwd-2026",
+        make: "Geely",
+        model: "EX5",
+        variant: "Complete FWD",
+        year: 2026,
+        body: "SUV",
+        drivetrain: "FWD",
+        nswDriveAway: 45990,
+        promoDriveAway: 43800,
+        promoNote: "6% Novated Lease Promo",
+        powerKw: 160,
+        torqueNm: 320,
+        accelSec: 7.6,
+        batteryKwh: 68.4,
+        wltpKm: 475,
+        maxDcKw: 100,
+        maxAcKw: 11,
+        clearanceMm: 148,
+        brakedTowKg: 0,
+        towballKg: 0,
+        bootL: 410,
+        frunkL: 0,
+        wheelIn: 18,
+        warrantyYrs: 7,
+        deliveryStatus: "Immediate",
+        features: { v2l: true, v2lW: 3300, ventilated: false, massage: false, hud: false, panoRoof: false, carplay: true, glovebox: true, offroad: null },
+        notes: "475km range on 18\" wheels with 7-year unlimited km warranty; 0kg towing."
+      },
+
+      // --- MG ---
+      {
+        id: "mg-s6-ev-essence-awd-2026",
+        make: "MG",
+        model: "S6 EV",
+        variant: "Essence AWD",
+        year: 2026,
+        body: "SUV",
+        drivetrain: "AWD",
+        nswDriveAway: 56990,
+        promoDriveAway: 55990,
+        promoNote: "Sharpest Mid-Size AWD",
+        powerKw: 266,
+        torqueNm: 500,
+        accelSec: 5.1,
+        batteryKwh: 77.0,
+        wltpKm: 485,
+        maxDcKw: 144,
+        maxAcKw: 11,
+        clearanceMm: 170,
+        brakedTowKg: 1500,
+        towballKg: 100,
+        bootL: 581,
+        frunkL: 67,
+        wheelIn: 19,
+        warrantyYrs: 7,
+        deliveryStatus: "1–3 wks",
+        features: { v2l: true, v2lW: 6000, ventilated: true, massage: false, hud: false, panoRoof: true, carplay: true, glovebox: true, offroad: null },
+        notes: "Cheapest mid-size AWD SUV in Australia with physical HVAC buttons, 648L total cargo, and 100kg towball limit."
+      },
+      {
+        id: "mg-s6-ev-essence-rwd-2026",
+        make: "MG",
+        model: "S6 EV",
+        variant: "Essence RWD",
+        year: 2026,
+        body: "SUV",
+        drivetrain: "RWD",
+        nswDriveAway: 49990,
+        promoDriveAway: 48990,
+        promoNote: "NSW Drive-Away",
+        powerKw: 180,
+        torqueNm: 350,
+        accelSec: 7.3,
+        batteryKwh: 77.0,
+        wltpKm: 530,
+        maxDcKw: 144,
+        maxAcKw: 11,
+        clearanceMm: 170,
+        brakedTowKg: 1500,
+        towballKg: 100,
+        bootL: 581,
+        frunkL: 86,
+        wheelIn: 19,
+        warrantyYrs: 7,
+        deliveryStatus: "1–2 wks",
+        features: { v2l: true, v2lW: 6000, ventilated: true, massage: false, hud: false, panoRoof: true, carplay: true, glovebox: true, offroad: null },
+        notes: "530km range, 667L combined boot/frunk, 100kg towball, ventilated seats, and physical switchgear under $50k."
+      },
+      {
+        id: "mg4-essence-64-2026",
+        make: "MG",
+        model: "MG4",
+        variant: "Essence 64 RWD",
+        year: 2026,
+        body: "Hatch",
+        drivetrain: "RWD",
+        nswDriveAway: 42990,
+        promoDriveAway: 39990,
+        promoNote: "National Drive-Away",
+        powerKw: 150,
+        torqueNm: 250,
+        accelSec: 7.2,
+        batteryKwh: 64.0,
+        wltpKm: 435,
+        maxDcKw: 140,
+        maxAcKw: 7,
+        clearanceMm: 150,
+        brakedTowKg: 500,
+        towballKg: 50,
+        bootL: 363,
+        frunkL: 0,
+        wheelIn: 18,
+        warrantyYrs: 7,
+        deliveryStatus: "Immediate",
+        features: { v2l: true, v2lW: 2200, ventilated: false, massage: false, hud: false, panoRoof: false, carplay: true, glovebox: true, offroad: null },
+        notes: "Rear-wheel-drive handling benchmark in the budget hatch class."
+      },
+      {
+        id: "mg4-xpower-awd-2026",
+        make: "MG",
+        model: "MG4",
+        variant: "XPOWER AWD",
+        year: 2026,
+        body: "Hatch",
+        drivetrain: "AWD",
+        nswDriveAway: 54990,
+        promoDriveAway: 51990,
+        promoNote: "Dealer Stock",
+        powerKw: 320,
+        torqueNm: 600,
+        accelSec: 3.8,
+        batteryKwh: 64.0,
+        wltpKm: 385,
+        maxDcKw: 140,
+        maxAcKw: 7,
+        clearanceMm: 150,
+        brakedTowKg: 500,
+        towballKg: 50,
+        bootL: 363,
+        frunkL: 0,
+        wheelIn: 18,
+        warrantyYrs: 7,
+        deliveryStatus: "Immediate",
+        features: { v2l: true, v2lW: 2200, ventilated: false, massage: false, hud: false, panoRoof: false, carplay: true, glovebox: true, offroad: null },
+        notes: "320kW hot hatch performance at a mid-range price."
+      },
+
+      // --- ZEEKR ---
+      {
+        id: "zeekr-7x-perf-awd-2026",
+        make: "Zeekr",
+        model: "7X",
+        variant: "Performance AWD",
+        year: 2026,
+        body: "SUV",
+        drivetrain: "AWD",
+        nswDriveAway: 79888,
+        promoDriveAway: 77082,
+        promoNote: "NSW Stock / Demo",
+        powerKw: 475,
+        torqueNm: 710,
+        accelSec: 3.8,
+        batteryKwh: 100.0,
+        wltpKm: 543,
+        maxDcKw: 360,
+        maxAcKw: 22,
+        clearanceMm: 217,
+        brakedTowKg: 2000,
+        towballKg: 100,
+        bootL: 539,
+        frunkL: 42,
+        wheelIn: 21,
+        warrantyYrs: 5,
+        deliveryStatus: "2–4 wks",
+        features: { v2l: true, v2lW: 3300, ventilated: true, massage: true, hud: true, panoRoof: true, carplay: true, glovebox: true, offroad: "Air Susp. Off-Road" },
+        notes: "800V 16-min DC charging, 100kWh battery, height-adjustable air suspension (up to 217mm), Nappa massage seats; 100kg towball cap."
+      },
+      {
+        id: "zeekr-7x-lr-rwd-2026",
+        make: "Zeekr",
+        model: "7X",
+        variant: "Long Range RWD",
+        year: 2026,
+        body: "SUV",
+        drivetrain: "RWD",
+        nswDriveAway: 69900,
+        promoDriveAway: 67990,
+        promoNote: "NSW Stock",
+        powerKw: 310,
+        torqueNm: 440,
+        accelSec: 6.0,
+        batteryKwh: 100.0,
+        wltpKm: 615,
+        maxDcKw: 360,
+        maxAcKw: 22,
+        clearanceMm: 172,
+        brakedTowKg: 2000,
+        towballKg: 100,
+        bootL: 539,
+        frunkL: 62,
+        wheelIn: 19,
+        warrantyYrs: 5,
+        deliveryStatus: "2–4 wks",
+        features: { v2l: true, v2lW: 3300, ventilated: true, massage: false, hud: true, panoRoof: true, carplay: true, glovebox: true, offroad: null },
+        notes: "615km WLTP range + 360kW 800V charging on comfortable 19\" wheels."
+      },
+      {
+        id: "zeekr-x-awd-2026",
+        make: "Zeekr",
+        model: "X",
+        variant: "AWD",
+        year: 2026,
+        body: "SUV",
+        drivetrain: "AWD",
+        nswDriveAway: 59900,
+        promoDriveAway: 57900,
+        promoNote: "Run-out Price",
+        powerKw: 315,
+        torqueNm: 543,
+        accelSec: 3.8,
+        batteryKwh: 66.0,
+        wltpKm: 415,
+        maxDcKw: 150,
+        maxAcKw: 22,
+        clearanceMm: 170,
+        brakedTowKg: 1600,
+        towballKg: 80,
+        bootL: 362,
+        frunkL: 15,
+        wheelIn: 20,
+        warrantyYrs: 5,
+        deliveryStatus: "Immediate",
+        features: { v2l: true, v2lW: 3300, ventilated: true, massage: true, hud: true, panoRoof: true, carplay: true, glovebox: false, offroad: null },
+        notes: "Compact luxury crossover with onboard centre-console fridge, Yamaha audio, and massage seats."
+      },
+
+      // --- KIA ---
+      {
+        id: "kia-ev5-earth-awd-2026",
+        make: "Kia",
+        model: "EV5",
+        variant: "Earth AWD",
+        year: 2026,
+        body: "SUV",
+        drivetrain: "AWD",
+        nswDriveAway: 68990,
+        promoDriveAway: 65640,
+        promoNote: "National Drive-Away Deal",
+        powerKw: 230,
+        torqueNm: 480,
+        accelSec: 6.1,
+        batteryKwh: 88.1,
+        wltpKm: 500,
+        maxDcKw: 141,
+        maxAcKw: 11,
+        clearanceMm: 166,
+        brakedTowKg: 1250,
+        towballKg: 100,
+        bootL: 513,
+        frunkL: 67,
+        wheelIn: 19,
+        warrantyYrs: 7,
+        deliveryStatus: "Immediate",
+        features: { v2l: true, v2lW: 3600, ventilated: false, massage: false, hud: false, panoRoof: false, carplay: true, glovebox: true, offroad: null },
+        notes: "Australian-tuned ride & handling, large 88.1kWh LFP battery, 7-yr unlimited km warranty, 100kg towball."
+      },
+      {
+        id: "kia-ev5-gt-line-awd-2026",
+        make: "Kia",
+        model: "EV5",
+        variant: "GT-Line AWD",
+        year: 2026,
+        body: "SUV",
+        drivetrain: "AWD",
+        nswDriveAway: 79990,
+        promoDriveAway: 75990,
+        promoNote: "NSW Demo",
+        powerKw: 230,
+        torqueNm: 480,
+        accelSec: 6.1,
+        batteryKwh: 88.1,
+        wltpKm: 470,
+        maxDcKw: 141,
+        maxAcKw: 11,
+        clearanceMm: 166,
+        brakedTowKg: 1250,
+        towballKg: 100,
+        bootL: 513,
+        frunkL: 67,
+        wheelIn: 20,
+        warrantyYrs: 7,
+        deliveryStatus: "1–2 wks",
+        features: { v2l: true, v2lW: 3600, ventilated: true, massage: true, hud: true, panoRoof: true, carplay: true, glovebox: true, offroad: null },
+        notes: "Adds ventilated/massage front seats, HUD, Harman Kardon audio, panoramic roof, and centre console cooling/warming box."
+      },
+      {
+        id: "kia-ev3-air-lr-2026",
+        make: "Kia",
+        model: "EV3",
+        variant: "Air Long Range FWD",
+        year: 2026,
+        body: "SUV",
+        drivetrain: "FWD",
+        nswDriveAway: 54990,
+        promoDriveAway: 52990,
+        promoNote: "NSW Stock",
+        powerKw: 150,
+        torqueNm: 283,
+        accelSec: 7.7,
+        batteryKwh: 81.4,
+        wltpKm: 605,
+        maxDcKw: 128,
+        maxAcKw: 11,
+        clearanceMm: 160,
+        brakedTowKg: 1000,
+        towballKg: 100,
+        bootL: 460,
+        frunkL: 25,
+        wheelIn: 17,
+        warrantyYrs: 7,
+        deliveryStatus: "1–3 wks",
+        features: { v2l: true, v2lW: 3600, ventilated: false, massage: false, hud: false, panoRoof: false, carplay: true, glovebox: true, offroad: null },
+        notes: "605km range in a compact footprint with Australian suspension tuning and 100kg towball."
+      },
+      {
+        id: "kia-ev9-earth-awd-2026",
+        make: "Kia",
+        model: "EV9",
+        variant: "Earth AWD (7-Seat)",
+        year: 2026,
+        body: "SUV",
+        drivetrain: "AWD",
+        nswDriveAway: 112500,
+        promoDriveAway: 106990,
+        promoNote: "Over LCT Threshold",
+        powerKw: 283,
+        torqueNm: 600,
+        accelSec: 6.0,
+        batteryKwh: 99.8,
+        wltpKm: 512,
+        maxDcKw: 210,
+        maxAcKw: 11,
+        clearanceMm: 177,
+        brakedTowKg: 2500,
+        towballKg: 125,
+        bootL: 828,
+        frunkL: 52,
+        wheelIn: 19,
+        warrantyYrs: 7,
+        deliveryStatus: "2–4 wks",
+        features: { v2l: true, v2lW: 3600, ventilated: true, massage: false, hud: false, panoRoof: false, carplay: true, glovebox: true, offroad: "Terrain Mode" },
+        notes: "True 3-row 7-seat family flagship with 2,500kg towing, though above the $91,387 FBT-exemption cap."
+      },
+
+      // --- HYUNDAI ---
+      {
+        id: "hyundai-ioniq-5-dynamiq-awd-2026",
+        make: "Hyundai",
+        model: "IONIQ 5",
+        variant: "Dynamiq AWD",
+        year: 2026,
+        body: "SUV",
+        drivetrain: "AWD",
+        nswDriveAway: 82990,
+        promoDriveAway: 77990,
+        promoNote: "NSW Dealer Demo",
+        powerKw: 239,
+        torqueNm: 605,
+        accelSec: 5.1,
+        batteryKwh: 84.0,
+        wltpKm: 546,
+        maxDcKw: 260,
+        maxAcKw: 11,
+        clearanceMm: 160,
+        brakedTowKg: 1600,
+        towballKg: 100,
+        bootL: 520,
+        frunkL: 24,
+        wheelIn: 19,
+        warrantyYrs: 5,
+        deliveryStatus: "1–3 wks",
+        features: { v2l: true, v2lW: 3600, ventilated: true, massage: false, hud: true, panoRoof: false, carplay: true, glovebox: true, offroad: null },
+        notes: "Updated 84kWh battery, 800V 18-minute DC charging, rear wiper added, HUD, and ventilated leather seats."
+      },
+      {
+        id: "hyundai-kona-ev-extended-2026",
+        make: "Hyundai",
+        model: "Kona Electric",
+        variant: "Extended Range FWD",
+        year: 2026,
+        body: "SUV",
+        drivetrain: "FWD",
+        nswDriveAway: 56990,
+        promoDriveAway: 53990,
+        promoNote: "NSW Stock",
+        powerKw: 150,
+        torqueNm: 255,
+        accelSec: 7.8,
+        batteryKwh: 64.8,
+        wltpKm: 505,
+        maxDcKw: 102,
+        maxAcKw: 11,
+        clearanceMm: 151,
+        brakedTowKg: 750,
+        towballKg: 75,
+        bootL: 466,
+        frunkL: 27,
+        wheelIn: 17,
+        warrantyYrs: 5,
+        deliveryStatus: "Immediate",
+        features: { v2l: true, v2lW: 3600, ventilated: false, massage: false, hud: false, panoRoof: false, carplay: true, glovebox: true, offroad: null },
+        notes: "505km range on efficient 17\" tyres with generous rear legroom and physical controls."
+      },
+      {
+        id: "hyundai-inster-extended-2026",
+        make: "Hyundai",
+        model: "Inster",
+        variant: "Extended Range FWD",
+        year: 2026,
+        body: "SUV",
+        drivetrain: "FWD",
+        nswDriveAway: 44990,
+        promoDriveAway: 42990,
+        promoNote: "NSW Stock",
+        powerKw: 84.5,
+        torqueNm: 147,
+        accelSec: 10.6,
+        batteryKwh: 49.0,
+        wltpKm: 360,
+        maxDcKw: 85,
+        maxAcKw: 11,
+        clearanceMm: 155,
+        brakedTowKg: 0,
+        towballKg: 0,
+        bootL: 280,
+        frunkL: 0,
+        wheelIn: 17,
+        warrantyYrs: 5,
+        deliveryStatus: "Immediate",
+        features: { v2l: true, v2lW: 3600, ventilated: true, massage: false, hud: false, panoRoof: false, carplay: true, glovebox: true, offroad: null },
+        notes: "Ultra-manoeuvrable city micro-SUV with sliding rear seats and internal/external V2L."
+      },
+
+      // --- BMW ---
+      {
+        id: "bmw-ix1-xdrive30-sport-2026",
+        make: "BMW",
+        model: "iX1",
+        variant: "xDrive30 Sport Collection AWD",
+        year: 2026,
+        body: "SUV",
+        drivetrain: "AWD",
+        nswDriveAway: 79900,
+        promoDriveAway: 74990,
+        promoNote: "NSW Dealer Demo",
+        powerKw: 230,
+        torqueNm: 494,
+        accelSec: 5.6,
+        batteryKwh: 65.2,
+        wltpKm: 440,
+        maxDcKw: 130,
+        maxAcKw: 22,
+        clearanceMm: 170,
+        brakedTowKg: 1200,
+        towballKg: 75,
+        bootL: 490,
+        frunkL: 0,
+        wheelIn: 19,
+        warrantyYrs: 5,
+        deliveryStatus: "1–3 wks",
+        features: { v2l: false, v2lW: 0, ventilated: false, massage: true, hud: true, panoRoof: false, carplay: true, glovebox: true, offroad: null },
+        notes: "Premium cabin, HUD, 22kW AC, and traditional glove box, but capped at 75kg towball download and 440km range."
+      },
+      {
+        id: "bmw-ix2-xdrive30-2026",
+        make: "BMW",
+        model: "iX2",
+        variant: "xDrive30 M Sport AWD",
+        year: 2026,
+        body: "SUV",
+        drivetrain: "AWD",
+        nswDriveAway: 89500,
+        promoDriveAway: 82900,
+        promoNote: "NSW Demo (FBT Exempt)",
+        powerKw: 230,
+        torqueNm: 494,
+        accelSec: 5.6,
+        batteryKwh: 65.2,
+        wltpKm: 449,
+        maxDcKw: 130,
+        maxAcKw: 22,
+        clearanceMm: 168,
+        brakedTowKg: 1200,
+        towballKg: 75,
+        bootL: 525,
+        frunkL: 0,
+        wheelIn: 19,
+        warrantyYrs: 5,
+        deliveryStatus: "1–2 wks",
+        features: { v2l: false, v2lW: 0, ventilated: false, massage: true, hud: true, panoRoof: true, carplay: true, glovebox: true, offroad: null },
+        notes: "Coupe-SUV styling on the iX1 platform; stays under $91,387 LCT limit."
+      },
+      {
+        id: "bmw-i4-edrive35-2026",
+        make: "BMW",
+        model: "i4",
+        variant: "eDrive35 Gran Coupe RWD",
+        year: 2026,
+        body: "Sedan",
+        drivetrain: "RWD",
+        nswDriveAway: 88900,
+        promoDriveAway: 81900,
+        promoNote: "NSW Demo (FBT Exempt)",
+        powerKw: 210,
+        torqueNm: 400,
+        accelSec: 6.0,
+        batteryKwh: 67.0,
+        wltpKm: 483,
+        maxDcKw: 180,
+        maxAcKw: 11,
+        clearanceMm: 125,
+        brakedTowKg: 1600,
+        towballKg: 75,
+        bootL: 470,
+        frunkL: 0,
+        wheelIn: 18,
+        warrantyYrs: 5,
+        deliveryStatus: "1–2 wks",
+        features: { v2l: false, v2lW: 0, ventilated: false, massage: false, hud: true, panoRoof: false, carplay: true, glovebox: true, offroad: null },
+        notes: "Liftback practicality and classic BMW RWD balance just under the LCT threshold."
+      },
+
+      // --- VOLVO ---
+      {
+        id: "volvo-ex30-cross-country-awd-2026",
+        make: "Volvo",
+        model: "EX30",
+        variant: "Cross Country Twin Motor AWD",
+        year: 2026,
+        body: "SUV",
+        drivetrain: "AWD",
+        nswDriveAway: 73990,
+        promoDriveAway: 71395,
+        promoNote: "NSW Dealer Stock",
+        powerKw: 315,
+        torqueNm: 543,
+        accelSec: 3.6,
+        batteryKwh: 69.0,
+        wltpKm: 427,
+        maxDcKw: 153,
+        maxAcKw: 22,
+        clearanceMm: 190,
+        brakedTowKg: 1600,
+        towballKg: 100,
+        bootL: 318,
+        frunkL: 7,
+        wheelIn: 18,
+        warrantyYrs: 5,
+        deliveryStatus: "1–3 wks",
+        features: { v2l: false, v2lW: 0, ventilated: false, massage: false, hud: false, panoRoof: true, carplay: true, glovebox: true, offroad: "Hill Descent" },
+        notes: "Raised 190mm clearance, 3.6s AWD punch, and 100kg towball, but very compact 318L boot and no driver cluster."
+      },
+      {
+        id: "volvo-ex40-ultra-awd-2026",
+        make: "Volvo",
+        model: "EX40",
+        variant: "Ultra Twin Motor AWD",
+        year: 2026,
+        body: "SUV",
+        drivetrain: "AWD",
+        nswDriveAway: 79990,
+        promoDriveAway: 77450,
+        promoNote: "NSW Demo",
+        powerKw: 300,
+        torqueNm: 670,
+        accelSec: 4.8,
+        batteryKwh: 82.0,
+        wltpKm: 500,
+        maxDcKw: 200,
+        maxAcKw: 11,
+        clearanceMm: 175,
+        brakedTowKg: 1800,
+        towballKg: 100,
+        bootL: 410,
+        frunkL: 31,
+        wheelIn: 20,
+        warrantyYrs: 5,
+        deliveryStatus: "1–2 wks",
+        features: { v2l: false, v2lW: 0, ventilated: false, massage: false, hud: false, panoRoof: true, carplay: true, glovebox: true, offroad: "Off-Road Mode" },
+        notes: "Traditional driver display, Harman Kardon audio, and 1,800kg towing under the $80k mark."
+      },
+
+      // --- POLESTAR ---
+      {
+        id: "polestar-2-lr-dual-motor-2026",
+        make: "Polestar",
+        model: "Polestar 2",
+        variant: "Long Range Dual Motor AWD",
+        year: 2026,
+        body: "Sedan",
+        drivetrain: "AWD",
+        nswDriveAway: 76900,
+        promoDriveAway: 71900,
+        promoNote: "Inventory Offer",
+        powerKw: 310,
+        torqueNm: 740,
+        accelSec: 4.5,
+        batteryKwh: 82.0,
+        wltpKm: 591,
+        maxDcKw: 205,
+        maxAcKw: 11,
+        clearanceMm: 151,
+        brakedTowKg: 1500,
+        towballKg: 100,
+        bootL: 407,
+        frunkL: 41,
+        wheelIn: 19,
+        warrantyYrs: 5,
+        deliveryStatus: "1–3 wks",
+        features: { v2l: false, v2lW: 0, ventilated: true, massage: false, hud: false, panoRoof: true, carplay: true, glovebox: true, offroad: null },
+        notes: "591km range, 740Nm torque, liftback tailgate, and 100kg towball limit."
+      },
+      {
+        id: "polestar-4-lr-single-motor-2026",
+        make: "Polestar",
+        model: "Polestar 4",
+        variant: "Long Range Single Motor RWD",
+        year: 2026,
+        body: "SUV",
+        drivetrain: "RWD",
+        nswDriveAway: 85900,
+        promoDriveAway: 82900,
+        promoNote: "FBT-Exempt Spec",
+        powerKw: 200,
+        torqueNm: 343,
+        accelSec: 7.1,
+        batteryKwh: 100.0,
+        wltpKm: 620,
+        maxDcKw: 200,
+        maxAcKw: 22,
+        clearanceMm: 166,
+        brakedTowKg: 1500,
+        towballKg: 100,
+        bootL: 526,
+        frunkL: 15,
+        wheelIn: 20,
+        warrantyYrs: 5,
+        deliveryStatus: "3–6 wks",
+        features: { v2l: true, v2lW: 3300, ventilated: false, massage: false, hud: true, panoRoof: true, carplay: true, glovebox: true, offroad: null },
+        notes: "100kWh battery, 620km range, 22kW AC, and luxury coupe-SUV cabin under the $91,387 LCT limit."
+      },
+
+      // --- SKODA & CUPRA ---
+      {
+        id: "skoda-enyaq-85-sportline-2026",
+        make: "Skoda",
+        model: "Enyaq",
+        variant: "85 Sportline RWD",
+        year: 2026,
+        body: "SUV",
+        drivetrain: "RWD",
+        nswDriveAway: 72990,
+        promoDriveAway: 69990,
+        promoNote: "NSW Drive-Away",
+        powerKw: 210,
+        torqueNm: 545,
+        accelSec: 6.7,
+        batteryKwh: 82.0,
+        wltpKm: 561,
+        maxDcKw: 135,
+        maxAcKw: 11,
+        clearanceMm: 186,
+        brakedTowKg: 1000,
+        towballKg: 75,
+        bootL: 585,
+        frunkL: 0,
+        wheelIn: 20,
+        warrantyYrs: 7,
+        deliveryStatus: "2–4 wks",
+        features: { v2l: false, v2lW: 0, ventilated: false, massage: true, hud: true, panoRoof: false, carplay: true, glovebox: true, offroad: null },
+        notes: "European family SUV practicality with 585L boot, HUD, driver massage, and 7-year warranty."
+      },
+      {
+        id: "cupra-tavascan-vz-awd-2026",
+        make: "Cupra",
+        model: "Tavascan",
+        variant: "VZ AWD",
+        year: 2026,
+        body: "SUV",
+        drivetrain: "AWD",
+        nswDriveAway: 81790,
+        promoDriveAway: 78990,
+        promoNote: "NSW Dealer Demo",
+        powerKw: 250,
+        torqueNm: 679,
+        accelSec: 5.5,
+        batteryKwh: 82.0,
+        wltpKm: 499,
+        maxDcKw: 135,
+        maxAcKw: 11,
+        clearanceMm: 165,
+        brakedTowKg: 1200,
+        towballKg: 75,
+        bootL: 540,
+        frunkL: 0,
+        wheelIn: 21,
+        warrantyYrs: 5,
+        deliveryStatus: "1–3 wks",
+        features: { v2l: false, v2lW: 0, ventilated: false, massage: false, hud: true, panoRoof: true, carplay: true, glovebox: true, offroad: "Traction Mode" },
+        notes: "Dramatic coupe-SUV styling with Sennheiser audio, adaptive chassis control, and 540L boot."
+      },
+
+      // --- LEAPMOTOR, CHERY/JAECOO, GWM, GAC, DEEPAL ---
+      {
+        id: "leapmotor-c10-design-2026",
+        make: "Leapmotor",
+        model: "C10",
+        variant: "Design RWD",
+        year: 2026,
+        body: "SUV",
+        drivetrain: "RWD",
+        nswDriveAway: 51888,
+        promoDriveAway: 47888,
+        promoNote: "Stellantis Network Deal",
+        powerKw: 160,
+        torqueNm: 320,
+        accelSec: 7.5,
+        batteryKwh: 69.9,
+        wltpKm: 420,
+        maxDcKw: 84,
+        maxAcKw: 6.6,
+        clearanceMm: 180,
+        brakedTowKg: 1500,
+        towballKg: 75,
+        bootL: 435,
+        frunkL: 32,
+        wheelIn: 20,
+        warrantyYrs: 7,
+        deliveryStatus: "Immediate",
+        features: { v2l: true, v2lW: 3300, ventilated: true, massage: false, hud: false, panoRoof: true, carplay: false, glovebox: true, offroad: null },
+        notes: "Large mid-size cabin at small-SUV money, backed by Stellantis dealers; note lack of Apple CarPlay."
+      },
+      {
+        id: "deepal-s07-rwd-2026",
+        make: "Deepal",
+        model: "S07",
+        variant: "RWD",
+        year: 2026,
+        body: "SUV",
+        drivetrain: "RWD",
+        nswDriveAway: 56990,
+        promoDriveAway: 53990,
+        promoNote: "Inchcape Sydney Stock",
+        powerKw: 160,
+        torqueNm: 320,
+        accelSec: 7.9,
+        batteryKwh: 79.97,
+        wltpKm: 475,
+        maxDcKw: 92,
+        maxAcKw: 11,
+        clearanceMm: 165,
+        brakedTowKg: 1500,
+        towballKg: 75,
+        bootL: 445,
+        frunkL: 125,
+        wheelIn: 19,
+        warrantyYrs: 7,
+        deliveryStatus: "Immediate",
+        features: { v2l: true, v2lW: 3300, ventilated: true, massage: false, hud: true, panoRoof: true, carplay: true, glovebox: true, offroad: null },
+        notes: "Distributed by Inchcape Australia; features huge 125L frunk, AR-HUD, and ventilated seats."
+      },
+      {
+        id: "chery-omoda-e5-ex-2026",
+        make: "Chery",
+        model: "Omoda E5",
+        variant: "EX FWD",
+        year: 2026,
+        body: "SUV",
+        drivetrain: "FWD",
+        nswDriveAway: 46990,
+        promoDriveAway: 42990,
+        promoNote: "National Drive-Away",
+        powerKw: 150,
+        torqueNm: 340,
+        accelSec: 7.6,
+        batteryKwh: 61.1,
+        wltpKm: 430,
+        maxDcKw: 80,
+        maxAcKw: 9.9,
+        clearanceMm: 165,
+        brakedTowKg: 750,
+        towballKg: 75,
+        bootL: 380,
+        frunkL: 19,
+        wheelIn: 18,
+        warrantyYrs: 7,
+        deliveryStatus: "Immediate",
+        features: { v2l: true, v2lW: 3300, ventilated: true, massage: false, hud: false, panoRoof: true, carplay: true, glovebox: true, offroad: null },
+        notes: "Sharp sub-$45k drive-away value with ventilated seats, Sony audio, and 75kg towball."
+      },
+      {
+        id: "gwm-ora-extended-2026",
+        make: "GWM",
+        model: "Ora",
+        variant: "Extended Range FWD",
+        year: 2026,
+        body: "Hatch",
+        drivetrain: "FWD",
+        nswDriveAway: 39990,
+        promoDriveAway: 36990,
+        promoNote: "National Run-out",
+        powerKw: 126,
+        torqueNm: 250,
+        accelSec: 8.4,
+        batteryKwh: 63.0,
+        wltpKm: 420,
+        maxDcKw: 64,
+        maxAcKw: 11,
+        clearanceMm: 145,
+        brakedTowKg: 0,
+        towballKg: 0,
+        bootL: 228,
+        frunkL: 0,
+        wheelIn: 18,
+        warrantyYrs: 7,
+        deliveryStatus: "Immediate",
+        features: { v2l: true, v2lW: 3300, ventilated: true, massage: true, hud: false, panoRoof: true, carplay: true, glovebox: true, offroad: null },
+        notes: "Cheapest way into ventilated & massaging front seats in Australia (~$10.4k Year-5 balloon); 0kg towing."
+      },
+      {
+        id: "gac-aion-v-luxury-2026",
+        make: "GAC",
+        model: "Aion V",
+        variant: "Luxury FWD",
+        year: 2026,
+        body: "SUV",
+        drivetrain: "FWD",
+        nswDriveAway: 48990,
+        promoDriveAway: 46990,
+        promoNote: "Introductory Offer",
+        powerKw: 150,
+        torqueNm: 240,
+        accelSec: 7.9,
+        batteryKwh: 75.3,
+        wltpKm: 510,
+        maxDcKw: 180,
+        maxAcKw: 11,
+        clearanceMm: 180,
+        brakedTowKg: 750,
+        towballKg: 75,
+        bootL: 427,
+        frunkL: 0,
+        wheelIn: 19,
+        warrantyYrs: 8,
+        deliveryStatus: "Immediate",
+        features: { v2l: true, v2lW: 3300, ventilated: true, massage: true, hud: false, panoRoof: true, carplay: true, glovebox: true, offroad: null },
+        notes: "510km range, 180kW fast charging, built-in console fridge, and massage seats under $50k."
+      },
+
+      // --- LUXURY & COMMERCIAL / SPECIALTY ---
+      {
+        id: "audi-q4-etron-45-2026",
+        make: "Audi",
+        model: "Q4 e-tron",
+        variant: "45 RWD",
+        year: 2026,
+        body: "SUV",
+        drivetrain: "RWD",
+        nswDriveAway: 88900,
+        promoDriveAway: 84500,
+        promoNote: "FBT-Exempt Spec",
+        powerKw: 210,
+        torqueNm: 545,
+        accelSec: 6.7,
+        batteryKwh: 82.0,
+        wltpKm: 525,
+        maxDcKw: 135,
+        maxAcKw: 11,
+        clearanceMm: 180,
+        brakedTowKg: 1000,
+        towballKg: 75,
+        bootL: 520,
+        frunkL: 0,
+        wheelIn: 19,
+        warrantyYrs: 5,
+        deliveryStatus: "2–4 wks",
+        features: { v2l: false, v2lW: 0, ventilated: false, massage: false, hud: false, panoRoof: false, carplay: true, glovebox: true, offroad: null },
+        notes: "Refined German badge & 525km range priced specifically under the $91,387 LCT limit."
+      },
+      {
+        id: "audi-q6-etron-quattro-2026",
+        make: "Audi",
+        model: "Q6 e-tron",
+        variant: "quattro AWD",
+        year: 2026,
+        body: "SUV",
+        drivetrain: "AWD",
+        nswDriveAway: 129900,
+        promoDriveAway: 122500,
+        promoNote: "Over LCT Threshold",
+        powerKw: 285,
+        torqueNm: 580,
+        accelSec: 5.9,
+        batteryKwh: 100.0,
+        wltpKm: 540,
+        maxDcKw: 270,
+        maxAcKw: 11,
+        clearanceMm: 185,
+        brakedTowKg: 2400,
+        towballKg: 100,
+        bootL: 526,
+        frunkL: 64,
+        wheelIn: 20,
+        warrantyYrs: 5,
+        deliveryStatus: "2–4 wks",
+        features: { v2l: false, v2lW: 0, ventilated: true, massage: true, hud: true, panoRoof: true, carplay: true, glovebox: true, offroad: "Offroad Mode" },
+        notes: "800V PPE platform with 270kW DC charging and 2,400kg towing; exceeds FBT exemption cap."
+      },
+      {
+        id: "mercedes-eqa-250-plus-2026",
+        make: "Mercedes-Benz",
+        model: "EQA",
+        variant: "250+ City Edition FWD",
+        year: 2026,
+        body: "SUV",
+        drivetrain: "FWD",
+        nswDriveAway: 84900,
+        promoDriveAway: 79900,
+        promoNote: "NSW Stock (FBT Exempt)",
+        powerKw: 140,
+        torqueNm: 385,
+        accelSec: 8.6,
+        batteryKwh: 70.5,
+        wltpKm: 578,
+        maxDcKw: 100,
+        maxAcKw: 11,
+        clearanceMm: 165,
+        brakedTowKg: 750,
+        towballKg: 75,
+        bootL: 340,
+        frunkL: 0,
+        wheelIn: 18,
+        warrantyYrs: 5,
+        deliveryStatus: "1–3 wks",
+        features: { v2l: false, v2lW: 0, ventilated: false, massage: false, hud: true, panoRoof: true, carplay: true, glovebox: true, offroad: null },
+        notes: "578km WLTP range and MBUX luxury cabin squeezed under the FBT-exemption threshold."
+      },
+      {
+        id: "mini-countryman-se-all4-2026",
+        make: "MINI",
+        model: "Countryman",
+        variant: "SE ALL4 AWD",
+        year: 2026,
+        body: "SUV",
+        drivetrain: "AWD",
+        nswDriveAway: 78990,
+        promoDriveAway: 74990,
+        promoNote: "NSW Demo",
+        powerKw: 230,
+        torqueNm: 494,
+        accelSec: 5.6,
+        batteryKwh: 66.5,
+        wltpKm: 433,
+        maxDcKw: 130,
+        maxAcKw: 22,
+        clearanceMm: 202,
+        brakedTowKg: 1200,
+        towballKg: 75,
+        bootL: 460,
+        frunkL: 0,
+        wheelIn: 19,
+        warrantyYrs: 5,
+        deliveryStatus: "1–2 wks",
+        features: { v2l: false, v2lW: 0, ventilated: false, massage: true, hud: true, panoRoof: true, carplay: true, glovebox: true, offroad: "Trail Mode" },
+        notes: "Shares BMW iX1 xDrive30 hardware with 202mm clearance, circular OLED screen, and 22kW AC."
+      },
+      {
+        id: "smart-3-brabus-awd-2026",
+        make: "smart",
+        model: "#3",
+        variant: "BRABUS AWD",
+        year: 2026,
+        body: "SUV",
+        drivetrain: "AWD",
+        nswDriveAway: 74900,
+        promoDriveAway: 69900,
+        promoNote: "LSH Auto Stock",
+        powerKw: 315,
+        torqueNm: 543,
+        accelSec: 3.7,
+        batteryKwh: 66.0,
+        wltpKm: 415,
+        maxDcKw: 150,
+        maxAcKw: 22,
+        clearanceMm: 160,
+        brakedTowKg: 1600,
+        towballKg: 75,
+        bootL: 370,
+        frunkL: 15,
+        wheelIn: 20,
+        warrantyYrs: 5,
+        deliveryStatus: "Immediate",
+        features: { v2l: true, v2lW: 3300, ventilated: true, massage: false, hud: true, panoRoof: true, carplay: true, glovebox: true, offroad: null },
+        notes: "3.7s rocket on Geely SEA platform with Beats audio, HUD, and ventilated seats."
+      },
+      {
+        id: "ford-mustang-mach-e-select-2026",
+        make: "Ford",
+        model: "Mustang Mach-E",
+        variant: "Select RWD",
+        year: 2026,
+        body: "SUV",
+        drivetrain: "RWD",
+        nswDriveAway: 68990,
+        promoDriveAway: 64990,
+        promoNote: "Ford Run-out Deal",
+        powerKw: 198,
+        torqueNm: 430,
+        accelSec: 6.6,
+        batteryKwh: 72.0,
+        wltpKm: 470,
+        maxDcKw: 150,
+        maxAcKw: 11,
+        clearanceMm: 147,
+        brakedTowKg: 750,
+        towballKg: 75,
+        bootL: 402,
+        frunkL: 100,
+        wheelIn: 19,
+        warrantyYrs: 5,
+        deliveryStatus: "Immediate",
+        features: { v2l: false, v2lW: 0, ventilated: false, massage: false, hud: false, panoRoof: true, carplay: true, glovebox: true, offroad: null },
+        notes: "Drainable 100L frunk, B&O audio, and engaging rear-drive dynamics."
+      },
+      {
+        id: "renault-megane-e-tech-techno-2026",
+        make: "Renault",
+        model: "Megane E-Tech",
+        variant: "Techno EV60 FWD",
+        year: 2026,
+        body: "Hatch",
+        drivetrain: "FWD",
+        nswDriveAway: 54990,
+        promoDriveAway: 49990,
+        promoNote: "NSW Stock Deal",
+        powerKw: 160,
+        torqueNm: 300,
+        accelSec: 7.4,
+        batteryKwh: 60.0,
+        wltpKm: 454,
+        maxDcKw: 130,
+        maxAcKw: 22,
+        clearanceMm: 135,
+        brakedTowKg: 900,
+        towballKg: 75,
+        bootL: 440,
+        frunkL: 0,
+        wheelIn: 20,
+        warrantyYrs: 5,
+        deliveryStatus: "Immediate",
+        features: { v2l: false, v2lW: 0, ventilated: false, massage: false, hud: false, panoRoof: false, carplay: true, glovebox: true, offroad: null },
+        notes: "Lightweight European hatch with Google Built-In and 22kW AC charging."
+      },
+      {
+        id: "kgm-torres-evx-fwd-2026",
+        make: "KGM",
+        model: "Torres EVX",
+        variant: "FWD",
+        year: 2026,
+        body: "SUV",
+        drivetrain: "FWD",
+        nswDriveAway: 58990,
+        promoDriveAway: 54990,
+        promoNote: "NSW Drive-Away",
+        powerKw: 152,
+        torqueNm: 339,
+        accelSec: 8.1,
+        batteryKwh: 73.4,
+        wltpKm: 462,
+        maxDcKw: 120,
+        maxAcKw: 11,
+        clearanceMm: 169,
+        brakedTowKg: 1500,
+        towballKg: 100,
+        bootL: 703,
+        frunkL: 0,
+        wheelIn: 18,
+        warrantyYrs: 7,
+        deliveryStatus: "1–3 wks",
+        features: { v2l: true, v2lW: 3500, ventilated: true, massage: false, hud: false, panoRoof: false, carplay: true, glovebox: true, offroad: null },
+        notes: "Rugged boxy styling, huge 703L boot, BYD Blade battery, 100kg towball, and 7-year warranty."
+      },
+      {
+        id: "vw-id4-pro-rwd-2026",
+        make: "Volkswagen",
+        model: "ID.4",
+        variant: "Pro RWD",
+        year: 2026,
+        body: "SUV",
+        drivetrain: "RWD",
+        nswDriveAway: 64990,
+        promoDriveAway: 61990,
+        promoNote: "NSW Stock",
+        powerKw: 210,
+        torqueNm: 545,
+        accelSec: 6.7,
+        batteryKwh: 82.0,
+        wltpKm: 544,
+        maxDcKw: 175,
+        maxAcKw: 11,
+        clearanceMm: 163,
+        brakedTowKg: 1000,
+        towballKg: 75,
+        bootL: 543,
+        frunkL: 0,
+        wheelIn: 19,
+        warrantyYrs: 5,
+        deliveryStatus: "1–3 wks",
+        features: { v2l: false, v2lW: 0, ventilated: false, massage: true, hud: false, panoRoof: false, carplay: true, glovebox: true, offroad: null },
+        notes: "544km range, tight turning circle, ErgoActive massage seats, and 543L boot."
+      },
+      {
+        id: "vw-id-buzz-pro-lwb-2026",
+        make: "Volkswagen",
+        model: "ID. Buzz",
+        variant: "Pro LWB (7-Seat)",
+        year: 2026,
+        body: "People Mover / Van",
+        drivetrain: "RWD",
+        nswDriveAway: 94990,
+        promoDriveAway: 89990,
+        promoNote: "Demo Under LCT",
+        powerKw: 210,
+        torqueNm: 560,
+        accelSec: 7.9,
+        batteryKwh: 91.0,
+        wltpKm: 465,
+        maxDcKw: 200,
+        maxAcKw: 11,
+        clearanceMm: 155,
+        brakedTowKg: 1000,
+        towballKg: 75,
+        bootL: 1340,
+        frunkL: 0,
+        wheelIn: 19,
+        warrantyYrs: 5,
+        deliveryStatus: "2–4 wks",
+        features: { v2l: false, v2lW: 0, ventilated: false, massage: true, hud: true, panoRoof: true, carplay: true, glovebox: true, offroad: null },
+        notes: "7-seat people mover with massive cargo volume; demo pricing dips under the $91,387 FBT threshold."
+      },
+      {
+        id: "porsche-macan-4-electric-2026",
+        make: "Porsche",
+        model: "Macan",
+        variant: "4 Electric AWD",
+        year: 2026,
+        body: "SUV",
+        drivetrain: "AWD",
+        nswDriveAway: 144500,
+        promoDriveAway: null,
+        promoNote: "Over LCT Threshold",
+        powerKw: 300,
+        torqueNm: 650,
+        accelSec: 5.2,
+        batteryKwh: 100.0,
+        wltpKm: 613,
+        maxDcKw: 270,
+        maxAcKw: 11,
+        clearanceMm: 225,
+        brakedTowKg: 2000,
+        towballKg: 80,
+        bootL: 540,
+        frunkL: 84,
+        wheelIn: 20,
+        warrantyYrs: 3,
+        deliveryStatus: "6–12 wks",
+        features: { v2l: false, v2lW: 0, ventilated: true, massage: true, hud: true, panoRoof: true, carplay: true, glovebox: true, offroad: "Air Susp. Offroad" },
+        notes: "Benchmark handling, 613km range, 270kW 800V charging, and air suspension; well above FBT cap."
+      },
+
+      // --- XPENG, KIA EV6, HYUNDAI IONIQ 6, LEAPMOTOR B10, SMART #1, MERCEDES EQB ---
+      {
+        id: "xpeng-g6-lr-rwd-2026",
+        make: "XPeng",
+        model: "G6",
+        variant: "Long Range RWD",
+        year: 2026,
+        body: "SUV",
+        drivetrain: "RWD",
+        nswDriveAway: 62990,
+        promoDriveAway: 59800,
+        promoNote: "TrueEV NSW Stock",
+        powerKw: 210,
+        torqueNm: 440,
+        accelSec: 6.2,
+        batteryKwh: 87.5,
+        wltpKm: 570,
+        maxDcKw: 280,
+        maxAcKw: 11,
+        clearanceMm: 165,
+        brakedTowKg: 1500,
+        towballKg: 75,
+        bootL: 571,
+        frunkL: 0,
+        wheelIn: 20,
+        warrantyYrs: 5,
+        deliveryStatus: "1–3 wks",
+        features: { v2l: true, v2lW: 3300, ventilated: true, massage: false, hud: false, panoRoof: true, carplay: true, glovebox: false, offroad: null },
+        notes: "800V 280kW DC charging, 570km range, ventilated seats, and 18-speaker Xopera sound under $60k drive-away."
+      },
+      {
+        id: "xpeng-g6-awd-performance-2026",
+        make: "XPeng",
+        model: "G6",
+        variant: "Performance AWD",
+        year: 2026,
+        body: "SUV",
+        drivetrain: "AWD",
+        nswDriveAway: 69990,
+        promoDriveAway: 66990,
+        promoNote: "NSW Inventory",
+        powerKw: 350,
+        torqueNm: 660,
+        accelSec: 4.1,
+        batteryKwh: 87.5,
+        wltpKm: 550,
+        maxDcKw: 280,
+        maxAcKw: 11,
+        clearanceMm: 165,
+        brakedTowKg: 1500,
+        towballKg: 75,
+        bootL: 571,
+        frunkL: 0,
+        wheelIn: 20,
+        warrantyYrs: 5,
+        deliveryStatus: "1–3 wks",
+        features: { v2l: true, v2lW: 3300, ventilated: true, massage: false, hud: false, panoRoof: true, carplay: true, glovebox: false, offroad: null },
+        notes: "4.1s dual-motor AWD with 800V charging and 550km WLTP range."
+      },
+      {
+        id: "kia-ev6-gt-line-awd-2026",
+        make: "Kia",
+        model: "EV6",
+        variant: "GT-Line AWD",
+        year: 2026,
+        body: "SUV",
+        drivetrain: "AWD",
+        nswDriveAway: 88990,
+        promoDriveAway: 82990,
+        promoNote: "NSW Demo (FBT Exempt)",
+        powerKw: 239,
+        torqueNm: 605,
+        accelSec: 5.2,
+        batteryKwh: 84.0,
+        wltpKm: 540,
+        maxDcKw: 260,
+        maxAcKw: 11,
+        clearanceMm: 160,
+        brakedTowKg: 1600,
+        towballKg: 100,
+        bootL: 490,
+        frunkL: 20,
+        wheelIn: 20,
+        warrantyYrs: 7,
+        deliveryStatus: "1–2 wks",
+        features: { v2l: true, v2lW: 3600, ventilated: true, massage: false, hud: true, panoRoof: true, carplay: true, glovebox: true, offroad: null },
+        notes: "Updated 84kWh battery, 800V 18-minute charging, Australian suspension tune, HUD, and 100kg towball limit."
+      },
+      {
+        id: "hyundai-ioniq-6-epiq-awd-2026",
+        make: "Hyundai",
+        model: "IONIQ 6",
+        variant: "Epiq AWD",
+        year: 2026,
+        body: "Sedan",
+        drivetrain: "AWD",
+        nswDriveAway: 86500,
+        promoDriveAway: 79990,
+        promoNote: "NSW Dealer Demo",
+        powerKw: 239,
+        torqueNm: 605,
+        accelSec: 5.1,
+        batteryKwh: 77.4,
+        wltpKm: 519,
+        maxDcKw: 235,
+        maxAcKw: 11,
+        clearanceMm: 141,
+        brakedTowKg: 1500,
+        towballKg: 100,
+        bootL: 401,
+        frunkL: 15,
+        wheelIn: 20,
+        warrantyYrs: 5,
+        deliveryStatus: "1–2 wks",
+        features: { v2l: true, v2lW: 3600, ventilated: true, massage: false, hud: true, panoRoof: true, carplay: true, glovebox: true, offroad: null },
+        notes: "Ultra-aerodynamic 800V streamliner with HUD, ventilated seats, and 100kg towball rating."
+      },
+      {
+        id: "leapmotor-b10-design-2026",
+        make: "Leapmotor",
+        model: "B10",
+        variant: "Design RWD",
+        year: 2026,
+        body: "SUV",
+        drivetrain: "RWD",
+        nswDriveAway: 42990,
+        promoDriveAway: 40990,
+        promoNote: "Introductory Offer",
+        powerKw: 160,
+        torqueNm: 240,
+        accelSec: 6.8,
+        batteryKwh: 67.1,
+        wltpKm: 440,
+        maxDcKw: 140,
+        maxAcKw: 11,
+        clearanceMm: 175,
+        brakedTowKg: 750,
+        towballKg: 75,
+        bootL: 420,
+        frunkL: 25,
+        wheelIn: 18,
+        warrantyYrs: 7,
+        deliveryStatus: "Immediate",
+        features: { v2l: true, v2lW: 3300, ventilated: true, massage: false, hud: false, panoRoof: true, carplay: true, glovebox: true, offroad: null },
+        notes: "Compact Stellantis-backed SUV under $41k drive-away with 140kW DC charging and ventilated front seats."
+      },
+      {
+        id: "smart-1-brabus-awd-2026",
+        make: "smart",
+        model: "#1",
+        variant: "BRABUS AWD",
+        year: 2026,
+        body: "SUV",
+        drivetrain: "AWD",
+        nswDriveAway: 71900,
+        promoDriveAway: 66900,
+        promoNote: "NSW Stock Offer",
+        powerKw: 315,
+        torqueNm: 543,
+        accelSec: 3.9,
+        batteryKwh: 66.0,
+        wltpKm: 400,
+        maxDcKw: 150,
+        maxAcKw: 22,
+        clearanceMm: 182,
+        brakedTowKg: 1600,
+        towballKg: 75,
+        bootL: 323,
+        frunkL: 15,
+        wheelIn: 19,
+        warrantyYrs: 5,
+        deliveryStatus: "Immediate",
+        features: { v2l: true, v2lW: 3300, ventilated: false, massage: false, hud: true, panoRoof: true, carplay: true, glovebox: true, offroad: null },
+        notes: "3.9s AWD pocket rocket with sliding rear bench, HUD, Beats audio, and 22kW AC charging."
+      },
+      {
+        id: "mercedes-eqb-250-plus-2026",
+        make: "Mercedes-Benz",
+        model: "EQB",
+        variant: "250+ (7-Seat) FWD",
+        year: 2026,
+        body: "SUV",
+        drivetrain: "FWD",
+        nswDriveAway: 89900,
+        promoDriveAway: 84900,
+        promoNote: "NSW Stock (FBT Exempt)",
+        powerKw: 140,
+        torqueNm: 385,
+        accelSec: 8.9,
+        batteryKwh: 70.5,
+        wltpKm: 534,
+        maxDcKw: 100,
+        maxAcKw: 11,
+        clearanceMm: 165,
+        brakedTowKg: 0,
+        towballKg: 0,
+        bootL: 495,
+        frunkL: 0,
+        wheelIn: 19,
+        warrantyYrs: 5,
+        deliveryStatus: "1–3 wks",
+        features: { v2l: false, v2lW: 0, ventilated: false, massage: false, hud: true, panoRoof: true, carplay: true, glovebox: true, offroad: null },
+        notes: "One of the only 7-seat luxury EVs priced under the $91,387 FBT-exemption cap; 0kg towing."
+      },
+      {
+        id: "mg-cyberster-gt-awd-2026",
+        make: "MG",
+        model: "Cyberster",
+        variant: "77kWh GT AWD Roadster",
+        year: 2026,
+        body: "Sedan",
+        drivetrain: "AWD",
+        nswDriveAway: 115000,
+        promoDriveAway: 109990,
+        promoNote: "Over LCT Threshold",
+        powerKw: 375,
+        torqueNm: 725,
+        accelSec: 3.2,
+        batteryKwh: 77.0,
+        wltpKm: 443,
+        maxDcKw: 144,
+        maxAcKw: 11,
+        clearanceMm: 120,
+        brakedTowKg: 0,
+        towballKg: 0,
+        bootL: 249,
+        frunkL: 0,
+        wheelIn: 20,
+        warrantyYrs: 7,
+        deliveryStatus: "1–3 wks",
+        features: { v2l: true, v2lW: 2200, ventilated: false, massage: false, hud: false, panoRoof: false, carplay: true, glovebox: true, offroad: null },
+        notes: "Scissor-door electric roadster with 3.2s 0–100km/h sprint; above FBT cap."
+      }
+    ];
+
+    // Live mutable catalog combining embedded dataset + localStorage custom vehicles + live au-ev-api records
+    const LOCAL_CUSTOM_KEY = "au_ev_explorer_custom_vehicles_v1";
+    let activeCatalog = [...EMBEDDED_AU_EV_CATALOG];
+
+    // --- CONSTANTS & STATE ---
+    const LCT_EV_THRESHOLD = 91387;
+    const ATO_5YR_BALLOON_RATE = 0.2813;
+
+    const DEFAULT_WEIGHTS = {
+      resale: 25,
+      practicality: 20,
+      range: 15,
+      comfort: 15,
+      running: 10,
+      performance: 10,
+      delivery: 5
+    };
+
+    const WEIGHT_LABELS = {
+      resale: "Year-5 Resale & Lease",
+      practicality: "Practicality & Towball",
+      range: "Range & Charging",
+      comfort: "Comfort & Ergonomics",
+      running: "5-Yr Running Costs",
+      performance: "Power & AWD Traction",
+      delivery: "Delivery Readiness"
+    };
+
+    const defaultApiBase =
+      window.location.protocol.startsWith("http") && window.location.origin !== "null"
+        ? window.location.origin
+        : "http://localhost:3000";
+
+    const state = {
+      apiBaseUrl: localStorage.getItem("au_ev_api_base_url") || defaultApiBase,
+      apiConnected: false,
+      lastSyncedAt: null,
+      weights: { ...DEFAULT_WEIGHTS },
+      requireTowingScore: true,
+      search: "",
+      make: "ALL",
+      drivetrain: "ALL",
+      body: "ALL",
+      maxPrice: 250000,
+      minTowball: 0,
+      minClearance: 0,
+      featFbt: false,
+      featV2l: false,
+      featVentilated: false,
+      featHud: false,
+      featCarplay: false,
+      featGlovebox: false,
+      featAc22: false,
+      sort: "scoreDesc",
+      view: "grid",
+      compareIds: [
+        "tesla-model-y-lr-awd-2026",
+        "subaru-trailseeker-awd-touring-2026",
+        "byd-sealion-7-perf-awd-2026"
+      ]
+    };
+
+    // --- NORMALIZER & LIVE AU-EV-API CONNECTOR ---
+    function normalizeApiVehicle(raw) {
+      const f = raw.features || {};
+      return {
+        id: raw.id || `${raw.make}-${raw.model}-${raw.variant}`.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+        make: raw.make || "Unknown",
+        model: raw.model || "EV",
+        variant: raw.variant || "Standard",
+        year: raw.year || 2026,
+        body: raw.body || "SUV",
+        drivetrain: (raw.drivetrain || "RWD").toUpperCase(),
+        nswDriveAway: Number(raw.nswDriveAway ?? raw.nswDriveAwayPrice ?? 65000),
+        promoDriveAway: raw.promoDriveAway ?? raw.demoDriveAwayPrice ?? null,
+        promoNote: raw.promoNote || (raw.source === "open-ev-data" ? "Synced via au-ev-api" : ""),
+        powerKw: Number(raw.powerKw || 180),
+        torqueNm: Number(raw.torqueNm || 350),
+        accelSec: Number(raw.accelSec ?? raw.zeroToHundredSec ?? 6.5),
+        batteryKwh: Number(raw.batteryKwh || 70),
+        wltpKm: Number(raw.wltpKm ?? raw.wltpRangeKm ?? 460),
+        maxDcKw: Number(raw.maxDcKw || 130),
+        maxAcKw: Number(raw.maxAcKw || 11),
+        clearanceMm: Number(raw.clearanceMm ?? raw.groundClearanceMm ?? 165),
+        brakedTowKg: Number(raw.brakedTowKg ?? raw.brakedTowingKg ?? 0),
+        towballKg: Number(raw.towballKg ?? raw.towballDownloadKg ?? 0),
+        bootL: Number(raw.bootL ?? raw.bootLitres ?? 450),
+        frunkL: Number(raw.frunkL ?? raw.frunkLitres ?? 0),
+        wheelIn: Number(raw.wheelIn ?? raw.wheelSizeInch ?? 19),
+        warrantyYrs: Number(raw.warrantyYrs || 5),
+        deliveryStatus: raw.deliveryStatus || "2–4 wks",
+        features: {
+          v2l: Boolean(f.v2l),
+          v2lW: Number(f.v2lW ?? f.v2lWatts ?? (f.v2l ? 3300 : 0)),
+          ventilated: Boolean(f.ventilated ?? f.ventilatedFrontSeats),
+          massage: Boolean(f.massage ?? f.massagingSeats),
+          hud: Boolean(f.hud ?? f.headUpDisplay),
+          panoRoof: Boolean(f.panoRoof ?? f.panoramicRoof),
+          carplay: Boolean(f.carplay ?? f.wirelessCarPlay ?? true),
+          glovebox: f.glovebox ?? f.gloveBox ?? true,
+          offroad: f.offroad ?? f.offRoadMode ?? null
+        },
+        notes: raw.notes || `Synced from au-ev-api (${raw.source || "AU Market"}).`
+      };
+    }
+
+    function mergeCatalogSources(apiVehicles = []) {
+      const customRaw = localStorage.getItem(LOCAL_CUSTOM_KEY);
+      const customVehicles = customRaw ? JSON.parse(customRaw).map(normalizeApiVehicle) : [];
+
+      const map = new Map();
+      // 1. Base embedded 52-car AU catalog
+      EMBEDDED_AU_EV_CATALOG.forEach((c) => {
+        const key = `${c.make}|${c.model}|${c.variant}`.toLowerCase();
+        map.set(key, normalizeApiVehicle(c));
+      });
+      // 2. Live au-ev-api vehicles (includes upstream OpenEV Data + server overlay)
+      apiVehicles.forEach((c) => {
+        const norm = normalizeApiVehicle(c);
+        const key = `${norm.make}|${norm.model}|${norm.variant}`.toLowerCase();
+        map.set(key, norm);
+      });
+      // 3. Browser local custom additions/edits
+      customVehicles.forEach((c) => {
+        const key = `${c.make}|${c.model}|${c.variant}`.toLowerCase();
+        map.set(key, c);
+      });
+
+      activeCatalog = Array.from(map.values());
+      refreshMakeDropdown();
+      document.getElementById("kpiCatalogTotalText").textContent = `of ${activeCatalog.length} catalogued`;
+    }
+
+    function updateApiStatusBanner(connected, metaText) {
+      state.apiConnected = connected;
+      const badge = document.getElementById("apiStatusBadge");
+      const dot = document.getElementById("apiStatusDot");
+      const text = document.getElementById("apiStatusText");
+      const meta = document.getElementById("apiSyncMeta");
+
+      if (connected) {
+        badge.className = "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30";
+        dot.className = "w-2 h-2 rounded-full bg-emerald-400";
+        text.textContent = "Connected to au-ev-api";
+      } else {
+        badge.className = "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full font-semibold bg-amber-500/15 text-amber-300 border border-amber-500/30";
+        dot.className = "w-2 h-2 rounded-full bg-amber-400";
+        text.textContent = "Standalone Mode (Embedded AU Catalog)";
+      }
+      meta.textContent = metaText;
+    }
+
+    async function fetchFromAuEvApi(silent = false) {
+      const base = state.apiBaseUrl.replace(/\/+$/, "");
+      try {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 3500);
+        const res = await fetch(`${base}/api/v1/evs?requireTowing=false`, { signal: controller.signal });
+        clearTimeout(timer);
+
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const payload = await res.json();
+        const list = Array.isArray(payload) ? payload : payload.vehicles || [];
+        state.lastSyncedAt = payload.lastSyncedAt || new Date().toISOString();
+
+        mergeCatalogSources(list);
+        updateApiStatusBanner(
+          true,
+          `${activeCatalog.length} total AU variants merged (${list.length} from API) • Synced ${new Date(state.lastSyncedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
+        );
+        renderAll();
+        if (!silent) showToast(`Connected to au-ev-api (${list.length} server records loaded).`);
+      } catch (_err) {
+        mergeCatalogSources([]);
+        updateApiStatusBanner(
+          false,
+          `API unreachable at ${base} — running full ${activeCatalog.length}-vehicle local AU catalog`
+        );
+        renderAll();
+        if (!silent) showToast(`au-ev-api offline at ${base}; using embedded ${activeCatalog.length}-car catalog.`, true);
+      }
+    }
+
+    async function triggerUpstreamOpenEvSync() {
+      const base = state.apiBaseUrl.replace(/\/+$/, "");
+      const btn = document.getElementById("apiSyncUpstreamBtn");
+      btn.disabled = true;
+      btn.classList.add("opacity-60");
+      try {
+        const res = await fetch(`${base}/api/v1/evs/sync`, { method: "POST" });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        await fetchFromAuEvApi(true);
+        showToast(`Synced upstream OpenEV dataset (${data.count || activeCatalog.length} vehicles).`);
+      } catch (_err) {
+        showToast("Start your Node au-ev-api server first to sync upstream OpenEV GitHub data.", true);
+      } finally {
+        btn.disabled = false;
+        btn.classList.remove("opacity-60");
+      }
+    }
+
+    // --- SCORING ENGINE ---
+    function evaluateVehicle(car) {
+      const effectivePrice = car.promoDriveAway || car.nswDriveAway;
+      const fbtExempt = effectivePrice <= LCT_EV_THRESHOLD;
+      const year5Balloon = Math.round(effectivePrice * ATO_5YR_BALLOON_RATE);
+
+      // 1. Resale & Lease Economics (0-10)
+      let resale = effectivePrice <= 52000 ? 9.2 : effectivePrice <= 77000 ? 8.0 : effectivePrice <= LCT_EV_THRESHOLD ? 6.8 : 2.5;
+      if (["Toyota", "Tesla"].includes(car.make)) resale = Math.min(10, resale + 1.0);
+      if (["Subaru", "Kia", "Hyundai"].includes(car.make)) resale = Math.min(10, resale + 0.3);
+      if (!fbtExempt) resale = 2.0;
+
+      // 2. Practicality & Towing (0-10)
+      let practicality = 5.5;
+      if (state.requireTowingScore && car.towballKg === 0) {
+        practicality = 1.0;
+      } else {
+        if (car.towballKg >= 150) practicality += 2.2;
+        else if (car.towballKg >= 100) practicality += 1.2;
+        else if (car.towballKg >= 75) practicality += 0.5;
+
+        const totalCargo = (car.bootL || 0) + (car.frunkL || 0);
+        if (totalCargo >= 700) practicality += 1.6;
+        else if (totalCargo >= 550) practicality += 1.0;
+        else if (totalCargo >= 450) practicality += 0.4;
+
+        if (car.clearanceMm >= 200) practicality += 0.7;
+        if (car.features.glovebox) practicality += 0.2;
+      }
+      practicality = Math.min(10, Math.max(0, practicality));
+
+      // 3. Range & Charging (0-10)
+      let range = car.wltpKm >= 590 ? 9.3 : car.wltpKm >= 500 ? 8.2 : car.wltpKm >= 450 ? 7.0 : 5.8;
+      if (car.maxDcKw >= 250) range += 0.7;
+      else if (car.maxDcKw >= 150) range += 0.3;
+      if (car.maxAcKw >= 22) range += 0.4;
+      range = Math.min(10, range);
+
+      // 4. Comfort & Ergonomics (0-10)
+      let comfort = 6.2;
+      if (car.features.ventilated) comfort += 1.4;
+      if (car.features.massage) comfort += 0.9;
+      if (car.features.hud) comfort += 0.6;
+      if (car.features.carplay) comfort += 0.5;
+      if (car.wheelIn <= 19) comfort += 0.4;
+      comfort = Math.min(10, comfort);
+
+      // 5. Running Costs (0-10)
+      let running = car.wheelIn <= 18 ? 9.0 : car.wheelIn === 19 ? 8.3 : 7.2;
+      if (car.make === "Tesla" || car.warrantyYrs >= 7) running += 0.6;
+      running = Math.min(10, running);
+
+      // 6. Performance & Drivetrain (0-10)
+      let performance = car.drivetrain === "AWD" ? 8.4 : car.drivetrain === "RWD" ? 6.5 : 5.8;
+      if (car.accelSec <= 4.6) performance += 0.7;
+      else if (car.accelSec <= 5.6) performance += 0.3;
+      if (car.features.offroad) performance += 0.6;
+      performance = Math.min(10, performance);
+
+      // 7. Delivery Readiness (0-10)
+      let delivery = car.deliveryStatus.includes("Immediate") || car.deliveryStatus.includes("1–2") ? 9.2 : car.deliveryStatus.includes("1–3") || car.deliveryStatus.includes("2–4") ? 8.0 : 6.0;
+
+      // Normalize user weights to sum to 100
+      const w = state.weights;
+      const totalWeight = Object.values(w).reduce((acc, val) => acc + Number(val), 0) || 1;
+      const rawWeighted =
+        resale * w.resale +
+        practicality * w.practicality +
+        range * w.range +
+        comfort * w.comfort +
+        running * w.running +
+        performance * w.performance +
+        delivery * w.delivery;
+
+      const score100 = Number(((rawWeighted / (totalWeight * 10)) * 100).toFixed(1));
+
+      return {
+        ...car,
+        effectivePrice,
+        fbtExempt,
+        year5Balloon,
+        score100,
+        subScores: { resale, practicality, range, comfort, running, performance, delivery }
+      };
+    }
+
+    // --- FORMATTING HELPERS ---
+    const fmtAud = (num) => "$" + Math.round(num).toLocaleString("en-AU");
+
+    function showToast(msg, isWarning = false) {
+      const banner = document.getElementById("toastBanner");
+      const icon = document.getElementById("toastIcon");
+      const text = document.getElementById("toastMessage");
+      text.textContent = msg;
+      icon.className = `w-2.5 h-2.5 rounded-full ${isWarning ? "bg-amber-400" : "bg-emerald-400"}`;
+      banner.classList.remove("hidden");
+      requestAnimationFrame(() => {
+        banner.classList.remove("translate-y-2", "opacity-0");
+      });
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(() => {
+        banner.classList.add("translate-y-2", "opacity-0");
+        setTimeout(() => banner.classList.add("hidden"), 300);
+      }, 2800);
+    }
+
+    // --- FILTER & SORT PIPELINE ---
+    function getFilteredEvaluatedCars() {
+      const evaluated = activeCatalog.map(evaluateVehicle);
+      const q = state.search.trim().toLowerCase();
+
+      const filtered = evaluated.filter((car) => {
+        if (q) {
+          const hay = `${car.make} ${car.model} ${car.variant} ${car.notes} ${car.body} ${car.drivetrain}`.toLowerCase();
+          if (!hay.includes(q)) return false;
+        }
+        if (state.make !== "ALL" && car.make !== state.make) return false;
+        if (state.drivetrain !== "ALL" && car.drivetrain !== state.drivetrain) return false;
+        if (state.body !== "ALL") {
+          if (state.body === "Sedan/Hatch" && !["Sedan", "Hatch"].includes(car.body)) return false;
+          else if (state.body === "People Mover" && !car.body.includes("People Mover")) return false;
+          else if (state.body === "SUV" && car.body !== "SUV") return false;
+        }
+        if (car.effectivePrice > state.maxPrice) return false;
+        if (car.towballKg < state.minTowball) return false;
+        if (car.clearanceMm < state.minClearance) return false;
+        if (state.featFbt && !car.fbtExempt) return false;
+        if (state.featV2l && !car.features.v2l) return false;
+        if (state.featVentilated && !car.features.ventilated) return false;
+        if (state.featHud && !car.features.hud) return false;
+        if (state.featCarplay && !car.features.carplay) return false;
+        if (state.featGlovebox && !car.features.glovebox) return false;
+        if (state.featAc22 && car.maxAcKw < 22) return false;
+        return true;
+      });
+
+      const sorters = {
+        scoreDesc: (a, b) => b.score100 - a.score100,
+        priceAsc: (a, b) => a.effectivePrice - b.effectivePrice,
+        priceDesc: (a, b) => b.effectivePrice - a.effectivePrice,
+        rangeDesc: (a, b) => b.wltpKm - a.wltpKm,
+        towballDesc: (a, b) => b.towballKg - a.towballKg || b.score100 - a.score100,
+        clearanceDesc: (a, b) => b.clearanceMm - a.clearanceMm,
+        accelAsc: (a, b) => a.accelSec - b.accelSec
+      };
+
+      filtered.sort(sorters[state.sort] || sorters.scoreDesc);
+      return filtered;
+    }
+
+    // --- RENDERING ---
+    function renderAll() {
+      const cars = getFilteredEvaluatedCars();
+
+      // Update KPIs
+      document.getElementById("kpiTotalCount").textContent = cars.length;
+      document.getElementById("showingCountText").textContent = cars.length;
+      const fbtCars = cars.filter((c) => c.fbtExempt);
+      document.getElementById("kpiFbtCount").textContent = fbtCars.length;
+
+      if (cars.length > 0) {
+        const byScore = [...cars].sort((a, b) => b.score100 - a.score100)[0];
+        document.getElementById("kpiTopCar").textContent = `${byScore.make} ${byScore.model} ${byScore.variant}`;
+        document.getElementById("kpiTopScore").textContent = `Score: ${byScore.score100} / 100 • ${fmtAud(byScore.effectivePrice)}`;
+
+        const byPrice = [...cars].sort((a, b) => a.year5Balloon - b.year5Balloon)[0];
+        document.getElementById("kpiLowestBalloon").textContent = fmtAud(byPrice.year5Balloon);
+        document.getElementById("kpiLowestBalloonCar").textContent = `${byPrice.make} ${byPrice.model} (${fmtAud(byPrice.effectivePrice)})`;
+      } else {
+        document.getElementById("kpiTopCar").textContent = "No match";
+        document.getElementById("kpiTopScore").textContent = "—";
+        document.getElementById("kpiLowestBalloon").textContent = "—";
+        document.getElementById("kpiLowestBalloonCar").textContent = "—";
+      }
+
+      // Empty state toggle
+      const emptyEl = document.getElementById("emptyState");
+      const cardsEl = document.getElementById("cardsContainer");
+      const tableEl = document.getElementById("tableContainer");
+
+      if (cars.length === 0) {
+        emptyEl.classList.remove("hidden");
+        cardsEl.classList.add("hidden");
+        tableEl.classList.add("hidden");
+      } else {
+        emptyEl.classList.add("hidden");
+        if (state.view === "grid") {
+          cardsEl.classList.remove("hidden");
+          tableEl.classList.add("hidden");
+          renderCards(cars);
+        } else {
+          cardsEl.classList.add("hidden");
+          tableEl.classList.remove("hidden");
+          renderTable(cars);
+        }
+      }
+
+      renderCompareTray();
+    }
+
+    function getScoreColorClasses(score) {
+      if (score >= 82) return "bg-emerald-50 text-emerald-700 border-emerald-200";
+      if (score >= 72) return "bg-amber-50 text-amber-700 border-amber-200";
+      return "bg-slate-100 text-slate-700 border-slate-200";
+    }
+
+    function renderCards(cars) {
+      const container = document.getElementById("cardsContainer");
+      container.innerHTML = cars
+        .map((car) => {
+          const isCompared = state.compareIds.includes(car.id);
+          const totalCargo = car.bootL + car.frunkL;
+          const scoreStyle = getScoreColorClasses(car.score100);
+
+          const featurePills = [
+            car.features.v2l ? `V2L ${(car.features.v2lW / 1000).toFixed(1)}kW` : null,
+            car.features.ventilated ? "Vent. Seats" : null,
+            car.features.massage ? "Massage" : null,
+            car.features.hud ? "HUD" : null,
+            car.features.carplay ? "CarPlay" : "No CarPlay",
+            car.features.glovebox ? "Glove Box" : "No Glove Box",
+            car.features.offroad ? car.features.offroad : null
+          ].filter(Boolean);
+
+          return `
+            <article class="bg-white rounded-2xl border ${isCompared ? "border-emerald-500 ring-2 ring-emerald-500/20" : "border-slate-200/90"} shadow-sm hover:shadow-md transition flex flex-col justify-between overflow-hidden">
+              <div>
+                <!-- Card Top Header -->
+                <div class="p-4 pb-3 border-b border-slate-100">
+                  <div class="flex items-start justify-between gap-2">
+                    <div>
+                      <div class="flex items-center gap-1.5 flex-wrap">
+                        <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">${car.make}</span>
+                        <span class="px-1.5 py-0.5 rounded text-[10px] font-bold ${car.drivetrain === "AWD" ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700"}">${car.drivetrain}</span>
+                        <span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-600">${car.body}</span>
+                      </div>
+                      <h3 class="text-base font-extrabold text-slate-900 mt-0.5 leading-snug">${car.model} <span class="font-semibold text-slate-600">${car.variant}</span></h3>
+                    </div>
+
+                    <button type="button" onclick="openDetailModal('${car.id}')" title="View 100-Point Score Breakdown" class="shrink-0 px-2.5 py-1.5 rounded-xl border text-right transition hover:scale-105 ${scoreStyle}">
+                      <div class="text-[9px] font-bold uppercase tracking-wider opacity-75">Score</div>
+                      <div class="text-sm font-extrabold leading-none">${car.score100}</div>
+                    </button>
+                  </div>
+
+                  <!-- Pricing & FBT Status -->
+                  <div class="mt-3 flex items-end justify-between gap-2">
+                    <div>
+                      <div class="flex items-baseline gap-2">
+                        <span class="text-xl font-extrabold text-slate-900">${fmtAud(car.effectivePrice)}</span>
+                        ${car.promoDriveAway ? `<span class="text-xs text-slate-400 line-through">${fmtAud(car.nswDriveAway)}</span>` : ""}
+                      </div>
+                      <div class="text-[11px] text-slate-500">
+                        NSW Drive-Away • Yr-5 Balloon: <strong class="text-slate-700">${fmtAud(car.year5Balloon)}</strong>
+                      </div>
+                    </div>
+
+                    ${
+                      car.fbtExempt
+                        ? `<span class="px-2 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold shrink-0">FBT Exempt</span>`
+                        : `<span class="px-2 py-1 rounded-lg bg-rose-50 text-rose-700 border border-rose-200 text-[10px] font-bold shrink-0">Over LCT</span>`
+                    }
+                  </div>
+                  ${car.promoNote ? `<div class="mt-1.5 text-[11px] font-medium text-emerald-700">Offer: ${car.promoNote} • ${car.deliveryStatus}</div>` : `<div class="mt-1.5 text-[11px] text-slate-400">Est. Delivery: ${car.deliveryStatus}</div>`}
+                </div>
+
+                <!-- Key Specs Grid -->
+                <div class="p-4 py-3 grid grid-cols-3 gap-2.5 bg-slate-50/60 border-b border-slate-100 text-xs">
+                  <div>
+                    <div class="text-[10px] text-slate-400 font-medium">WLTP Range</div>
+                    <div class="font-bold text-slate-800">${car.wltpKm} km</div>
+                    <div class="text-[10px] text-slate-500">${car.batteryKwh} kWh</div>
+                  </div>
+                  <div>
+                    <div class="text-[10px] text-slate-400 font-medium">Power / 0–100</div>
+                    <div class="font-bold text-slate-800">${car.powerKw} kW</div>
+                    <div class="text-[10px] text-slate-500">${car.accelSec}s sprint</div>
+                  </div>
+                  <div>
+                    <div class="text-[10px] text-slate-400 font-medium">Charging</div>
+                    <div class="font-bold text-slate-800">${car.maxDcKw} kW DC</div>
+                    <div class="text-[10px] text-slate-500">${car.maxAcKw} kW AC</div>
+                  </div>
+                  <div>
+                    <div class="text-[10px] text-slate-400 font-medium">Towball Limit</div>
+                    <div class="font-bold ${car.towballKg >= 150 ? "text-emerald-700" : car.towballKg === 0 ? "text-rose-600" : "text-slate-800"}">${car.towballKg} kg</div>
+                    <div class="text-[10px] text-slate-500">${car.brakedTowKg} kg braked</div>
+                  </div>
+                  <div>
+                    <div class="text-[10px] text-slate-400 font-medium">Clearance</div>
+                    <div class="font-bold ${car.clearanceMm >= 200 ? "text-emerald-700" : "text-slate-800"}">${car.clearanceMm} mm</div>
+                    <div class="text-[10px] text-slate-500">${car.wheelIn}" wheels</div>
+                  </div>
+                  <div>
+                    <div class="text-[10px] text-slate-400 font-medium">Total Cargo</div>
+                    <div class="font-bold text-slate-800">${totalCargo} L</div>
+                    <div class="text-[10px] text-slate-500">${car.frunkL > 0 ? `${car.bootL}L + ${car.frunkL}L` : "No frunk"}</div>
+                  </div>
+                </div>
+
+                <!-- Feature Chips & Notes -->
+                <div class="p-4 pt-3">
+                  <div class="flex flex-wrap gap-1 mb-2.5">
+                    ${featurePills
+                      .map((pill) => {
+                        const isNegative = pill.startsWith("No ");
+                        return `<span class="px-2 py-0.5 rounded-md text-[10px] font-medium ${
+                          isNegative ? "bg-slate-100 text-slate-400" : "bg-slate-100 text-slate-700"
+                        }">${pill}</span>`;
+                      })
+                      .join("")}
+                  </div>
+                  <p class="text-[11px] text-slate-500 leading-relaxed line-clamp-2">${car.notes}</p>
+                </div>
+              </div>
+
+              <!-- Card Footer Actions -->
+              <div class="px-4 py-2.5 bg-slate-50 border-t border-slate-100 flex items-center justify-between gap-2">
+                <div class="flex items-center gap-3">
+                  <button type="button" onclick="openDetailModal('${car.id}')" class="text-xs font-semibold text-slate-600 hover:text-slate-900 transition">
+                    Score Breakdown &rarr;
+                  </button>
+                  <button type="button" onclick="openEditCarModal('${car.id}')" class="text-[11px] font-medium text-slate-400 hover:text-emerald-700 transition">
+                    Edit
+                  </button>
+                </div>
+
+                <button type="button" onclick="toggleCompare('${car.id}')" class="px-3 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 ${
+                  isCompared
+                    ? "bg-emerald-600 text-white shadow-sm"
+                    : "bg-white text-slate-700 border border-slate-200 hover:border-emerald-500 hover:text-emerald-700"
+                }">
+                  <span>${isCompared ? "✓ Selected" : "+ Compare"}</span>
+                </button>
+              </div>
+            </article>
+          `;
+        })
+        .join("");
+    }
+
+    function renderTable(cars) {
+      const tbody = document.getElementById("tableBody");
+      tbody.innerHTML = cars
+        .map((car) => {
+          const isCompared = state.compareIds.includes(car.id);
+          const scoreStyle = getScoreColorClasses(car.score100);
+          return `
+            <tr class="hover:bg-slate-50/90 transition ${isCompared ? "bg-emerald-50/40" : ""}">
+              <td class="py-3 px-3.5">
+                <div class="font-bold text-slate-900">${car.make} ${car.model}</div>
+                <div class="text-[11px] text-slate-500">${car.variant} • <span class="font-semibold">${car.drivetrain}</span></div>
+              </td>
+              <td class="py-3 px-3">
+                <div class="font-bold text-slate-900">${fmtAud(car.effectivePrice)}</div>
+                <span class="inline-block text-[10px] font-semibold ${car.fbtExempt ? "text-emerald-700" : "text-rose-600"}">
+                  ${car.fbtExempt ? "FBT Exempt" : "Over LCT"}
+                </span>
+              </td>
+              <td class="py-3 px-3 font-semibold text-slate-700">${fmtAud(car.year5Balloon)}</td>
+              <td class="py-3 px-3">
+                <div class="font-semibold text-slate-800">${car.powerKw} kW</div>
+                <div class="text-[11px] text-slate-500">${car.accelSec}s 0–100</div>
+              </td>
+              <td class="py-3 px-3">
+                <div class="font-semibold text-slate-800">${car.wltpKm} km</div>
+                <div class="text-[11px] text-slate-500">${car.maxDcKw}kW DC / ${car.maxAcKw}kW AC</div>
+              </td>
+              <td class="py-3 px-3">
+                <div class="font-semibold ${car.towballKg >= 150 ? "text-emerald-700" : "text-slate-800"}">${car.towballKg} kg ball</div>
+                <div class="text-[11px] text-slate-500">${car.clearanceMm} mm clear.</div>
+              </td>
+              <td class="py-3 px-3 text-[11px] text-slate-600">
+                ${[
+                  car.features.v2l ? "V2L" : null,
+                  car.features.ventilated ? "Vent" : null,
+                  car.features.hud ? "HUD" : null,
+                  car.features.carplay ? "CarPlay" : null
+                ]
+                  .filter(Boolean)
+                  .join(" • ") || "Standard"}
+              </td>
+              <td class="py-3 px-3 text-right">
+                <button type="button" onclick="openDetailModal('${car.id}')" class="px-2 py-1 rounded-lg border font-extrabold text-xs ${scoreStyle}">
+                  ${car.score100}
+                </button>
+              </td>
+              <td class="py-3 px-3.5 text-center">
+                <button type="button" onclick="toggleCompare('${car.id}')" class="px-2.5 py-1 rounded-lg text-[11px] font-semibold ${
+                  isCompared ? "bg-emerald-600 text-white" : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                }">
+                  ${isCompared ? "✓ Added" : "+ Add"}
+                </button>
+              </td>
+            </tr>
+          `;
+        })
+        .join("");
+    }
+
+    // --- COMPARISON TRAY & MODAL ---
+    function toggleCompare(id) {
+      const idx = state.compareIds.indexOf(id);
+      if (idx >= 0) {
+        state.compareIds.splice(idx, 1);
+      } else {
+        if (state.compareIds.length >= 4) {
+          showToast("Maximum 4 vehicles can be compared side-by-side.", true);
+          return;
+        }
+        state.compareIds.push(id);
+      }
+      renderAll();
+    }
+
+    function renderCompareTray() {
+      const count = state.compareIds.length;
+      document.getElementById("compareCountBadge").textContent = count;
+      const bar = document.getElementById("floatingCompareBar");
+      const chips = document.getElementById("compareTrayChips");
+
+      if (count === 0) {
+        bar.classList.add("hidden");
+        return;
+      }
+      bar.classList.remove("hidden");
+
+      chips.innerHTML = state.compareIds
+        .map((id) => {
+          const car = activeCatalog.find((c) => c.id === id);
+          if (!car) return "";
+          return `
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 text-slate-200">
+              <span>${car.make} ${car.model}</span>
+              <button type="button" onclick="toggleCompare('${car.id}')" class="text-slate-400 hover:text-white font-bold">&times;</button>
+            </span>
+          `;
+        })
+        .join("");
+    }
+
+    function openCompareModal() {
+      if (state.compareIds.length === 0) {
+        showToast("Select at least 1 vehicle to compare.", true);
+        return;
+      }
+      const selected = state.compareIds
+        .map((id) => activeCatalog.find((c) => c.id === id))
+        .filter(Boolean)
+        .map(evaluateVehicle);
+
+      const rows = [
+        { label: "Buyer's Agent Score (/100)", render: (c) => `<span class="px-2.5 py-1 rounded-lg border font-extrabold text-sm ${getScoreColorClasses(c.score100)}">${c.score100} / 100</span>` },
+        { label: "Effective NSW Drive-Away", render: (c) => `<span class="text-base font-extrabold text-slate-900">${fmtAud(c.effectivePrice)}</span>` },
+        { label: "FBT-Exempt (≤ $91,387 LCT)", render: (c) => (c.fbtExempt ? `<span class="text-emerald-700 font-bold">✅ Yes (0% FBT)</span>` : `<span class="text-rose-600 font-bold">❌ No (Over LCT)</span>`) },
+        { label: "ATO Year-5 Balloon (28.13%)", render: (c) => `<span class="font-bold text-slate-800">${fmtAud(c.year5Balloon)}</span>` },
+        { label: "Drivetrain & Body", render: (c) => `${c.drivetrain} • ${c.body}` },
+        { label: "Power / Torque", render: (c) => `${c.powerKw} kW / ${c.torqueNm} Nm` },
+        { label: "0–100 km/h Sprint", render: (c) => `${c.accelSec} sec` },
+        { label: "Battery & WLTP Range", render: (c) => `${c.batteryKwh} kWh • <strong>${c.wltpKm} km</strong>` },
+        { label: "Max DC / AC Charging", render: (c) => `${c.maxDcKw} kW DC / ${c.maxAcKw} kW AC` },
+        { label: "Ground Clearance", render: (c) => `<strong class="${c.clearanceMm >= 200 ? "text-emerald-700" : ""}">${c.clearanceMm} mm</strong>` },
+        { label: "Braked Towing / Towball Limit", render: (c) => `${c.brakedTowKg} kg / <strong class="${c.towballKg >= 150 ? "text-emerald-700" : c.towballKg === 0 ? "text-rose-600" : ""}">${c.towballKg} kg ball</strong>` },
+        { label: "Boot + Frunk Volume", render: (c) => `${c.bootL + c.frunkL} L (${c.bootL}L + ${c.frunkL}L)` },
+        { label: "Factory Wheel Size", render: (c) => `${c.wheelIn}-inch` },
+        { label: "Vehicle-to-Load (V2L)", render: (c) => (c.features.v2l ? `✅ ${c.features.v2lW}W` : "❌ No") },
+        { label: "Ventilated / Massage Seats", render: (c) => `${c.features.ventilated ? "✅ Vent." : "❌ No"} / ${c.features.massage ? "✅ Massage" : "No"}` },
+        { label: "Head-Up Display (HUD)", render: (c) => (c.features.hud ? "✅ Yes" : "❌ No") },
+        { label: "Apple CarPlay / Android Auto", render: (c) => (c.features.carplay ? "✅ Yes" : "❌ No") },
+        { label: "Traditional Glove Box", render: (c) => (c.features.glovebox ? "✅ Yes" : "❌ No") },
+        { label: "Off-Road / Traction Mode", render: (c) => c.features.offroad || "Standard" },
+        { label: "Est. NSW Delivery", render: (c) => c.deliveryStatus }
+      ];
+
+      const modalBody = document.getElementById("compareModalBody");
+      modalBody.innerHTML = `
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="border-b-2 border-slate-200">
+                <th class="py-3 px-3 text-slate-400 uppercase tracking-wider font-bold w-48">Specification</th>
+                ${selected
+                  .map(
+                    (c) => `
+                  <th class="py-3 px-4 min-w-[200px] bg-slate-50/80 rounded-t-xl">
+                    <div class="text-[10px] font-bold uppercase text-emerald-700">${c.make}</div>
+                    <div class="text-sm font-extrabold text-slate-900">${c.model} ${c.variant}</div>
+                  </th>
+                `
+                  )
+                  .join("")}
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              ${rows
+                .map(
+                  (r) => `
+                <tr class="hover:bg-slate-50/70">
+                  <td class="py-2.5 px-3 font-semibold text-slate-600">${r.label}</td>
+                  ${selected.map((c) => `<td class="py-2.5 px-4 text-slate-800">${r.render(c)}</td>`).join("")}
+                </tr>
+              `
+                )
+                .join("")}
+            </tbody>
+          </table>
+        </div>
+      `;
+
+      document.getElementById("compareModal").classList.remove("hidden");
+    }
+
+    function openDetailModal(id) {
+      const raw = activeCatalog.find((c) => c.id === id);
+      if (!raw) return;
+      const car = evaluateVehicle(raw);
+
+      document.getElementById("detailModalHeader").innerHTML = `
+        <div>
+          <div class="text-xs font-bold uppercase tracking-wider text-emerald-400">${car.make} • ${car.drivetrain} • ${car.body}</div>
+          <h2 class="text-lg font-extrabold">${car.model} ${car.variant}</h2>
+        </div>
+        <button type="button" onclick="document.getElementById('detailModal').classList.add('hidden')" class="p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      `;
+
+      const bars = Object.entries(WEIGHT_LABELS)
+        .map(([key, label]) => {
+          const val = car.subScores[key].toFixed(1);
+          const pct = Math.min(100, (car.subScores[key] / 10) * 100);
+          return `
+            <div>
+              <div class="flex justify-between text-xs mb-1">
+                <span class="font-semibold text-slate-700">${label} <span class="text-slate-400 font-normal">(Weight: ${state.weights[key]}%)</span></span>
+                <span class="font-bold text-slate-900">${val} / 10</span>
+              </div>
+              <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                <div class="h-full bg-emerald-500 rounded-full" style="width: ${pct}%"></div>
+              </div>
+            </div>
+          `;
+        })
+        .join("");
+
+      document.getElementById("detailModalBody").innerHTML = `
+        <div class="flex flex-wrap items-center justify-between gap-3 p-4 rounded-2xl bg-slate-50 border border-slate-200/80">
+          <div>
+            <div class="text-xs text-slate-500">Effective NSW Drive-Away</div>
+            <div class="text-2xl font-extrabold text-slate-900">${fmtAud(car.effectivePrice)}</div>
+            <div class="text-xs text-slate-600 mt-0.5">Year-5 ATO Balloon (28.13%): <strong>${fmtAud(car.year5Balloon)}</strong></div>
+          </div>
+          <div class="text-right">
+            <div class="text-xs text-slate-500">Total Buyer's Agent Score</div>
+            <div class="text-3xl font-extrabold text-emerald-600">${car.score100} <span class="text-sm text-slate-400 font-semibold">/ 100</span></div>
+            <div class="text-xs font-semibold ${car.fbtExempt ? "text-emerald-700" : "text-rose-600"}">${car.fbtExempt ? "Eligible for 0% FBT Novated Lease" : "Exceeds $91,387 LCT Cap"}</div>
+          </div>
+        </div>
+
+        <div>
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">Category Score Breakdown</h3>
+          <div class="space-y-3">${bars}</div>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-amber-50/70 border border-amber-200/80 text-xs text-slate-700 leading-relaxed">
+          <strong class="text-amber-900">Buyer's Agent Notes:</strong> ${car.notes}
+        </div>
+      `;
+
+      document.getElementById("detailModal").classList.remove("hidden");
+    }
+
+    // --- ADD / EDIT VEHICLE MODAL HANDLERS ---
+    function openEditCarModal(id = null) {
+      const form = document.getElementById("addCarForm");
+      form.reset();
+      if (id) {
+        const car = activeCatalog.find((c) => c.id === id);
+        if (car) {
+          document.getElementById("addCarModalTitle").textContent = `Edit ${car.make} ${car.model} ${car.variant}`;
+          document.getElementById("formCarId").value = car.id;
+          document.getElementById("formMake").value = car.make;
+          document.getElementById("formModel").value = car.model;
+          document.getElementById("formVariant").value = car.variant;
+          document.getElementById("formDrivetrain").value = car.drivetrain;
+          document.getElementById("formBody").value = car.body;
+          document.getElementById("formNswPrice").value = car.nswDriveAway;
+          document.getElementById("formPromoPrice").value = car.promoDriveAway || "";
+          document.getElementById("formRange").value = car.wltpKm;
+          document.getElementById("formBattery").value = car.batteryKwh;
+          document.getElementById("formPower").value = car.powerKw;
+          document.getElementById("formAccel").value = car.accelSec;
+          document.getElementById("formTowball").value = car.towballKg;
+          document.getElementById("formClearance").value = car.clearanceMm;
+          document.getElementById("formDc").value = car.maxDcKw;
+          document.getElementById("formAc").value = car.maxAcKw;
+          document.getElementById("formBoot").value = car.bootL;
+          document.getElementById("formFrunk").value = car.frunkL;
+          document.getElementById("formV2l").checked = car.features.v2l;
+          document.getElementById("formVentilated").checked = car.features.ventilated;
+          document.getElementById("formMassage").checked = car.features.massage;
+          document.getElementById("formHud").checked = car.features.hud;
+          document.getElementById("formCarplay").checked = car.features.carplay;
+          document.getElementById("formGlovebox").checked = car.features.glovebox;
+          document.getElementById("formNotes").value = car.notes;
+        }
+      } else {
+        document.getElementById("addCarModalTitle").textContent = "Add Any Australian Market EV";
+        document.getElementById("formCarId").value = "";
+      }
+      document.getElementById("addCarModal").classList.remove("hidden");
+    }
+
+    function refreshMakeDropdown() {
+      const makeSelect = document.getElementById("makeSelect");
+      const currentVal = state.make;
+      const makes = [...new Set(activeCatalog.map((c) => c.make))].sort();
+      makeSelect.innerHTML = `<option value="ALL">All Manufacturers (${makes.length} Brands)</option>`;
+      makes.forEach((m) => {
+        const opt = document.createElement("option");
+        opt.value = m;
+        opt.textContent = m;
+        makeSelect.appendChild(opt);
+      });
+      if (makes.includes(currentVal)) makeSelect.value = currentVal;
+    }
+
+    // --- INITIALIZATION & EVENT LISTENERS ---
+    function initControls() {
+      refreshMakeDropdown();
+
+      // API URL controls
+      const apiInput = document.getElementById("apiBaseUrlInput");
+      apiInput.value = state.apiBaseUrl;
+      document.getElementById("apiConnectBtn").addEventListener("click", () => {
+        state.apiBaseUrl = apiInput.value.trim() || defaultApiBase;
+        localStorage.setItem("au_ev_api_base_url", state.apiBaseUrl);
+        fetchFromAuEvApi(false);
+      });
+      document.getElementById("apiSyncUpstreamBtn").addEventListener("click", triggerUpstreamOpenEvSync);
+
+      // Add / Edit Car modal listeners
+      document.getElementById("openAddCarModalBtn").addEventListener("click", () => openEditCarModal(null));
+      document.getElementById("closeAddCarModalBtn").addEventListener("click", () => {
+        document.getElementById("addCarModal").classList.add("hidden");
+      });
+      document.getElementById("cancelAddCarBtn").addEventListener("click", () => {
+        document.getElementById("addCarModal").classList.add("hidden");
+      });
+
+      document.getElementById("addCarForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const make = document.getElementById("formMake").value.trim();
+        const model = document.getElementById("formModel").value.trim();
+        const variant = document.getElementById("formVariant").value.trim();
+        const existingId = document.getElementById("formCarId").value;
+        const id = existingId || `${make}-${model}-${variant}-2026`.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+
+        const promoVal = document.getElementById("formPromoPrice").value;
+        const newRecord = normalizeApiVehicle({
+          id,
+          make,
+          model,
+          variant,
+          year: 2026,
+          drivetrain: document.getElementById("formDrivetrain").value,
+          body: document.getElementById("formBody").value,
+          nswDriveAway: Number(document.getElementById("formNswPrice").value),
+          promoDriveAway: promoVal ? Number(promoVal) : null,
+          promoNote: promoVal ? "Custom / Dealer Quote" : "",
+          wltpKm: Number(document.getElementById("formRange").value),
+          batteryKwh: Number(document.getElementById("formBattery").value),
+          powerKw: Number(document.getElementById("formPower").value),
+          accelSec: Number(document.getElementById("formAccel").value),
+          towballKg: Number(document.getElementById("formTowball").value),
+          brakedTowKg: Number(document.getElementById("formTowball").value) * 15,
+          clearanceMm: Number(document.getElementById("formClearance").value),
+          maxDcKw: Number(document.getElementById("formDc").value),
+          maxAcKw: Number(document.getElementById("formAc").value),
+          bootL: Number(document.getElementById("formBoot").value),
+          frunkL: Number(document.getElementById("formFrunk").value),
+          deliveryStatus: "Custom Entry",
+          features: {
+            v2l: document.getElementById("formV2l").checked,
+            ventilated: document.getElementById("formVentilated").checked,
+            massage: document.getElementById("formMassage").checked,
+            hud: document.getElementById("formHud").checked,
+            carplay: document.getElementById("formCarplay").checked,
+            glovebox: document.getElementById("formGlovebox").checked
+          },
+          notes: document.getElementById("formNotes").value.trim() || "Custom Australian market entry."
+        });
+
+        // Save in browser localStorage
+        const existingCustom = JSON.parse(localStorage.getItem(LOCAL_CUSTOM_KEY) || "[]");
+        const filteredCustom = existingCustom.filter(
+          (c) => `${c.make}|${c.model}|${c.variant}`.toLowerCase() !== `${make}|${model}|${variant}`.toLowerCase()
+        );
+        filteredCustom.push(newRecord);
+        localStorage.setItem(LOCAL_CUSTOM_KEY, JSON.stringify(filteredCustom));
+
+        // Also POST to au-ev-api if server is running
+        const base = state.apiBaseUrl.replace(/\/+$/, "");
+        try {
+          await fetch(`${base}/api/v1/evs`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(newRecord)
+          });
+        } catch (_ignored) {}
+
+        mergeCatalogSources([]);
+        if (state.apiConnected) {
+          await fetchFromAuEvApi(true);
+        } else {
+          renderAll();
+        }
+        document.getElementById("addCarModal").classList.add("hidden");
+        showToast(`Saved ${make} ${model} ${variant} to catalog!`);
+      });
+
+      // Build Weight Sliders
+      const weightsGrid = document.getElementById("weightSlidersGrid");
+      weightsGrid.innerHTML = Object.entries(WEIGHT_LABELS)
+        .map(
+          ([key, label]) => `
+          <div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700/80">
+            <div class="flex justify-between text-xs mb-1">
+              <span class="font-medium text-slate-200">${label}</span>
+              <span id="wLabel_${key}" class="font-bold text-emerald-400">${state.weights[key]}%</span>
+            </div>
+            <input type="range" min="0" max="50" step="5" value="${state.weights[key]}" data-wkey="${key}" class="weight-slider w-full cursor-pointer" />
+          </div>
+        `
+        )
+        .join("");
+
+      document.querySelectorAll(".weight-slider").forEach((slider) => {
+        slider.addEventListener("input", (e) => {
+          const k = e.target.dataset.wkey;
+          state.weights[k] = Number(e.target.value);
+          document.getElementById(`wLabel_${k}`).textContent = `${state.weights[k]}%`;
+          const sum = Object.values(state.weights).reduce((a, b) => a + b, 0);
+          document.getElementById("weightSumBadge").textContent = `Raw Sum: ${sum}% (Auto-Normalized)`;
+          renderAll();
+        });
+      });
+
+      document.getElementById("toggleWeightsBtn").addEventListener("click", () => {
+        document.getElementById("weightsPanel").classList.toggle("hidden");
+      });
+
+      document.getElementById("resetWeightsBtn").addEventListener("click", () => {
+        state.weights = { ...DEFAULT_WEIGHTS };
+        Object.entries(state.weights).forEach(([k, v]) => {
+          const input = document.querySelector(`.weight-slider[data-wkey="${k}"]`);
+          if (input) input.value = v;
+          document.getElementById(`wLabel_${k}`).textContent = `${v}%`;
+        });
+        document.getElementById("weightSumBadge").textContent = "Total: 100%";
+        renderAll();
+      });
+
+      document.getElementById("requireTowingScoreToggle").addEventListener("change", (e) => {
+        state.requireTowingScore = e.target.checked;
+        renderAll();
+      });
+
+      // Filter inputs
+      document.getElementById("searchInput").addEventListener("input", (e) => {
+        state.search = e.target.value;
+        renderAll();
+      });
+
+      makeSelect.addEventListener("change", (e) => {
+        state.make = e.target.value;
+        renderAll();
+      });
+
+      document.querySelectorAll(".drive-pill").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          state.drivetrain = btn.dataset.drive;
+          document.querySelectorAll(".drive-pill").forEach((b) => {
+            b.className =
+              b.dataset.drive === state.drivetrain
+                ? "drive-pill py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 text-white"
+                : "drive-pill py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200";
+          });
+          renderAll();
+        });
+      });
+
+      document.getElementById("bodySelect").addEventListener("change", (e) => {
+        state.body = e.target.value;
+        renderAll();
+      });
+
+      document.getElementById("maxPriceSlider").addEventListener("input", (e) => {
+        state.maxPrice = Number(e.target.value);
+        document.getElementById("maxPriceLabel").textContent = fmtAud(state.maxPrice);
+        renderAll();
+      });
+
+      document.querySelectorAll(".quick-price-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const cap = Number(btn.dataset.pricecap);
+          state.maxPrice = cap;
+          document.getElementById("maxPriceSlider").value = cap;
+          document.getElementById("maxPriceLabel").textContent = fmtAud(cap);
+          renderAll();
+        });
+      });
+
+      document.getElementById("minTowballSelect").addEventListener("change", (e) => {
+        state.minTowball = Number(e.target.value);
+        renderAll();
+      });
+
+      document.getElementById("minClearanceSlider").addEventListener("input", (e) => {
+        state.minClearance = Number(e.target.value);
+        document.getElementById("minClearanceLabel").textContent = state.minClearance === 0 ? "Any (0 mm)" : `${state.minClearance} mm+`;
+        renderAll();
+      });
+
+      // Feature checkboxes
+      const featMap = {
+        featFbt: "featFbt",
+        featV2l: "featV2l",
+        featVentilated: "featVentilated",
+        featHud: "featHud",
+        featCarplay: "featCarplay",
+        featGlovebox: "featGlovebox",
+        featAc22: "featAc22"
+      };
+      Object.entries(featMap).forEach(([elId, stateKey]) => {
+        document.getElementById(elId).addEventListener("change", (e) => {
+          state[stateKey] = e.target.checked;
+          renderAll();
+        });
+      });
+
+      // Sort & View toggles
+      document.getElementById("sortSelect").addEventListener("change", (e) => {
+        state.sort = e.target.value;
+        document.getElementById("currentSortLabel").textContent = e.target.options[e.target.selectedIndex].text.split(" (")[0];
+        renderAll();
+      });
+
+      document.getElementById("viewGridBtn").addEventListener("click", () => {
+        state.view = "grid";
+        document.getElementById("viewGridBtn").className = "px-2.5 py-1 rounded-lg text-xs font-semibold bg-white text-slate-900 shadow-sm transition";
+        document.getElementById("viewTableBtn").className = "px-2.5 py-1 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition";
+        renderAll();
+      });
+
+      document.getElementById("viewTableBtn").addEventListener("click", () => {
+        state.view = "table";
+        document.getElementById("viewTableBtn").className = "px-2.5 py-1 rounded-lg text-xs font-semibold bg-white text-slate-900 shadow-sm transition";
+        document.getElementById("viewGridBtn").className = "px-2.5 py-1 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition";
+        renderAll();
+      });
+
+      // Quick Presets
+      function resetFilterControls() {
+        state.search = "";
+        state.make = "ALL";
+        state.drivetrain = "ALL";
+        state.body = "ALL";
+        state.maxPrice = 250000;
+        state.minTowball = 0;
+        state.minClearance = 0;
+        state.featFbt = false;
+        state.featV2l = false;
+        state.featVentilated = false;
+        state.featHud = false;
+        state.featCarplay = false;
+        state.featGlovebox = false;
+        state.featAc22 = false;
+
+        document.getElementById("searchInput").value = "";
+        document.getElementById("makeSelect").value = "ALL";
+        document.getElementById("bodySelect").value = "ALL";
+        document.getElementById("maxPriceSlider").value = 250000;
+        document.getElementById("maxPriceLabel").textContent = "$250,000";
+        document.getElementById("minTowballSelect").value = "0";
+        document.getElementById("minClearanceSlider").value = 0;
+        document.getElementById("minClearanceLabel").textContent = "Any (0 mm)";
+        Object.keys(featMap).forEach((id) => (document.getElementById(id).checked = false));
+        document.querySelectorAll(".drive-pill").forEach((b) => {
+          b.className =
+            b.dataset.drive === "ALL"
+              ? "drive-pill py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 text-white"
+              : "drive-pill py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200";
+        });
+      }
+
+      function applyWeightsAndSyncSliders(newWeights) {
+        state.weights = { ...newWeights };
+        Object.entries(state.weights).forEach(([k, v]) => {
+          const input = document.querySelector(`.weight-slider[data-wkey="${k}"]`);
+          if (input) input.value = v;
+          const lbl = document.getElementById(`wLabel_${k}`);
+          if (lbl) lbl.textContent = `${v}%`;
+        });
+        document.getElementById("weightSumBadge").textContent = "Total: 100%";
+      }
+
+      document.querySelectorAll(".preset-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll(".preset-btn").forEach((b) => {
+            b.className = "preset-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-white text-slate-700 border border-slate-200 hover:border-emerald-400 hover:text-emerald-700 transition";
+          });
+          btn.className = "preset-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-900 text-white shadow-sm transition";
+
+          resetFilterControls();
+          const preset = btn.dataset.preset;
+
+          if (preset === "all") {
+            applyWeightsAndSyncSliders(DEFAULT_WEIGHTS);
+          } else if (preset === "shortlist") {
+            applyWeightsAndSyncSliders(DEFAULT_WEIGHTS);
+            state.drivetrain = "AWD";
+            state.maxPrice = 80000;
+            state.minTowball = 150;
+            state.requireTowingScore = true;
+            document.getElementById("requireTowingScoreToggle").checked = true;
+            document.getElementById("maxPriceSlider").value = 80000;
+            document.getElementById("maxPriceLabel").textContent = "$80,000";
+            document.getElementById("minTowballSelect").value = "150";
+            document.querySelectorAll(".drive-pill").forEach((b) => {
+              b.className =
+                b.dataset.drive === "AWD"
+                  ? "drive-pill py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 text-white"
+                  : "drive-pill py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200";
+            });
+          } else if (preset === "budget2wd") {
+            applyWeightsAndSyncSliders({
+              resale: 30,
+              practicality: 15,
+              range: 15,
+              comfort: 20,
+              running: 10,
+              performance: 5,
+              delivery: 5
+            });
+            state.maxPrice = 55000;
+            state.requireTowingScore = false;
+            document.getElementById("requireTowingScoreToggle").checked = false;
+            document.getElementById("maxPriceSlider").value = 55000;
+            document.getElementById("maxPriceLabel").textContent = "$55,000";
+          } else if (preset === "comfortFirst") {
+            applyWeightsAndSyncSliders({
+              resale: 15,
+              practicality: 15,
+              range: 15,
+              comfort: 35,
+              running: 10,
+              performance: 5,
+              delivery: 5
+            });
+            state.featFbt = true;
+            document.getElementById("featFbt").checked = true;
+          } else if (preset === "maxResale") {
+            applyWeightsAndSyncSliders({
+              resale: 40,
+              practicality: 15,
+              range: 15,
+              comfort: 10,
+              running: 10,
+              performance: 5,
+              delivery: 5
+            });
+            state.featFbt = true;
+            document.getElementById("featFbt").checked = true;
+          }
+          renderAll();
+        });
+      });
+
+      document.getElementById("clearFiltersBtn").addEventListener("click", () => {
+        resetFilterControls();
+        renderAll();
+      });
+      document.getElementById("emptyResetBtn").addEventListener("click", () => {
+        resetFilterControls();
+        renderAll();
+      });
+
+      // Compare modal triggers & clipboard copy
+      document.getElementById("openCompareBtn").addEventListener("click", openCompareModal);
+      document.getElementById("trayOpenCompareBtn").addEventListener("click", openCompareModal);
+      document.getElementById("closeCompareModalBtn").addEventListener("click", () => {
+        document.getElementById("compareModal").classList.add("hidden");
+      });
+
+      document.getElementById("copyComparisonBtn").addEventListener("click", () => {
+        const selected = state.compareIds
+          .map((id) => activeCatalog.find((c) => c.id === id))
+          .filter(Boolean)
+          .map(evaluateVehicle);
+
+        const summaryLines = [
+          "2026 AUSTRALIAN EV NOVATED LEASE COMPARISON (NSW)",
+          "================================================",
+          ...selected.map(
+            (c) =>
+              `• ${c.make} ${c.model} ${c.variant} (${c.drivetrain}) — Score: ${c.score100}/100 | NSW Drive-Away: ${fmtAud(c.effectivePrice)} | Yr-5 Balloon: ${fmtAud(c.year5Balloon)} | Range: ${c.wltpKm}km | Towball: ${c.towballKg}kg | Clearance: ${c.clearanceMm}mm`
+          )
+        ].join("\n");
+
+        const tempArea = document.createElement("textarea");
+        tempArea.value = summaryLines;
+        document.body.appendChild(tempArea);
+        tempArea.select();
+        document.execCommand("copy");
+        document.body.removeChild(tempArea);
+        showToast("Copied comparison summary to clipboard!");
+      });
+
+      // Close modals on backdrop click
+      ["compareModal", "detailModal", "addCarModal"].forEach((modalId) => {
+        document.getElementById(modalId).addEventListener("click", (e) => {
+          if (e.target.id === modalId) {
+            e.target.classList.add("hidden");
+          }
+        });
+      });
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      initControls();
+      mergeCatalogSources([]);
+      renderAll();
+      fetchFromAuEvApi(true);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,2209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Australian EV Explorer & Novated Lease Buyer's Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: #f8fafc;
+      color: #0f172a;
+    }
+    .score-ring {
+      transition: stroke-dashoffset 0.35s ease;
+    }
+    /* Custom scrollbar for comparison table */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased">
+  <!-- Top Navigation & API Status Header -->
+  <header class="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-30 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center text-emerald-400">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-lg sm:text-xl font-bold tracking-tight">AU EV Explorer & Novated Lease Buyer's Dashboard</h1>
+            <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+              NSW 2026 Market
+            </span>
+          </div>
+          <p class="text-xs text-slate-400">Dynamic Buyer-Needs Scoring • ATO FBT Exemption ($91,387 LCT) • Automated Competitor Benchmarking</p>
+        </div>
+      </div>
+
+      <!-- Right Controls: Quick Rival Selector, API Status, Add Car -->
+      <div class="flex flex-wrap items-center gap-2.5">
+        <!-- Quick Compare Rivals Dropdown -->
+        <div class="flex items-center bg-slate-800 border border-slate-700 rounded-xl px-2.5 py-1.5">
+          <span class="text-xs font-medium text-amber-400 mr-2 whitespace-nowrap">⚡ Quick Rivals:</span>
+          <select id="quickRivalSelect" class="bg-transparent text-xs text-white font-medium focus:outline-none max-w-[190px] truncate cursor-pointer">
+            <option value="" class="bg-slate-900">Select car to find rivals...</option>
+          </select>
+        </div>
+
+        <!-- API Status Badge -->
+        <button id="apiConfigBtn" type="button" class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-medium transition cursor-pointer" title="Configure au-ev-api endpoint">
+          <span id="apiStatusDot" class="w-2 h-2 rounded-full bg-amber-400"></span>
+          <span id="apiStatusText">Embedded 2026 Catalog</span>
+        </button>
+
+        <!-- Sync API Button -->
+        <button id="syncApiBtn" type="button" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-medium text-slate-200 transition cursor-pointer" title="Trigger POST /api/v1/evs/sync">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          <span>Sync</span>
+        </button>
+
+        <!-- Add / Edit AU Car Button -->
+        <button id="openAddModalBtn" type="button" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-sm transition cursor-pointer">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+          </svg>
+          <span>Add / Edit Car</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Notification Toast Banner -->
+  <div id="toastBanner" class="hidden fixed bottom-5 right-5 z-50 max-w-md bg-slate-900 text-white px-4 py-3 rounded-2xl shadow-xl border border-slate-700 flex items-center gap-3 text-sm">
+    <span id="toastIcon" class="text-emerald-400 font-bold">✓</span>
+    <span id="toastMessage" class="flex-1"></span>
+    <button id="closeToastBtn" class="text-slate-400 hover:text-white text-xs font-bold">✕</button>
+  </div>
+
+  <!-- Main Workspace -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+    <!-- Top Section: Dynamic Buyer Needs / Scored Features Engine -->
+    <section class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+      <div class="flex flex-wrap items-start justify-between gap-4 pb-4 border-b border-slate-100">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="inline-flex items-center justify-center w-6 h-6 rounded-lg bg-indigo-100 text-indigo-700 text-xs font-bold">1</span>
+            <h2 class="text-base font-bold text-slate-900">Buyer Needs & Dynamic Feature Scoring Weights</h2>
+          </div>
+          <p class="text-xs text-slate-500 mt-1">
+            Uncheck features you <span class="font-semibold text-slate-700">don't need</span> (e.g. Towbar or AWD). Unchecked items are completely removed from the 100-point score so great urban/family EVs aren't penalized for missing tow ratings.
+          </p>
+        </div>
+
+        <!-- Preset Buyer Profiles -->
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="text-xs font-medium text-slate-500">Quick Presets:</span>
+          <button type="button" data-preset="adventure" class="preset-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-indigo-50 text-slate-700 hover:text-indigo-700 border border-slate-200 transition cursor-pointer">
+            🚵 Adventure & Towing (All)
+          </button>
+          <button type="button" data-preset="urban" class="preset-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 border border-slate-200 transition cursor-pointer">
+            🏙️ Urban / Family (No Towbar)
+          </button>
+          <button type="button" data-preset="value" class="preset-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-amber-50 text-slate-700 hover:text-amber-700 border border-slate-200 transition cursor-pointer">
+            💰 Pure Range & Value
+          </button>
+        </div>
+      </div>
+
+      <!-- Feature Checkboxes Grid -->
+      <div id="scoredFeaturesGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-2.5 pt-4">
+        <!-- Populated dynamically via JS -->
+      </div>
+
+      <!-- Active Scoring Formula Summary Bar -->
+      <div class="mt-4 pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div class="flex flex-wrap items-center gap-2 text-slate-600">
+          <span class="font-semibold text-slate-800">Active 100-pt Breakdown:</span>
+          <span class="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 font-medium border border-emerald-200">
+            Core Value, Range & Charging: <strong id="coreWeightLabel">35</strong> pts
+          </span>
+          <span class="px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 font-medium border border-indigo-200">
+            Selected Buyer Features (<span id="activeFeatureCount">9</span> active): <strong id="featureWeightLabel">65</strong> pts
+          </span>
+        </div>
+        <div class="text-slate-500">
+          Novated Lease Math: <span class="font-medium text-slate-700">FBT-Exempt ≤ $91,387</span> • <span class="font-medium text-slate-700">Yr-5 Residual 28.13%</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Competitor Comparison Drawer / Panel (Shown when user clicks "Find & Compare Rivals" or selects cars) -->
+    <section id="comparisonSection" class="hidden bg-white rounded-2xl border-2 border-indigo-500/30 shadow-md overflow-hidden">
+      <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white px-5 py-4 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-400 text-slate-950">RIVAL BENCHMARK</span>
+            <h2 id="comparisonTitle" class="text-base sm:text-lg font-bold">Side-by-Side Competitor Comparison</h2>
+          </div>
+          <p id="comparisonSubtitle" class="text-xs text-slate-300 mt-0.5">Comparing selected vehicle against its closest Australian price & segment rivals</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="clearComparisonBtn" type="button" class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-semibold text-white transition cursor-pointer">
+            Close Comparison
+          </button>
+        </div>
+      </div>
+
+      <!-- Rival Match Reason Pills -->
+      <div id="rivalMatchReasons" class="px-5 py-3 bg-indigo-50/70 border-b border-indigo-100 flex flex-wrap items-center gap-2 text-xs"></div>
+
+      <!-- Responsive Side-by-Side Table -->
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse text-xs sm:text-sm">
+          <thead id="comparisonTableHead" class="bg-slate-50 border-b border-slate-200"></thead>
+          <tbody id="comparisonTableBody" class="divide-y divide-slate-100"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Search, Hard Filters & Sorting Bar -->
+    <section class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 space-y-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
+        <!-- Search -->
+        <div class="lg:col-span-2">
+          <label class="block text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1">Search Make / Model / Variant</label>
+          <div class="relative">
+            <input id="searchInput" type="text" placeholder="e.g. Trailseeker, Geely EX5, Model Y, Sealion 7..." class="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
+            <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z" />
+            </svg>
+          </div>
+        </div>
+
+        <!-- Make Filter -->
+        <div>
+          <label class="block text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1">Brand / Make</label>
+          <select id="makeFilter" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <option value="">All Brands</option>
+          </select>
+        </div>
+
+        <!-- Drivetrain Filter -->
+        <div>
+          <label class="block text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1">Drivetrain</label>
+          <select id="drivetrainFilter" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <option value="">All (AWD & 2WD)</option>
+            <option value="AWD">AWD Only</option>
+            <option value="RWD">RWD Only</option>
+            <option value="FWD">FWD Only</option>
+          </select>
+        </div>
+
+        <!-- Max NSW Drive-Away Budget -->
+        <div>
+          <label class="block text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1">Max Drive-Away: <span id="budgetLabel" class="text-indigo-600 font-bold">$110,000</span></label>
+          <input id="maxPriceFilter" type="range" min="35000" max="125000" step="1000" value="110000" class="w-full accent-indigo-600 mt-2 cursor-pointer" />
+        </div>
+
+        <!-- Sort By -->
+        <div>
+          <label class="block text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1">Sort Vehicles By</label>
+          <select id="sortFilter" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <option value="score">Dynamic Buyer Score (High → Low)</option>
+            <option value="priceAsc">Effective Lease Price (Low → High)</option>
+            <option value="rangeDesc">WLTP Range (High → Low)</option>
+            <option value="towDesc">Towball Rating (High → Low)</option>
+            <option value="clearanceDesc">Ground Clearance (High → Low)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Quick Hard-Filter Chips & Results Count -->
+      <div class="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-100">
+        <div class="flex flex-wrap items-center gap-2 text-xs">
+          <span class="font-semibold text-slate-500">Must-Have Filter:</span>
+          <label class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200/70 cursor-pointer select-none">
+            <input id="fbtOnlyFilter" type="checkbox" class="rounded text-indigo-600 focus:ring-indigo-500" />
+            <span class="font-medium text-slate-700">FBT-Exempt Only (≤$91,387)</span>
+          </label>
+          <label class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200/70 cursor-pointer select-none">
+            <input id="minRangeFilter" type="checkbox" class="rounded text-indigo-600 focus:ring-indigo-500" />
+            <span class="font-medium text-slate-700">WLTP ≥ 480 km</span>
+          </label>
+          <label class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200/70 cursor-pointer select-none">
+            <input id="towCapableOnlyFilter" type="checkbox" class="rounded text-indigo-600 focus:ring-indigo-500" />
+            <span class="font-medium text-slate-700">Towball ≥ 100 kg</span>
+          </label>
+          <button id="resetFiltersBtn" type="button" class="text-indigo-600 hover:text-indigo-800 font-semibold px-2 py-1 cursor-pointer">
+            Reset Filters
+          </button>
+        </div>
+
+        <div class="flex items-center gap-3 text-xs">
+          <span id="resultsCountText" class="font-semibold text-slate-700">Showing 0 vehicles</span>
+          <button id="openCustomCompareBtn" type="button" class="hidden px-3 py-1 rounded-xl bg-indigo-600 text-white font-semibold shadow-sm hover:bg-indigo-500 transition cursor-pointer">
+            Compare Selected (<span id="selectedCompareCount">0</span>)
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Vehicle Cards Grid -->
+    <section id="vehicleGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+      <!-- Vehicle Cards Rendered Here -->
+    </section>
+  </main>
+
+  <!-- Add / Edit Vehicle Modal -->
+  <div id="vehicleModal" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl max-w-2xl w-full shadow-2xl border border-slate-200 overflow-hidden my-8">
+      <div class="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
+        <div>
+          <h3 id="modalTitle" class="text-base font-bold">Add / Edit Australian EV Specification</h3>
+          <p class="text-xs text-slate-400">Saves directly to live session & POST /api/v1/evs if connected</p>
+        </div>
+        <button id="closeModalBtn" type="button" class="text-slate-400 hover:text-white text-lg font-bold cursor-pointer">✕</button>
+      </div>
+      <form id="vehicleForm" class="p-6 space-y-4 text-xs sm:text-sm max-h-[80vh] overflow-y-auto">
+        <input type="hidden" id="formId" />
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Make *</label>
+            <input id="formMake" required placeholder="e.g. Subaru" class="w-full px-3 py-2 rounded-xl border border-slate-300" />
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Model *</label>
+            <input id="formModel" required placeholder="e.g. Trailseeker" class="w-full px-3 py-2 rounded-xl border border-slate-300" />
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Variant *</label>
+            <input id="formVariant" required placeholder="e.g. AWD Touring" class="w-full px-3 py-2 rounded-xl border border-slate-300" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Drivetrain</label>
+            <select id="formDrivetrain" class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white">
+              <option value="AWD">AWD</option>
+              <option value="RWD">RWD</option>
+              <option value="FWD">FWD</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Body Segment</label>
+            <select id="formSegment" class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white">
+              <option value="Mid-Size SUV">Mid-Size SUV</option>
+              <option value="Compact SUV">Compact SUV</option>
+              <option value="Large SUV">Large SUV</option>
+              <option value="Fastback / Sedan">Fastback / Sedan</option>
+              <option value="Hatchback">Hatchback</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">NSW Drive-Away ($)</label>
+            <input id="formPrice" type="number" required value="69990" class="w-full px-3 py-2 rounded-xl border border-slate-300" />
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">WLTP Range (km)</label>
+            <input id="formRange" type="number" required value="500" class="w-full px-3 py-2 rounded-xl border border-slate-300" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Battery (kWh)</label>
+            <input id="formBattery" type="number" step="0.1" value="75" class="w-full px-3 py-2 rounded-xl border border-slate-300" />
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Max DC Charge (kW)</label>
+            <input id="formDcKw" type="number" value="150" class="w-full px-3 py-2 rounded-xl border border-slate-300" />
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Towball Limit (kg)</label>
+            <input id="formTowball" type="number" value="100" class="w-full px-3 py-2 rounded-xl border border-slate-300" />
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Ground Clearance (mm)</label>
+            <input id="formClearance" type="number" value="180" class="w-full px-3 py-2 rounded-xl border border-slate-300" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-700 mb-2">Included Cabin & Utility Features</label>
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
+            <label class="flex items-center gap-2 p-2 rounded-xl border border-slate-200 cursor-pointer">
+              <input id="formV2l" type="checkbox" class="rounded text-indigo-600" />
+              <span>V2L (Vehicle-to-Load)</span>
+            </label>
+            <label class="flex items-center gap-2 p-2 rounded-xl border border-slate-200 cursor-pointer">
+              <input id="formVentSeats" type="checkbox" class="rounded text-indigo-600" />
+              <span>Ventilated Front Seats</span>
+            </label>
+            <label class="flex items-center gap-2 p-2 rounded-xl border border-slate-200 cursor-pointer">
+              <input id="formHud" type="checkbox" class="rounded text-indigo-600" />
+              <span>Head-Up Display (HUD)</span>
+            </label>
+            <label class="flex items-center gap-2 p-2 rounded-xl border border-slate-200 cursor-pointer">
+              <input id="formCarplay" type="checkbox" checked class="rounded text-indigo-600" />
+              <span>Wireless Apple CarPlay</span>
+            </label>
+            <label class="flex items-center gap-2 p-2 rounded-xl border border-slate-200 cursor-pointer">
+              <input id="formGlovebox" type="checkbox" checked class="rounded text-indigo-600" />
+              <span>Traditional Glove Box</span>
+            </label>
+            <label class="flex items-center gap-2 p-2 rounded-xl border border-slate-200 cursor-pointer">
+              <input id="formHeatPump" type="checkbox" checked class="rounded text-indigo-600" />
+              <span>Heat Pump</span>
+            </label>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Australian Buyer Notes</label>
+          <input id="formNotes" placeholder="e.g. Sharp NSW drive-away pricing, 5-yr warranty, great rear legroom" class="w-full px-3 py-2 rounded-xl border border-slate-300" />
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+          <button type="button" id="cancelModalBtn" class="px-4 py-2 rounded-xl border border-slate-300 text-slate-700 font-semibold hover:bg-slate-50 cursor-pointer">Cancel</button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold shadow-sm cursor-pointer">Save Vehicle</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- API Endpoint Configuration Modal -->
+  <div id="apiModal" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden">
+      <div class="px-5 py-4 bg-slate-900 text-white flex items-center justify-between">
+        <h3 class="text-sm font-bold">Connect to Local au-ev-api Server</h3>
+        <button id="closeApiModalBtn" type="button" class="text-slate-400 hover:text-white font-bold cursor-pointer">✕</button>
+      </div>
+      <div class="p-5 space-y-4 text-xs sm:text-sm">
+        <p class="text-slate-600">
+          When served from your Express backend (<code class="bg-slate-100 px-1.5 py-0.5 rounded text-slate-800">http://localhost:3000</code>), this dashboard automatically syncs with <code class="bg-slate-100 px-1.5 py-0.5 rounded text-slate-800">/api/v1/evs</code>.
+        </p>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">API Base URL</label>
+          <input id="apiBaseUrlInput" type="text" value="http://localhost:3000" class="w-full px-3 py-2 rounded-xl border border-slate-300 font-mono text-xs" />
+        </div>
+        <div class="flex justify-end gap-2">
+          <button id="useEmbeddedBtn" type="button" class="px-3.5 py-2 rounded-xl border border-slate-300 text-slate-700 font-semibold hover:bg-slate-50 cursor-pointer">Use Built-in Catalog</button>
+          <button id="connectApiBtn" type="button" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold cursor-pointer">Connect & Fetch</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * =========================================================================
+     * 1. SCORED BUYER FEATURES CONFIGURATION (Dynamic Toggle Weights)
+     * =========================================================================
+     * Each toggle represents a feature a buyer can enable or disable.
+     * When disabled (checked = false), its weight is redistributed to the
+     * remaining active features & core value/range score so vehicles are
+     * NEVER penalized for lacking features the buyer doesn't want (like towbar).
+     */
+    const BUYER_FEATURE_CRITERIA = [
+      {
+        id: 'towbar100',
+        label: 'Towbar / Bike Rack (≥100kg)',
+        shortLabel: 'Towball ≥100kg',
+        weight: 14,
+        checked: true,
+        description: 'Essential for 2–4 e-bike racks or light trailer towing',
+        evaluate: (v) => {
+          const tb = Number(v.towballDownloadKg || 0);
+          if (tb >= 100) return { ratio: 1, detail: `${tb}kg towball` };
+          if (tb >= 75) return { ratio: 0.55, detail: `${tb}kg towball (light)` };
+          return { ratio: 0, detail: tb > 0 ? `${tb}kg only` : 'Not tow-rated' };
+        }
+      },
+      {
+        id: 'heavyTow150',
+        label: 'Heavy Towball (≥150kg)',
+        shortLabel: 'Towball ≥150kg',
+        weight: 6,
+        checked: false,
+        description: 'Bonus capacity for heavy vertical loads & caravanning',
+        evaluate: (v) => {
+          const tb = Number(v.towballDownloadKg || 0);
+          if (tb >= 150) return { ratio: 1, detail: `${tb}kg heavy-duty` };
+          if (tb >= 100) return { ratio: 0.4, detail: `${tb}kg standard` };
+          return { ratio: 0, detail: `${tb}kg` };
+        }
+      },
+      {
+        id: 'awd',
+        label: 'AWD Dual-Motor Traction',
+        shortLabel: 'AWD Traction',
+        weight: 10,
+        checked: true,
+        description: 'All-wheel-drive grip for wet roads, snow trips & gravel',
+        evaluate: (v) => {
+          const isAwd = (v.drivetrain || '').toUpperCase() === 'AWD';
+          return { ratio: isAwd ? 1 : 0, detail: v.drivetrain || '2WD' };
+        }
+      },
+      {
+        id: 'clearance',
+        label: 'High Clearance (≥200mm)',
+        shortLabel: 'Clearance ≥200mm',
+        weight: 9,
+        checked: true,
+        description: 'Unsealed fire trails, steep driveways & rural roads',
+        evaluate: (v) => {
+          const gc = Number(v.groundClearanceMm || 0);
+          if (gc >= 200) return { ratio: 1, detail: `${gc}mm SUV clearance` };
+          if (gc >= 175) return { ratio: 0.6, detail: `${gc}mm mid clearance` };
+          if (gc >= 155) return { ratio: 0.25, detail: `${gc}mm low clearance` };
+          return { ratio: 0, detail: `${gc}mm` };
+        }
+      },
+      {
+        id: 'v2l',
+        label: 'V2L Power Outlet',
+        shortLabel: 'V2L 240V Power',
+        weight: 7,
+        checked: true,
+        description: 'Power camping gear, appliances or home blackout backup',
+        evaluate: (v) => ({
+          ratio: v.features?.v2l ? 1 : 0,
+          detail: v.features?.v2l ? 'V2L Included' : 'No V2L'
+        })
+      },
+      {
+        id: 'ventilatedSeats',
+        label: 'Ventilated Front Seats',
+        shortLabel: 'Ventilated Seats',
+        weight: 6,
+        checked: true,
+        description: 'Active seat cooling for hot Australian summers',
+        evaluate: (v) => ({
+          ratio: v.features?.ventilatedFrontSeats ? 1 : 0,
+          detail: v.features?.ventilatedFrontSeats ? 'Ventilated' : 'No seat cooling'
+        })
+      },
+      {
+        id: 'hud',
+        label: 'Head-Up Display (HUD)',
+        shortLabel: 'Head-Up Display',
+        weight: 5,
+        checked: true,
+        description: 'Windscreen speed & navigation projection',
+        evaluate: (v) => ({
+          ratio: v.features?.headUpDisplay ? 1 : 0,
+          detail: v.features?.headUpDisplay ? 'HUD Equipped' : 'No HUD'
+        })
+      },
+      {
+        id: 'carplay',
+        label: 'Wireless Apple CarPlay',
+        shortLabel: 'Wireless CarPlay',
+        weight: 5,
+        checked: true,
+        description: 'Native iPhone integration without aftermarket dongles',
+        evaluate: (v) => ({
+          ratio: v.features?.wirelessCarPlay ? 1 : 0,
+          detail: v.features?.wirelessCarPlay ? 'Wireless CarPlay' : 'No native CarPlay'
+        })
+      },
+      {
+        id: 'glovebox',
+        label: 'Traditional Glove Box',
+        shortLabel: 'Glove Box',
+        weight: 3,
+        checked: true,
+        description: 'Physical passenger glove compartment storage',
+        evaluate: (v) => ({
+          ratio: v.features?.gloveBox !== false ? 1 : 0,
+          detail: v.features?.gloveBox !== false ? 'Has Glove Box' : 'No Glove Box'
+        })
+      }
+    ];
+
+    /**
+     * =========================================================================
+     * 2. 2026 AUSTRALIAN EV CATALOG (NSW Drive-Away Pricing & Specs)
+     * =========================================================================
+     */
+    const DEFAULT_AU_EVS = [
+      {
+        id: 'subaru-trailseeker-awd-touring',
+        make: 'Subaru',
+        model: 'Trailseeker',
+        variant: 'AWD Touring',
+        segment: 'Mid-Size SUV',
+        drivetrain: 'AWD',
+        nswDriveAwayAud: 74990,
+        wltpRangeKm: 515,
+        batteryKwh: 74.7,
+        maxDcKw: 150,
+        towballDownloadKg: 150,
+        brakedTowingKg: 1500,
+        groundClearanceMm: 210,
+        features: { v2l: true, ventilatedFrontSeats: true, headUpDisplay: true, wirelessCarPlay: true, gloveBox: true, heatPump: true },
+        notes: '210mm X-Mode AWD clearance + 150kg towball + full Touring luxury suite.'
+      },
+      {
+        id: 'subaru-trailseeker-awd',
+        make: 'Subaru',
+        model: 'Trailseeker',
+        variant: 'AWD Base',
+        segment: 'Mid-Size SUV',
+        drivetrain: 'AWD',
+        nswDriveAwayAud: 67990,
+        wltpRangeKm: 530,
+        batteryKwh: 74.7,
+        maxDcKw: 150,
+        towballDownloadKg: 150,
+        brakedTowingKg: 1500,
+        groundClearanceMm: 210,
+        features: { v2l: true, ventilatedFrontSeats: false, headUpDisplay: false, wirelessCarPlay: true, gloveBox: true, heatPump: true },
+        notes: 'High clearance AWD tourer under $68k NSW drive-away with 150kg towball.'
+      },
+      {
+        id: 'toyota-bz4x-touring-awd',
+        make: 'Toyota',
+        model: 'bZ4X',
+        variant: 'Touring AWD',
+        segment: 'Mid-Size SUV',
+        drivetrain: 'AWD',
+        nswDriveAwayAud: 72990,
+        wltpRangeKm: 510,
+        batteryKwh: 74.7,
+        maxDcKw: 150,
+        towballDownloadKg: 150,
+        brakedTowingKg: 1500,
+        groundClearanceMm: 205,
+        features: { v2l: true, ventilatedFrontSeats: true, headUpDisplay: true, wirelessCarPlay: true, gloveBox: false, heatPump: true },
+        notes: '2026 Touring upgrade adds 150kg towball, ventilated seats & V2L; deletes traditional glove box.'
+      },
+      {
+        id: 'geely-ex5-inspire',
+        make: 'Geely',
+        model: 'EX5',
+        variant: 'Inspire',
+        segment: 'Mid-Size SUV',
+        drivetrain: 'FWD',
+        nswDriveAwayAud: 47990,
+        wltpRangeKm: 410,
+        batteryKwh: 60.2,
+        maxDcKw: 100,
+        towballDownloadKg: 75,
+        brakedTowingKg: 750,
+        groundClearanceMm: 173,
+        features: { v2l: true, ventilatedFrontSeats: true, headUpDisplay: true, wirelessCarPlay: true, gloveBox: true, heatPump: true },
+        notes: 'Unbeatable sub-$48k luxury (HUD, ventilated massage seats, V2L); limited 75kg towball.'
+      },
+      {
+        id: 'geely-ex5-complete',
+        make: 'Geely',
+        model: 'EX5',
+        variant: 'Complete',
+        segment: 'Mid-Size SUV',
+        drivetrain: 'FWD',
+        nswDriveAwayAud: 43990,
+        wltpRangeKm: 430,
+        batteryKwh: 60.2,
+        maxDcKw: 100,
+        towballDownloadKg: 75,
+        brakedTowingKg: 750,
+        groundClearanceMm: 173,
+        features: { v2l: true, ventilatedFrontSeats: false, headUpDisplay: false, wirelessCarPlay: true, gloveBox: true, heatPump: true },
+        notes: 'Ultra-sharp NSW drive-away price for spacious mid-size family SUV.'
+      },
+      {
+        id: 'tesla-model-y-lr-awd',
+        make: 'Tesla',
+        model: 'Model Y',
+        variant: 'Long Range AWD (Juniper)',
+        segment: 'Mid-Size SUV',
+        drivetrain: 'AWD',
+        nswDriveAwayAud: 73400,
+        wltpRangeKm: 551,
+        batteryKwh: 78.0,
+        maxDcKw: 250,
+        towballDownloadKg: 160,
+        brakedTowingKg: 1600,
+        groundClearanceMm: 167,
+        features: { v2l: false, ventilatedFrontSeats: true, headUpDisplay: false, wirelessCarPlay: false, gloveBox: true, heatPump: true },
+        notes: 'Benchmark efficiency & Supercharger network; 160kg towball, ventilated seats, no CarPlay/HUD.'
+      },
+      {
+        id: 'tesla-model-y-rwd',
+        make: 'Tesla',
+        model: 'Model Y',
+        variant: 'Rear-Wheel Drive (Juniper)',
+        segment: 'Mid-Size SUV',
+        drivetrain: 'RWD',
+        nswDriveAwayAud: 63400,
+        wltpRangeKm: 466,
+        batteryKwh: 62.5,
+        maxDcKw: 175,
+        towballDownloadKg: 160,
+        brakedTowingKg: 1600,
+        groundClearanceMm: 167,
+        features: { v2l: false, ventilatedFrontSeats: true, headUpDisplay: false, wirelessCarPlay: false, gloveBox: true, heatPump: true },
+        notes: 'Refreshed cabin with ventilated seats & 160kg towball capacity.'
+      },
+      {
+        id: 'byd-sealion-7-performance',
+        make: 'BYD',
+        model: 'Sealion 7',
+        variant: 'Performance AWD',
+        segment: 'Mid-Size SUV',
+        drivetrain: 'AWD',
+        nswDriveAwayAud: 67990,
+        wltpRangeKm: 456,
+        batteryKwh: 82.5,
+        maxDcKw: 150,
+        towballDownloadKg: 150,
+        brakedTowingKg: 1500,
+        groundClearanceMm: 163,
+        features: { v2l: true, ventilatedFrontSeats: true, headUpDisplay: true, wirelessCarPlay: true, gloveBox: true, heatPump: true },
+        notes: '390kW AWD sports SUV with HUD, ventilated Nappa seats, V2L & 150kg towball.'
+      },
+      {
+        id: 'byd-sealion-7-premium',
+        make: 'BYD',
+        model: 'Sealion 7',
+        variant: 'Premium RWD',
+        segment: 'Mid-Size SUV',
+        drivetrain: 'RWD',
+        nswDriveAwayAud: 58990,
+        wltpRangeKm: 482,
+        batteryKwh: 82.5,
+        maxDcKw: 150,
+        towballDownloadKg: 75,
+        brakedTowingKg: 750,
+        groundClearanceMm: 163,
+        features: { v2l: true, ventilatedFrontSeats: true, headUpDisplay: true, wirelessCarPlay: true, gloveBox: true, heatPump: true },
+        notes: 'Loaded with HUD, ventilated seats & V2L under $59k; RWD limited to 75kg towball.'
+      },
+      {
+        id: 'zeekr-7x-performance-awd',
+        make: 'Zeekr',
+        model: '7X',
+        variant: 'Performance AWD',
+        segment: 'Mid-Size SUV',
+        drivetrain: 'AWD',
+        nswDriveAwayAud: 76900,
+        wltpRangeKm: 543,
+        batteryKwh: 100.0,
+        maxDcKw: 360,
+        towballDownloadKg: 200,
+        brakedTowingKg: 2000,
+        groundClearanceMm: 215,
+        features: { v2l: true, ventilatedFrontSeats: true, headUpDisplay: true, wirelessCarPlay: true, gloveBox: true, heatPump: true },
+        notes: '800V 100kWh battery, air suspension up to 215mm, 200kg towball & every luxury option.'
+      },
+      {
+        id: 'zeekr-7x-long-range-rwd',
+        make: 'Zeekr',
+        model: '7X',
+        variant: 'Long Range RWD',
+        segment: 'Mid-Size SUV',
+        drivetrain: 'RWD',
+        nswDriveAwayAud: 67900,
+        wltpRangeKm: 615,
+        batteryKwh: 100.0,
+        maxDcKw: 360,
+        towballDownloadKg: 150,
+        brakedTowingKg: 1500,
+        groundClearanceMm: 178,
+        features: { v2l: true, ventilatedFrontSeats: true, headUpDisplay: true, wirelessCarPlay: true, gloveBox: true, heatPump: true },
+        notes: '615km WLTP range + 360kW ultra-fast charging + 150kg towball.'
+      },
+      {
+        id: 'kia-ev5-gt-line-awd',
+        make: 'Kia',
+        model: 'EV5',
+        variant: 'GT-Line AWD',
+        segment: 'Mid-Size SUV',
+        drivetrain: 'AWD',
+        nswDriveAwayAud: 75990,
+        wltpRangeKm: 470,
+        batteryKwh: 88.1,
+        maxDcKw: 141,
+        towballDownloadKg: 125,
+        brakedTowingKg: 1250,
+        groundClearanceMm: 175,
+        features: { v2l: true, ventilatedFrontSeats: true, headUpDisplay: true, wirelessCarPlay: true, gloveBox: true, heatPump: true },
+        notes: 'Australian-tuned suspension, 125kg towball, V2L, HUD & ventilated massage driver seat.'
+      },
+      {
+        id: 'kia-ev5-earth-awd',
+        make: 'Kia',
+        model: 'EV5',
+        variant: 'Earth AWD',
+        segment: 'Mid-Size SUV',
+        drivetrain: 'AWD',
+        nswDriveAwayAud: 68990,
+        wltpRangeKm: 500,
+        batteryKwh: 88.1,
+        maxDcKw: 141,
+        towballDownloadKg: 125,
+        brakedTowingKg: 1250,
+        groundClearanceMm: 175,
+        features: { v2l: true, ventilatedFrontSeats: false, headUpDisplay: false, wirelessCarPlay: true, gloveBox: true, heatPump: true },
+        notes: '88kWh LFP battery, 500km range & 125kg towball at competitive AWD drive-away price.'
+      },
+      {
+        id: 'kia-ev5-air-lr',
+        make: 'Kia',
+        model: 'EV5',
+        variant: 'Air Long Range FWD',
+        segment: 'Mid-Size SUV',
+        drivetrain: 'FWD',
+        nswDriveAwayAud: 61170,
+        wltpRangeKm: 555,
+        batteryKwh: 88.1,
+        maxDcKw: 141,
+        towballDownloadKg: 125,
+        brakedTowingKg: 1250,
+        groundClearanceMm: 175,
+        features: { v2l: true, ventilatedFrontSeats: false, headUpDisplay: false, wirelessCarPlay: true, gloveBox: true, heatPump: true },
+        notes: '555km WLTP range + 125kg towball even on 2WD model.'
+      },
+      {
+        id: 'hyundai-ioniq5-dynamiq-awd',
+        make: 'Hyundai',
+        model: 'Ioniq 5',
+        variant: 'Dynamiq AWD (84kWh)',
+        segment: 'Mid-Size SUV',
+        drivetrain: 'AWD',
+        nswDriveAwayAud: 79900,
+        wltpRangeKm: 500,
+        batteryKwh: 84.0,
+        maxDcKw: 260,
+        towballDownloadKg: 160,
+        brakedTowingKg: 1600,
+        groundClearanceMm: 160,
+        features: { v2l: true, ventilatedFrontSeats: true, headUpDisplay: true, wirelessCarPlay: true, gloveBox: true, heatPump: true },
+        notes: '800V 18-min charging, 160kg towball & updated 84kWh battery.'
+      },
+      {
+        id: 'bmw-ix1-xdrive30',
+        make: 'BMW',
+        model: 'iX1',
+        variant: 'xDrive30 M Sport',
+        segment: 'Compact SUV',
+        drivetrain: 'AWD',
+        nswDriveAwayAud: 89900,
+        wltpRangeKm: 440,
+        batteryKwh: 64.7,
+        maxDcKw: 130,
+        towballDownloadKg: 120,
+        brakedTowingKg: 1200,
+        groundClearanceMm: 170,
+        features: { v2l: false, ventilatedFrontSeats: false, headUpDisplay: true, wirelessCarPlay: true, gloveBox: true, heatPump: true },
+        notes: 'Squeaks under the $91,387 FBT exemption cap; refined German AWD dynamics + 120kg towball.'
+      },
+      {
+        id: 'volvo-ex30-cross-country',
+        make: 'Volvo',
+        model: 'EX30',
+        variant: 'Cross Country Twin Motor AWD',
+        segment: 'Compact SUV',
+        drivetrain: 'AWD',
+        nswDriveAwayAud: 71990,
+        wltpRangeKm: 427,
+        batteryKwh: 69.0,
+        maxDcKw: 153,
+        towballDownloadKg: 160,
+        brakedTowingKg: 1600,
+        groundClearanceMm: 196,
+        features: { v2l: false, ventilatedFrontSeats: false, headUpDisplay: false, wirelessCarPlay: true, gloveBox: true, heatPump: true },
+        notes: '196mm lifted Cross Country suspension + 160kg towball + 315kW Twin Motor AWD.'
+      },
+      {
+        id: 'volvo-ex40-ultra-twin',
+        make: 'Volvo',
+        model: 'EX40',
+        variant: 'Ultra Twin Motor AWD',
+        segment: 'Compact SUV',
+        drivetrain: 'AWD',
+        nswDriveAwayAud: 84990,
+        wltpRangeKm: 500,
+        batteryKwh: 82.0,
+        maxDcKw: 205,
+        towballDownloadKg: 180,
+        brakedTowingKg: 1800,
+        groundClearanceMm: 175,
+        features: { v2l: false, ventilatedFrontSeats: false, headUpDisplay: false, wirelessCarPlay: true, gloveBox: true, heatPump: true },
+        notes: '180kg heavy-duty towball rating, Harman Kardon audio & FBT-exempt pricing.'
+      },
+      {
+        id: 'mg-s6-ev-essence-rwd',
+        make: 'MG',
+        model: 'S6 EV',
+        variant: 'Essence 77kWh RWD',
+        segment: 'Mid-Size SUV',
+        drivetrain: 'RWD',
+        nswDriveAwayAud: 52990,
+        wltpRangeKm: 510,
+        batteryKwh: 77.0,
+        maxDcKw: 144,
+        towballDownloadKg: 75,
+        brakedTowingKg: 750,
+        groundClearanceMm: 165,
+        features: { v2l: true, ventilatedFrontSeats: true, headUpDisplay: false, wirelessCarPlay: true, gloveBox: true, heatPump: true },
+        notes: 'High-value 510km RWD family SUV with V2L and ventilated seats.'
+      },
+      {
+        id: 'xpeng-g6-long-range',
+        make: 'XPeng',
+        model: 'G6',
+        variant: 'Long Range RWD',
+        segment: 'Mid-Size SUV',
+        drivetrain: 'RWD',
+        nswDriveAwayAud: 59990,
+        wltpRangeKm: 570,
+        batteryKwh: 87.5,
+        maxDcKw: 280,
+        towballDownloadKg: 150,
+        brakedTowingKg: 1500,
+        groundClearanceMm: 165,
+        features: { v2l: true, ventilatedFrontSeats: true, headUpDisplay: false, wirelessCarPlay: true, gloveBox: false, heatPump: true },
+        notes: '800V 280kW charging, 570km WLTP range, 150kg towball & ventilated seats; no glove box.'
+      },
+      {
+        id: 'leapmotor-c10-design',
+        make: 'Leapmotor',
+        model: 'C10',
+        variant: 'Design RWD',
+        segment: 'Mid-Size SUV',
+        drivetrain: 'RWD',
+        nswDriveAwayAud: 49990,
+        wltpRangeKm: 420,
+        batteryKwh: 69.9,
+        maxDcKw: 84,
+        towballDownloadKg: 75,
+        brakedTowingKg: 750,
+        groundClearanceMm: 180,
+        features: { v2l: true, ventilatedFrontSeats: true, headUpDisplay: false, wirelessCarPlay: false, gloveBox: true, heatPump: true },
+        notes: 'Sub-$50k large mid-size cabin with ventilated seats & V2L; lacks native CarPlay.'
+      },
+      {
+        id: 'cupra-tavascan-vz-awd',
+        make: 'Cupra',
+        model: 'Tavascan',
+        variant: 'VZ AWD',
+        segment: 'Mid-Size SUV',
+        drivetrain: 'AWD',
+        nswDriveAwayAud: 78990,
+        wltpRangeKm: 499,
+        batteryKwh: 77.0,
+        maxDcKw: 135,
+        towballDownloadKg: 120,
+        brakedTowingKg: 1200,
+        groundClearanceMm: 165,
+        features: { v2l: false, ventilatedFrontSeats: false, headUpDisplay: true, wirelessCarPlay: true, gloveBox: true, heatPump: true },
+        notes: '250kW coupe-SUV with AR HUD, Sennheiser audio & 120kg towball.'
+      },
+      {
+        id: 'ford-mustang-mache-premium',
+        make: 'Ford',
+        model: 'Mustang Mach-E',
+        variant: 'Premium RWD (91kWh)',
+        segment: 'Mid-Size SUV',
+        drivetrain: 'RWD',
+        nswDriveAwayAud: 72990,
+        wltpRangeKm: 600,
+        batteryKwh: 91.0,
+        maxDcKw: 150,
+        towballDownloadKg: 100,
+        brakedTowingKg: 1000,
+        groundClearanceMm: 147,
+        features: { v2l: false, ventilatedFrontSeats: false, headUpDisplay: false, wirelessCarPlay: true, gloveBox: true, heatPump: false },
+        notes: '600km long-legged highway cruiser with 100kg towball rating.'
+      },
+      {
+        id: 'polestar-4-long-range-dual',
+        make: 'Polestar',
+        model: '4',
+        variant: 'Long Range Dual Motor AWD',
+        segment: 'Fastback / Sedan',
+        drivetrain: 'AWD',
+        nswDriveAwayAud: 89900,
+        wltpRangeKm: 590,
+        batteryKwh: 100.0,
+        maxDcKw: 200,
+        towballDownloadKg: 150,
+        brakedTowingKg: 2000,
+        groundClearanceMm: 166,
+        features: { v2l: true, ventilatedFrontSeats: false, headUpDisplay: true, wirelessCarPlay: true, gloveBox: true, heatPump: true },
+        notes: '400kW performance fastback just inside the $91,387 FBT exemption threshold.'
+      },
+      {
+        id: 'byd-seal-performance-awd',
+        make: 'BYD',
+        model: 'Seal',
+        variant: 'Performance AWD',
+        segment: 'Fastback / Sedan',
+        drivetrain: 'AWD',
+        nswDriveAwayAud: 63990,
+        wltpRangeKm: 520,
+        batteryKwh: 82.5,
+        maxDcKw: 150,
+        towballDownloadKg: 75,
+        brakedTowingKg: 750,
+        groundClearanceMm: 145,
+        features: { v2l: true, ventilatedFrontSeats: true, headUpDisplay: true, wirelessCarPlay: true, gloveBox: true, heatPump: true },
+        notes: '3.8s 0-100km/h AWD sedan with HUD, ventilated seats & V2L.'
+      },
+      {
+        id: 'tesla-model-3-lr-awd',
+        make: 'Tesla',
+        model: 'Model 3',
+        variant: 'Long Range AWD',
+        segment: 'Fastback / Sedan',
+        drivetrain: 'AWD',
+        nswDriveAwayAud: 68900,
+        wltpRangeKm: 629,
+        batteryKwh: 78.0,
+        maxDcKw: 250,
+        towballDownloadKg: 100,
+        brakedTowingKg: 1000,
+        groundClearanceMm: 138,
+        features: { v2l: false, ventilatedFrontSeats: true, headUpDisplay: false, wirelessCarPlay: false, gloveBox: true, heatPump: true },
+        notes: '629km benchmark range, ventilated seats & 100kg towball.'
+      },
+      {
+        id: 'mg-mg4-xpower-awd',
+        make: 'MG',
+        model: 'MG4',
+        variant: 'XPOWER 64kWh AWD',
+        segment: 'Hatchback',
+        drivetrain: 'AWD',
+        nswDriveAwayAud: 49990,
+        wltpRangeKm: 385,
+        batteryKwh: 64.0,
+        maxDcKw: 140,
+        towballDownloadKg: 50,
+        brakedTowingKg: 500,
+        groundClearanceMm: 150,
+        features: { v2l: true, ventilatedFrontSeats: false, headUpDisplay: false, wirelessCarPlay: false, gloveBox: true, heatPump: false },
+        notes: '320kW AWD hot hatch under $50k with V2L.'
+      },
+      {
+        id: 'zeekr-x-awd',
+        make: 'Zeekr',
+        model: 'X',
+        variant: 'AWD Flagship',
+        segment: 'Compact SUV',
+        drivetrain: 'AWD',
+        nswDriveAwayAud: 64900,
+        wltpRangeKm: 425,
+        batteryKwh: 66.0,
+        maxDcKw: 150,
+        towballDownloadKg: 160,
+        brakedTowingKg: 1600,
+        groundClearanceMm: 170,
+        features: { v2l: true, ventilatedFrontSeats: true, headUpDisplay: true, wirelessCarPlay: true, gloveBox: false, heatPump: true },
+        notes: '315kW compact luxury AWD with 160kg towball, HUD & ventilated seats.'
+      }
+    ];
+
+    /**
+     * =========================================================================
+     * 3. APPLICATION STATE
+     * =========================================================================
+     */
+    const LCT_FBT_THRESHOLD_AUD = 91387; // ATO Fuel-Efficient Luxury Car Tax Threshold
+    const YEAR5_RESIDUAL_RATE = 0.2813;  // ATO 5-Year Statutory Residual (28.13%)
+
+    let state = {
+      vehicles: structuredClone(DEFAULT_AU_EVS),
+      apiBaseUrl: window.location.origin.startsWith('http') ? window.location.origin : 'http://localhost:3000',
+      apiConnected: false,
+      search: '',
+      make: '',
+      drivetrain: '',
+      maxPrice: 110000,
+      sortBy: 'score',
+      fbtOnly: false,
+      minRangeOnly: false,
+      towCapableOnly: false,
+      selectedCompareIds: [],
+      rivalFocusId: null,
+      rivalReasonsMap: {}
+    };
+
+    /**
+     * =========================================================================
+     * 4. DYNAMIC SCORING & NOVATED LEASE CALCULATOR
+     * =========================================================================
+     * Computes:
+     *  1) ATO FBT exemption status & Year-5 balloon residual
+     *  2) Effective Net Novated Lease Cost (factoring ~22% pre-tax income tax
+     *     shield on FBT-exempt vehicles vs non-exempt)
+     *  3) Dynamic 100-point score scaled ONLY across the buyer's checked features!
+     */
+    function evaluateVehicle(vehicle) {
+      const price = Number(vehicle.nswDriveAwayAud || 65000);
+      const isFbtExempt = price <= LCT_FBT_THRESHOLD_AUD;
+      const year5ResidualAud = Math.round(price * YEAR5_RESIDUAL_RATE);
+
+      // Approximate 5-year pre-tax salary sacrifice net effective cost vs cash
+      const estimatedPreTaxTaxShield = isFbtExempt ? Math.round((price - year5ResidualAud) * 0.24) : 0;
+      const effectiveLeaseNetCostAud = Math.max(25000, price - estimatedPreTaxTaxShield);
+
+      // Core Value, Range & Charging Score (0 to 100 raw ratio)
+      const rangeKm = Number(vehicle.wltpRangeKm || 400);
+      const rangeRatio = Math.min(1, Math.max(0, (rangeKm - 340) / 260)); // 340km -> 0, 600km+ -> 1
+
+      const dcKw = Number(vehicle.maxDcKw || 100);
+      const chargeRatio = Math.min(1, Math.max(0, (dcKw - 80) / 170)); // 80kW -> 0, 250kW+ -> 1
+
+      // Value-for-money ratio ($42k = 1.0, $95k = 0.25) + FBT bonus
+      const priceRatio = Math.min(1, Math.max(0.2, (98000 - price) / 56000));
+      const fbtBonusRatio = isFbtExempt ? 1 : 0.2;
+
+      const coreCompositeRatio =
+        rangeRatio * 0.36 +
+        priceRatio * 0.34 +
+        chargeRatio * 0.16 +
+        fbtBonusRatio * 0.14;
+
+      // Active Buyer Features
+      const activeFeatures = BUYER_FEATURE_CRITERIA.filter((f) => f.checked);
+      const rawFeatureWeightSum = activeFeatures.reduce((acc, f) => acc + f.weight, 0);
+
+      // Base core weight is 35 pts; if buyer unchecks features, core weight scales up smoothly
+      // so total possible score is ALWAYS cleanly normalized out of 100 points!
+      const coreMaxPoints = rawFeatureWeightSum === 0 ? 100 : Math.round(35 + (65 - Math.min(65, rawFeatureWeightSum)) * 0.45);
+      const featuresMaxPoints = 100 - coreMaxPoints;
+
+      const coreEarned = coreCompositeRatio * coreMaxPoints;
+
+      let featuresEarned = 0;
+      const featureBreakdown = BUYER_FEATURE_CRITERIA.map((criterion) => {
+        const res = criterion.evaluate(vehicle);
+        const normalizedWeight =
+          criterion.checked && rawFeatureWeightSum > 0
+            ? (criterion.weight / rawFeatureWeightSum) * featuresMaxPoints
+            : 0;
+        const earned = criterion.checked ? res.ratio * normalizedWeight : 0;
+        featuresEarned += earned;
+
+        return {
+          id: criterion.id,
+          label: criterion.shortLabel,
+          checked: criterion.checked,
+          ratio: res.ratio,
+          detail: res.detail,
+          maxPts: normalizedWeight,
+          earnedPts: earned
+        };
+      });
+
+      const totalScore = Math.min(100, Math.max(0, Math.round(coreEarned + featuresEarned)));
+
+      return {
+        ...vehicle,
+        lease: {
+          isFbtExempt,
+          year5ResidualAud,
+          estimatedPreTaxTaxShield,
+          effectiveLeaseNetCostAud
+        },
+        score: {
+          total: totalScore,
+          coreEarned: Math.round(coreEarned),
+          coreMaxPoints,
+          featuresEarned: Math.round(featuresEarned),
+          featuresMaxPoints,
+          breakdown: featureBreakdown
+        }
+      };
+    }
+
+    /**
+     * =========================================================================
+     * 5. AUTOMATED COMPETITOR MATCHING ENGINE ("Find & Compare Rivals")
+     * =========================================================================
+     * Given any target vehicle, finds its 3–4 closest Australian market rivals
+     * based on price proximity (+/- $12,000), drivetrain alignment, body segment,
+     * and WLTP range similarity—explaining WHY each rival was matched.
+     */
+    function findClosestCompetitors(targetId, maxRivals = 4) {
+      const evaluatedAll = state.vehicles.map(evaluateVehicle);
+      const target = evaluatedAll.find((v) => v.id === targetId);
+      if (!target) return { target: null, rivals: [], reasons: {} };
+
+      const candidates = evaluatedAll
+        .filter((v) => v.id !== target.id)
+        .map((candidate) => {
+          const priceDiff = candidate.nswDriveAwayAud - target.nswDriveAwayAud;
+          const absPriceDiff = Math.abs(priceDiff);
+          const sameDrivetrain = candidate.drivetrain === target.drivetrain;
+          const sameSegment = candidate.segment === target.segment;
+          const rangeDiff = Math.abs((candidate.wltpRangeKm || 0) - (target.wltpRangeKm || 0));
+
+          // Lower distance metric = closer direct competitor
+          let distancePenalty = absPriceDiff / 1000; // $1k diff = 1 pt
+          if (absPriceDiff > 14000) distancePenalty += 25; // Penalize out-of-budget rivals
+          if (!sameDrivetrain) distancePenalty += 9;
+          if (!sameSegment) distancePenalty += 7;
+          distancePenalty += rangeDiff / 45;
+
+          // Build human-readable match explanation badge
+          const priceDeltaText =
+            absPriceDiff <= 1500
+              ? 'Virtually identical price'
+              : priceDiff < 0
+              ? `$${Math.round(absPriceDiff / 1000)}k cheaper`
+              : `$${Math.round(absPriceDiff / 1000)}k dearer`;
+
+          const classText = sameDrivetrain
+            ? `${candidate.drivetrain} ${candidate.segment}`
+            : `${candidate.drivetrain} alternative`;
+
+          return {
+            vehicle: candidate,
+            distancePenalty,
+            reason: `${priceDeltaText} • ${classText}`
+          };
+        })
+        .sort((a, b) => a.distancePenalty - b.distancePenalty)
+        .slice(0, maxRivals);
+
+      const reasons = {
+        [target.id]: 'Selected Benchmark Vehicle'
+      };
+      candidates.forEach((c) => {
+        reasons[c.vehicle.id] = c.reason;
+      });
+
+      return {
+        target,
+        rivals: candidates.map((c) => c.vehicle),
+        reasons
+      };
+    }
+
+    /**
+     * =========================================================================
+     * 6. UI RENDERING: FEATURE TOGGLES, VEHICLE CARDS & COMPARISON TABLE
+     * =========================================================================
+     */
+    function formatAud(amount) {
+      return '$' + Number(amount || 0).toLocaleString('en-AU');
+    }
+
+    function renderFeatureToggles() {
+      const container = document.getElementById('scoredFeaturesGrid');
+      const activeFeatures = BUYER_FEATURE_CRITERIA.filter((f) => f.checked);
+      const rawFeatureWeightSum = activeFeatures.reduce((acc, f) => acc + f.weight, 0);
+      const coreMaxPoints =
+        rawFeatureWeightSum === 0
+          ? 100
+          : Math.round(35 + (65 - Math.min(65, rawFeatureWeightSum)) * 0.45);
+      const featuresMaxPoints = 100 - coreMaxPoints;
+
+      document.getElementById('coreWeightLabel').textContent = coreMaxPoints;
+      document.getElementById('featureWeightLabel').textContent = featuresMaxPoints;
+      document.getElementById('activeFeatureCount').textContent = activeFeatures.length;
+
+      container.innerHTML = BUYER_FEATURE_CRITERIA.map((item) => {
+        const effectivePts =
+          item.checked && rawFeatureWeightSum > 0
+            ? Math.round((item.weight / rawFeatureWeightSum) * featuresMaxPoints)
+            : 0;
+
+        return `
+          <label class="flex items-start gap-2.5 p-2.5 rounded-xl border transition cursor-pointer select-none ${
+            item.checked
+              ? 'bg-indigo-50/60 border-indigo-200 text-slate-900 shadow-2xs'
+              : 'bg-slate-50/70 border-slate-200/80 text-slate-400 hover:bg-slate-100/70'
+          }">
+            <input
+              type="checkbox"
+              data-feature-id="${item.id}"
+              ${item.checked ? 'checked' : ''}
+              class="feature-toggle-checkbox mt-0.5 rounded text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+            />
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center justify-between gap-1">
+                <span class="text-xs font-semibold truncate ${item.checked ? 'text-slate-900' : 'text-slate-500 line-through'}">
+                  ${item.label}
+                </span>
+                <span class="text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                  item.checked ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-500'
+                }">
+                  ${item.checked ? `+${effectivePts}pt` : 'Ignored'}
+                </span>
+              </div>
+              <p class="text-[11px] leading-tight mt-0.5 ${item.checked ? 'text-slate-600' : 'text-slate-400'}">
+                ${item.description}
+              </p>
+            </div>
+          </label>
+        `;
+      }).join('');
+
+      document.querySelectorAll('.feature-toggle-checkbox').forEach((cb) => {
+        cb.addEventListener('change', (e) => {
+          const id = e.target.getAttribute('data-feature-id');
+          const target = BUYER_FEATURE_CRITERIA.find((f) => f.id === id);
+          if (target) {
+            target.checked = e.target.checked;
+            refreshAll();
+          }
+        });
+      });
+    }
+
+    function populateDropdowns() {
+      // Brands dropdown
+      const makes = [...new Set(state.vehicles.map((v) => v.make))].sort();
+      const makeSelect = document.getElementById('makeFilter');
+      const currentMake = makeSelect.value;
+      makeSelect.innerHTML =
+        '<option value="">All Brands (' + makes.length + ')</option>' +
+        makes.map((m) => `<option value="${m}">${m}</option>`).join('');
+      makeSelect.value = currentMake;
+
+      // Quick Rival Select dropdown
+      const quickSelect = document.getElementById('quickRivalSelect');
+      const sortedVehicles = [...state.vehicles].sort((a, b) =>
+        `${a.make} ${a.model}`.localeCompare(`${b.make} ${b.model}`)
+      );
+      quickSelect.innerHTML =
+        '<option value="" class="bg-slate-900">Select car to find rivals...</option>' +
+        sortedVehicles
+          .map(
+            (v) =>
+              `<option value="${v.id}" class="bg-slate-900">${v.make} ${v.model} ${v.variant} (${formatAud(
+                v.nswDriveAwayAud
+              )})</option>`
+          )
+          .join('');
+    }
+
+    function getFilteredAndSortedVehicles() {
+      let list = state.vehicles.map(evaluateVehicle);
+
+      if (state.search.trim()) {
+        const q = state.search.toLowerCase();
+        list = list.filter(
+          (v) =>
+            `${v.make} ${v.model} ${v.variant} ${v.segment} ${v.notes || ''}`
+              .toLowerCase()
+              .includes(q)
+        );
+      }
+
+      if (state.make) {
+        list = list.filter((v) => v.make === state.make);
+      }
+
+      if (state.drivetrain) {
+        list = list.filter((v) => (v.drivetrain || '').toUpperCase() === state.drivetrain);
+      }
+
+      if (state.maxPrice) {
+        list = list.filter((v) => v.nswDriveAwayAud <= state.maxPrice);
+      }
+
+      if (state.fbtOnly) {
+        list = list.filter((v) => v.lease.isFbtExempt);
+      }
+
+      if (state.minRangeOnly) {
+        list = list.filter((v) => (v.wltpRangeKm || 0) >= 480);
+      }
+
+      if (state.towCapableOnly) {
+        list = list.filter((v) => (v.towballDownloadKg || 0) >= 100);
+      }
+
+      list.sort((a, b) => {
+        switch (state.sortBy) {
+          case 'priceAsc':
+            return a.lease.effectiveLeaseNetCostAud - b.lease.effectiveLeaseNetCostAud;
+          case 'rangeDesc':
+            return (b.wltpRangeKm || 0) - (a.wltpRangeKm || 0);
+          case 'towDesc':
+            return (b.towballDownloadKg || 0) - (a.towballDownloadKg || 0);
+          case 'clearanceDesc':
+            return (b.groundClearanceMm || 0) - (a.groundClearanceMm || 0);
+          case 'score':
+          default:
+            return b.score.total - a.score.total;
+        }
+      });
+
+      return list;
+    }
+
+    function getScoreBadgeStyle(score) {
+      if (score >= 82) return 'bg-emerald-600 text-white ring-4 ring-emerald-100';
+      if (score >= 68) return 'bg-indigo-600 text-white ring-4 ring-indigo-100';
+      if (score >= 54) return 'bg-amber-500 text-white ring-4 ring-amber-100';
+      return 'bg-slate-600 text-white ring-4 ring-slate-100';
+    }
+
+    function renderVehicleCards() {
+      const vehicles = getFilteredAndSortedVehicles();
+      const grid = document.getElementById('vehicleGrid');
+      document.getElementById('resultsCountText').textContent = `Showing ${vehicles.length} of ${state.vehicles.length} AU vehicles`;
+
+      if (vehicles.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full bg-white rounded-2xl border border-slate-200 p-10 text-center space-y-3">
+            <p class="text-base font-bold text-slate-800">No EVs match your current filter combination</p>
+            <p class="text-xs text-slate-500">Try raising the NSW drive-away budget slider or resetting the quick must-have chips.</p>
+            <button type="button" onclick="resetAllFilters()" class="px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-semibold cursor-pointer">Reset All Filters</button>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = vehicles
+        .map((v) => {
+          const isSelectedForCompare = state.selectedCompareIds.includes(v.id);
+          const activeBreakdown = v.score.breakdown.filter((b) => b.checked);
+
+          return `
+            <article class="bg-white rounded-2xl border ${
+              isSelectedForCompare ? 'border-indigo-500 ring-2 ring-indigo-500/20' : 'border-slate-200'
+            } shadow-sm hover:shadow-md transition flex flex-col justify-between overflow-hidden">
+              <div>
+                <!-- Card Header -->
+                <div class="p-4 pb-3 border-b border-slate-100 flex items-start justify-between gap-3">
+                  <div class="min-w-0">
+                    <div class="flex flex-wrap items-center gap-1.5 mb-1">
+                      <span class="px-2 py-0.5 rounded-md text-[11px] font-bold ${
+                        v.drivetrain === 'AWD'
+                          ? 'bg-slate-900 text-white'
+                          : 'bg-slate-100 text-slate-700'
+                      }">${v.drivetrain}</span>
+                      <span class="px-2 py-0.5 rounded-md text-[11px] font-medium bg-slate-100 text-slate-600">
+                        ${v.segment}
+                      </span>
+                      ${
+                        v.lease.isFbtExempt
+                          ? '<span class="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">FBT-Exempt</span>'
+                          : '<span class="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-rose-50 text-rose-700 border border-rose-200">Over FBT Cap</span>'
+                      }
+                    </div>
+                    <h3 class="text-base font-bold text-slate-900 leading-snug">
+                      ${v.make} ${v.model}
+                    </h3>
+                    <p class="text-xs font-medium text-slate-500 truncate">${v.variant}</p>
+                  </div>
+
+                  <!-- Dynamic Score Circle -->
+                  <div class="flex flex-col items-center shrink-0">
+                    <div class="w-12 h-12 rounded-2xl flex flex-col items-center justify-center font-extrabold ${getScoreBadgeStyle(
+                      v.score.total
+                    )}">
+                      <span class="text-base leading-none">${v.score.total}</span>
+                      <span class="text-[9px] font-semibold opacity-90">/100</span>
+                    </div>
+                    <span class="text-[10px] font-semibold text-slate-400 mt-1">Match Score</span>
+                  </div>
+                </div>
+
+                <!-- Pricing & Novated Lease Box -->
+                <div class="px-4 py-3 bg-slate-50/80 border-b border-slate-100 grid grid-cols-2 gap-2">
+                  <div>
+                    <span class="block text-[10px] font-semibold uppercase tracking-wider text-slate-400">NSW Drive-Away</span>
+                    <span class="text-sm font-extrabold text-slate-900">${formatAud(v.nswDriveAwayAud)}</span>
+                    <span class="block text-[10px] text-slate-500">Yr-5 Balloon: ${formatAud(v.lease.year5ResidualAud)}</span>
+                  </div>
+                  <div class="border-l border-slate-200 pl-3">
+                    <span class="block text-[10px] font-semibold uppercase tracking-wider text-emerald-700">Est. Lease Net Cost</span>
+                    <span class="text-sm font-extrabold text-emerald-700">${formatAud(v.lease.effectiveLeaseNetCostAud)}</span>
+                    <span class="block text-[10px] text-slate-500">
+                      ${
+                        v.lease.isFbtExempt
+                          ? `Saves ~${formatAud(v.lease.estimatedPreTaxTaxShield)} tax`
+                          : 'No FBT exemption'
+                      }
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Key Hardware Specs Grid -->
+                <div class="p-4 pb-3 grid grid-cols-4 gap-2 text-center border-b border-slate-100">
+                  <div class="p-1.5 rounded-xl bg-slate-50">
+                    <span class="block text-[10px] text-slate-400 font-medium">WLTP</span>
+                    <span class="text-xs font-bold text-slate-800">${v.wltpRangeKm} km</span>
+                  </div>
+                  <div class="p-1.5 rounded-xl bg-slate-50">
+                    <span class="block text-[10px] text-slate-400 font-medium">DC Charge</span>
+                    <span class="text-xs font-bold text-slate-800">${v.maxDcKw} kW</span>
+                  </div>
+                  <div class="p-1.5 rounded-xl bg-slate-50">
+                    <span class="block text-[10px] text-slate-400 font-medium">Towball</span>
+                    <span class="text-xs font-bold ${
+                      v.towballDownloadKg >= 100 ? 'text-emerald-700' : 'text-slate-700'
+                    }">${v.towballDownloadKg} kg</span>
+                  </div>
+                  <div class="p-1.5 rounded-xl bg-slate-50">
+                    <span class="block text-[10px] text-slate-400 font-medium">Clearance</span>
+                    <span class="text-xs font-bold ${
+                      v.groundClearanceMm >= 200 ? 'text-indigo-700' : 'text-slate-700'
+                    }">${v.groundClearanceMm} mm</span>
+                  </div>
+                </div>
+
+                <!-- Active Scored Features Pill Strip -->
+                <div class="p-4 pt-3 space-y-2">
+                  <div class="flex flex-wrap gap-1.5">
+                    ${
+                      activeBreakdown.length === 0
+                        ? '<span class="text-[11px] text-slate-500 italic">All optional features ignored — scored 100% on Range, Charging & Value.</span>'
+                        : activeBreakdown
+                            .map((item) => {
+                              const passed = item.ratio >= 0.9;
+                              const partial = item.ratio > 0 && item.ratio < 0.9;
+                              return `
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium ${
+                                  passed
+                                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                    : partial
+                                    ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                                    : 'bg-slate-100 text-slate-400 line-through'
+                                }" title="${item.detail}">
+                                  <span>${passed ? '✓' : partial ? '~' : '✕'}</span>
+                                  <span>${item.label}</span>
+                                </span>
+                              `;
+                            })
+                            .join('')
+                    }
+                  </div>
+                  ${
+                    v.notes
+                      ? `<p class="text-[11px] text-slate-500 leading-relaxed">${v.notes}</p>`
+                      : ''
+                  }
+                </div>
+              </div>
+
+              <!-- Card Footer Actions -->
+              <div class="px-4 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between gap-2">
+                <!-- Primary Action: One-Click Compare Similar Competitors -->
+                <button
+                  type="button"
+                  data-rival-id="${v.id}"
+                  class="find-rivals-btn flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-2xs transition cursor-pointer"
+                >
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                  <span>Find & Compare Rivals</span>
+                </button>
+
+                <!-- Manual Multi-Select Checkbox -->
+                <button
+                  type="button"
+                  data-toggle-compare="${v.id}"
+                  class="toggle-compare-btn px-2.5 py-2 rounded-xl border text-xs font-semibold transition cursor-pointer ${
+                    isSelectedForCompare
+                      ? 'bg-slate-900 text-white border-slate-900'
+                      : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-100'
+                  }"
+                  title="Add/Remove from manual comparison"
+                >
+                  ${isSelectedForCompare ? '✓ Pin' : '+ Pin'}
+                </button>
+
+                <!-- Edit Car Button -->
+                <button
+                  type="button"
+                  data-edit-id="${v.id}"
+                  class="edit-car-btn px-2.5 py-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-100 text-slate-600 text-xs font-semibold transition cursor-pointer"
+                  title="Edit vehicle specs"
+                >
+                  ✎
+                </button>
+              </div>
+            </article>
+          `;
+        })
+        .join('');
+
+      // Attach listeners
+      document.querySelectorAll('.find-rivals-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          triggerCompareRivals(btn.getAttribute('data-rival-id'));
+        });
+      });
+
+      document.querySelectorAll('.toggle-compare-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          toggleManualCompare(btn.getAttribute('data-toggle-compare'));
+        });
+      });
+
+      document.querySelectorAll('.edit-car-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          openEditModal(btn.getAttribute('data-edit-id'));
+        });
+      });
+    }
+
+    function triggerCompareRivals(vehicleId) {
+      if (!vehicleId) return;
+      const { target, rivals, reasons } = findClosestCompetitors(vehicleId, 4);
+      if (!target) return;
+
+      state.rivalFocusId = target.id;
+      state.rivalReasonsMap = reasons;
+      state.selectedCompareIds = [target.id, ...rivals.map((r) => r.id)];
+
+      document.getElementById('quickRivalSelect').value = target.id;
+      renderComparisonPanel(
+        `${target.make} ${target.model} ${target.variant} vs. Closest AU Market Rivals`,
+        `Automatically matched by NSW drive-away price bracket (±$12k), ${target.drivetrain} drivetrain & ${target.segment} class`
+      );
+      renderVehicleCards();
+      updateCompareCounter();
+
+      document.getElementById('comparisonSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function toggleManualCompare(vehicleId) {
+      state.rivalFocusId = null;
+      state.rivalReasonsMap = {};
+
+      if (state.selectedCompareIds.includes(vehicleId)) {
+        state.selectedCompareIds = state.selectedCompareIds.filter((id) => id !== vehicleId);
+      } else {
+        if (state.selectedCompareIds.length >= 5) {
+          showToast('Maximum 5 vehicles can be compared side-by-side at once.');
+          return;
+        }
+        state.selectedCompareIds.push(vehicleId);
+      }
+
+      updateCompareCounter();
+      renderVehicleCards();
+
+      if (state.selectedCompareIds.length >= 2) {
+        renderComparisonPanel(
+          'Custom Side-by-Side EV Comparison',
+          `Comparing ${state.selectedCompareIds.length} pinned vehicles using your active buyer feature weights`
+        );
+      } else if (state.selectedCompareIds.length === 0) {
+        document.getElementById('comparisonSection').classList.add('hidden');
+      }
+    }
+
+    function updateCompareCounter() {
+      const btn = document.getElementById('openCustomCompareBtn');
+      const countSpan = document.getElementById('selectedCompareCount');
+      countSpan.textContent = state.selectedCompareIds.length;
+      if (state.selectedCompareIds.length >= 2) {
+        btn.classList.remove('hidden');
+      } else {
+        btn.classList.add('hidden');
+      }
+    }
+
+    function renderComparisonPanel(title, subtitle) {
+      const section = document.getElementById('comparisonSection');
+      const evaluated = state.selectedCompareIds
+        .map((id) => state.vehicles.find((v) => v.id === id))
+        .filter(Boolean)
+        .map(evaluateVehicle);
+
+      if (evaluated.length < 2) {
+        section.classList.add('hidden');
+        return;
+      }
+
+      section.classList.remove('hidden');
+      document.getElementById('comparisonTitle').textContent = title;
+      document.getElementById('comparisonSubtitle').textContent = subtitle;
+
+      // Match Reason Pills
+      const reasonsContainer = document.getElementById('rivalMatchReasons');
+      if (Object.keys(state.rivalReasonsMap).length > 0) {
+        reasonsContainer.classList.remove('hidden');
+        reasonsContainer.innerHTML = evaluated
+          .map((v, idx) => {
+            const reason = state.rivalReasonsMap[v.id] || 'Comparable EV';
+            return `
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg ${
+                idx === 0
+                  ? 'bg-indigo-600 text-white font-semibold'
+                  : 'bg-white text-slate-700 border border-indigo-200 font-medium'
+              }">
+                <span>${idx === 0 ? '★ Benchmark:' : '↳ Rival:'}</span>
+                <strong>${v.make} ${v.model}</strong>
+                <span class="opacity-85">(${reason})</span>
+              </span>
+            `;
+          })
+          .join('');
+      } else {
+        reasonsContainer.classList.add('hidden');
+      }
+
+      // Table Header
+      const thead = document.getElementById('comparisonTableHead');
+      thead.innerHTML = `
+        <tr>
+          <th class="p-3.5 text-xs font-bold uppercase tracking-wider text-slate-500 min-w-[165px] bg-slate-50 sticky left-0 z-10">
+            Specification
+          </th>
+          ${evaluated
+            .map(
+              (v, idx) => `
+              <th class="p-3.5 min-w-[185px] align-top ${
+                idx === 0 && state.rivalFocusId === v.id ? 'bg-indigo-50/60' : ''
+              }">
+                <div class="flex items-start justify-between gap-2">
+                  <div>
+                    ${
+                      idx === 0 && state.rivalFocusId === v.id
+                        ? '<span class="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-600 text-white mb-1">SELECTED CAR</span>'
+                        : '<span class="inline-block px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-200 text-slate-700 mb-1">COMPETITOR</span>'
+                    }
+                    <div class="text-sm font-bold text-slate-900">${v.make} ${v.model}</div>
+                    <div class="text-xs font-medium text-slate-500">${v.variant}</div>
+                  </div>
+                  <button type="button" onclick="removeFromComparison('${v.id}')" class="text-slate-400 hover:text-rose-600 text-xs font-bold cursor-pointer" title="Remove column">✕</button>
+                </div>
+              </th>
+            `
+            )
+            .join('')}
+        </tr>
+      `;
+
+      // Helper to highlight row winner(s)
+      const bestScore = Math.max(...evaluated.map((v) => v.score.total));
+      const lowestDriveAway = Math.min(...evaluated.map((v) => v.nswDriveAwayAud));
+      const lowestEffectiveLease = Math.min(...evaluated.map((v) => v.lease.effectiveLeaseNetCostAud));
+      const bestRange = Math.max(...evaluated.map((v) => v.wltpRangeKm || 0));
+      const bestDc = Math.max(...evaluated.map((v) => v.maxDcKw || 0));
+      const bestTow = Math.max(...evaluated.map((v) => v.towballDownloadKg || 0));
+      const bestClearance = Math.max(...evaluated.map((v) => v.groundClearanceMm || 0));
+
+      const rows = [
+        {
+          label: 'Dynamic Buyer Score',
+          render: (v) => `
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-extrabold ${
+              v.score.total === bestScore
+                ? 'bg-emerald-600 text-white'
+                : 'bg-slate-100 text-slate-800'
+            }">
+              ${v.score.total} / 100 ${v.score.total === bestScore ? '🏆' : ''}
+            </span>
+          `
+        },
+        {
+          label: 'NSW Drive-Away Price',
+          render: (v) => `
+            <span class="font-bold ${
+              v.nswDriveAwayAud === lowestDriveAway ? 'text-emerald-700' : 'text-slate-900'
+            }">
+              ${formatAud(v.nswDriveAwayAud)}
+              ${v.nswDriveAwayAud === lowestDriveAway ? '<span class="ml-1 text-[10px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded font-bold">Lowest</span>' : ''}
+            </span>
+          `
+        },
+        {
+          label: 'ATO FBT Status (≤$91,387)',
+          render: (v) =>
+            v.lease.isFbtExempt
+              ? '<span class="text-xs font-semibold text-emerald-700">✓ FBT-Exempt</span>'
+              : '<span class="text-xs font-semibold text-rose-600">✕ Over Cap (FBT Applies)</span>'
+        },
+        {
+          label: 'Est. Net Novated Lease Cost',
+          render: (v) => `
+            <span class="font-bold ${
+              v.lease.effectiveLeaseNetCostAud === lowestEffectiveLease ? 'text-emerald-700' : 'text-slate-800'
+            }">
+              ${formatAud(v.lease.effectiveLeaseNetCostAud)}
+            </span>
+            <span class="block text-[11px] text-slate-400">Yr-5 Residual: ${formatAud(v.lease.year5ResidualAud)}</span>
+          `
+        },
+        {
+          label: 'Drivetrain & Segment',
+          render: (v) => `<span class="font-semibold text-slate-800">${v.drivetrain}</span> • <span class="text-slate-600">${v.segment}</span>`
+        },
+        {
+          label: 'WLTP Driving Range',
+          render: (v) => `
+            <span class="font-bold ${v.wltpRangeKm === bestRange ? 'text-indigo-700' : 'text-slate-800'}">
+              ${v.wltpRangeKm} km
+              ${v.wltpRangeKm === bestRange ? '<span class="ml-1 text-[10px] bg-indigo-100 text-indigo-800 px-1.5 py-0.5 rounded font-bold">Longest</span>' : ''}
+            </span>
+          `
+        },
+        {
+          label: 'Battery & Peak DC Charge',
+          render: (v) => `
+            <span class="font-semibold text-slate-800">${v.batteryKwh} kWh</span> •
+            <span class="font-bold ${v.maxDcKw === bestDc ? 'text-indigo-700' : 'text-slate-700'}">${v.maxDcKw} kW DC</span>
+          `
+        },
+        {
+          label: 'Towball Download Limit',
+          render: (v) => `
+            <span class="font-bold ${v.towballDownloadKg === bestTow && bestTow > 0 ? 'text-emerald-700' : 'text-slate-800'}">
+              ${v.towballDownloadKg} kg
+            </span>
+            <span class="text-[11px] text-slate-400">(${v.brakedTowingKg || v.towballDownloadKg * 10}kg braked)</span>
+          `
+        },
+        {
+          label: 'Ground Clearance',
+          render: (v) => `
+            <span class="font-bold ${v.groundClearanceMm === bestClearance ? 'text-indigo-700' : 'text-slate-800'}">
+              ${v.groundClearanceMm} mm
+            </span>
+          `
+        },
+        {
+          label: 'V2L (Vehicle-to-Load)',
+          render: (v) => (v.features?.v2l ? '<span class="text-emerald-700 font-semibold">✓ Yes</span>' : '<span class="text-slate-400">— No</span>')
+        },
+        {
+          label: 'Ventilated Front Seats',
+          render: (v) => (v.features?.ventilatedFrontSeats ? '<span class="text-emerald-700 font-semibold">✓ Yes</span>' : '<span class="text-slate-400">— No</span>')
+        },
+        {
+          label: 'Head-Up Display (HUD)',
+          render: (v) => (v.features?.headUpDisplay ? '<span class="text-emerald-700 font-semibold">✓ Yes</span>' : '<span class="text-slate-400">— No</span>')
+        },
+        {
+          label: 'Wireless Apple CarPlay',
+          render: (v) => (v.features?.wirelessCarPlay ? '<span class="text-emerald-700 font-semibold">✓ Yes</span>' : '<span class="text-slate-400">— No</span>')
+        },
+        {
+          label: 'Traditional Glove Box',
+          render: (v) => (v.features?.gloveBox !== false ? '<span class="text-emerald-700 font-semibold">✓ Yes</span>' : '<span class="text-amber-600 font-semibold">✕ Deleted</span>')
+        }
+      ];
+
+      const tbody = document.getElementById('comparisonTableBody');
+      tbody.innerHTML = rows
+        .map(
+          (row) => `
+          <tr class="hover:bg-slate-50/70">
+            <td class="p-3.5 text-xs font-semibold text-slate-700 bg-slate-50/90 sticky left-0 z-10 border-r border-slate-100">
+              ${row.label}
+            </td>
+            ${evaluated
+              .map(
+                (v, idx) => `
+                <td class="p-3.5 text-xs sm:text-sm ${
+                  idx === 0 && state.rivalFocusId === v.id ? 'bg-indigo-50/30' : ''
+                }">
+                  ${row.render(v)}
+                </td>
+              `
+              )
+              .join('')}
+          </tr>
+        `
+        )
+        .join('');
+    }
+
+    window.removeFromComparison = function (id) {
+      state.selectedCompareIds = state.selectedCompareIds.filter((item) => item !== id);
+      if (state.rivalFocusId === id) {
+        state.rivalFocusId = null;
+        state.rivalReasonsMap = {};
+      }
+      updateCompareCounter();
+      renderVehicleCards();
+      if (state.selectedCompareIds.length >= 2) {
+        renderComparisonPanel(
+          document.getElementById('comparisonTitle').textContent,
+          document.getElementById('comparisonSubtitle').textContent
+        );
+      } else {
+        document.getElementById('comparisonSection').classList.add('hidden');
+      }
+    };
+
+    /**
+     * =========================================================================
+     * 7. API INTEGRATION (au-ev-api) & MODAL HANDLERS
+     * =========================================================================
+     */
+    async function tryConnectApi(baseUrl, silent = false) {
+      try {
+        const cleanUrl = baseUrl.replace(/\/+$/, '');
+        const response = await fetch(`${cleanUrl}/api/v1/evs?requireTowing=false`);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+
+        if (Array.isArray(data.vehicles) && data.vehicles.length > 0) {
+          // Merge API vehicles with any embedded models not yet in API
+          const apiMap = new Map(data.vehicles.map((v) => [v.id, normalizeApiVehicle(v)]));
+          DEFAULT_AU_EVS.forEach((def) => {
+            if (!apiMap.has(def.id)) apiMap.set(def.id, def);
+          });
+          state.vehicles = Array.from(apiMap.values());
+          state.apiBaseUrl = cleanUrl;
+          state.apiConnected = true;
+
+          document.getElementById('apiStatusDot').className = 'w-2 h-2 rounded-full bg-emerald-400 animate-pulse';
+          document.getElementById('apiStatusText').textContent = `API Live (${data.vehicles.length} synced)`;
+          populateDropdowns();
+          refreshAll();
+          if (!silent) showToast(`Connected to au-ev-api at ${cleanUrl}`);
+        }
+      } catch (_err) {
+        state.apiConnected = false;
+        document.getElementById('apiStatusDot').className = 'w-2 h-2 rounded-full bg-amber-400';
+        document.getElementById('apiStatusText').textContent = 'Standalone 2026 Catalog';
+        if (!silent) showToast('API server offline — using built-in 2026 Australian EV catalog.');
+      }
+    }
+
+    function normalizeApiVehicle(v) {
+      return {
+        id: v.id,
+        make: v.make,
+        model: v.model,
+        variant: v.variant || 'Base',
+        segment: v.segment || 'Mid-Size SUV',
+        drivetrain: v.drivetrain || 'AWD',
+        nswDriveAwayAud: Number(v.nswDriveAwayAud || v.driveAwayPriceAud || 65000),
+        wltpRangeKm: Number(v.wltpRangeKm || 480),
+        batteryKwh: Number(v.batteryKwh || 75),
+        maxDcKw: Number(v.maxDcKw || 150),
+        towballDownloadKg: Number(v.towballDownloadKg || 0),
+        brakedTowingKg: Number(v.brakedTowingKg || (v.towballDownloadKg || 0) * 10),
+        groundClearanceMm: Number(v.groundClearanceMm || 170),
+        features: {
+          v2l: Boolean(v.features?.v2l),
+          ventilatedFrontSeats: Boolean(v.features?.ventilatedFrontSeats),
+          headUpDisplay: Boolean(v.features?.headUpDisplay),
+          wirelessCarPlay: v.features?.wirelessCarPlay !== false,
+          gloveBox: v.features?.gloveBox !== false,
+          heatPump: v.features?.heatPump !== false
+        },
+        notes: v.notes || ''
+      };
+    }
+
+    function openEditModal(vehicleId) {
+      const v = state.vehicles.find((item) => item.id === vehicleId);
+      if (!v) return;
+
+      document.getElementById('modalTitle').textContent = `Edit ${v.make} ${v.model} ${v.variant}`;
+      document.getElementById('formId').value = v.id;
+      document.getElementById('formMake').value = v.make;
+      document.getElementById('formModel').value = v.model;
+      document.getElementById('formVariant').value = v.variant;
+      document.getElementById('formDrivetrain').value = v.drivetrain;
+      document.getElementById('formSegment').value = v.segment || 'Mid-Size SUV';
+      document.getElementById('formPrice').value = v.nswDriveAwayAud;
+      document.getElementById('formRange').value = v.wltpRangeKm;
+      document.getElementById('formBattery').value = v.batteryKwh;
+      document.getElementById('formDcKw').value = v.maxDcKw;
+      document.getElementById('formTowball').value = v.towballDownloadKg;
+      document.getElementById('formClearance').value = v.groundClearanceMm;
+      document.getElementById('formV2l').checked = Boolean(v.features?.v2l);
+      document.getElementById('formVentSeats').checked = Boolean(v.features?.ventilatedFrontSeats);
+      document.getElementById('formHud').checked = Boolean(v.features?.headUpDisplay);
+      document.getElementById('formCarplay').checked = v.features?.wirelessCarPlay !== false;
+      document.getElementById('formGlovebox').checked = v.features?.gloveBox !== false;
+      document.getElementById('formHeatPump').checked = v.features?.heatPump !== false;
+      document.getElementById('formNotes').value = v.notes || '';
+
+      document.getElementById('vehicleModal').classList.remove('hidden');
+    }
+
+    function showToast(message) {
+      const banner = document.getElementById('toastBanner');
+      document.getElementById('toastMessage').textContent = message;
+      banner.classList.remove('hidden');
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(() => {
+        banner.classList.add('hidden');
+      }, 4200);
+    }
+
+    window.resetAllFilters = function () {
+      state.search = '';
+      state.make = '';
+      state.drivetrain = '';
+      state.maxPrice = 110000;
+      state.fbtOnly = false;
+      state.minRangeOnly = false;
+      state.towCapableOnly = false;
+
+      document.getElementById('searchInput').value = '';
+      document.getElementById('makeFilter').value = '';
+      document.getElementById('drivetrainFilter').value = '';
+      document.getElementById('maxPriceFilter').value = 110000;
+      document.getElementById('budgetLabel').textContent = '$110,000';
+      document.getElementById('fbtOnlyFilter').checked = false;
+      document.getElementById('minRangeFilter').checked = false;
+      document.getElementById('towCapableOnlyFilter').checked = false;
+
+      renderVehicleCards();
+    };
+
+    function refreshAll() {
+      renderFeatureToggles();
+      renderVehicleCards();
+      if (state.selectedCompareIds.length >= 2) {
+        renderComparisonPanel(
+          document.getElementById('comparisonTitle').textContent,
+          document.getElementById('comparisonSubtitle').textContent
+        );
+      }
+    }
+
+    /**
+     * =========================================================================
+     * 8. EVENT LISTENERS & INITIALIZATION
+     * =========================================================================
+     */
+    document.addEventListener('DOMContentLoaded', () => {
+      populateDropdowns();
+      refreshAll();
+
+      // Attempt automatic connection if hosted on Express server
+      if (window.location.protocol.startsWith('http')) {
+        tryConnectApi(window.location.origin, true);
+      }
+
+      // Quick Buyer Presets
+      document.querySelectorAll('.preset-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const preset = btn.getAttribute('data-preset');
+          if (preset === 'adventure') {
+            BUYER_FEATURE_CRITERIA.forEach((f) => (f.checked = true));
+            showToast('Preset applied: Adventure & Towing (All 9 utility & luxury features scored)');
+          } else if (preset === 'urban') {
+            BUYER_FEATURE_CRITERIA.forEach((f) => {
+              f.checked = !['towbar100', 'heavyTow150', 'awd', 'clearance'].includes(f.id);
+            });
+            showToast('Preset applied: Urban / Family (Towbar, AWD & Clearance penalties removed)');
+          } else if (preset === 'value') {
+            BUYER_FEATURE_CRITERIA.forEach((f) => (f.checked = false));
+            showToast('Preset applied: Pure Range & Value (Scored 100% on Range, Charging & Lease Value)');
+          }
+          refreshAll();
+        });
+      });
+
+      // Quick Rival Dropdown
+      document.getElementById('quickRivalSelect').addEventListener('change', (e) => {
+        if (e.target.value) triggerCompareRivals(e.target.value);
+      });
+
+      // Clear Comparison
+      document.getElementById('clearComparisonBtn').addEventListener('click', () => {
+        state.selectedCompareIds = [];
+        state.rivalFocusId = null;
+        state.rivalReasonsMap = {};
+        document.getElementById('quickRivalSelect').value = '';
+        document.getElementById('comparisonSection').classList.add('hidden');
+        updateCompareCounter();
+        renderVehicleCards();
+      });
+
+      // Open Custom Comparison Button
+      document.getElementById('openCustomCompareBtn').addEventListener('click', () => {
+        renderComparisonPanel(
+          'Custom Side-by-Side EV Comparison',
+          `Comparing ${state.selectedCompareIds.length} pinned vehicles`
+        );
+        document.getElementById('comparisonSection').scrollIntoView({ behavior: 'smooth' });
+      });
+
+      // Search & Filters
+      document.getElementById('searchInput').addEventListener('input', (e) => {
+        state.search = e.target.value;
+        renderVehicleCards();
+      });
+
+      document.getElementById('makeFilter').addEventListener('change', (e) => {
+        state.make = e.target.value;
+        renderVehicleCards();
+      });
+
+      document.getElementById('drivetrainFilter').addEventListener('change', (e) => {
+        state.drivetrain = e.target.value;
+        renderVehicleCards();
+      });
+
+      document.getElementById('maxPriceFilter').addEventListener('input', (e) => {
+        state.maxPrice = Number(e.target.value);
+        document.getElementById('budgetLabel').textContent = formatAud(state.maxPrice);
+        renderVehicleCards();
+      });
+
+      document.getElementById('sortFilter').addEventListener('change', (e) => {
+        state.sortBy = e.target.value;
+        renderVehicleCards();
+      });
+
+      document.getElementById('fbtOnlyFilter').addEventListener('change', (e) => {
+        state.fbtOnly = e.target.checked;
+        renderVehicleCards();
+      });
+
+      document.getElementById('minRangeFilter').addEventListener('change', (e) => {
+        state.minRangeOnly = e.target.checked;
+        renderVehicleCards();
+      });
+
+      document.getElementById('towCapableOnlyFilter').addEventListener('change', (e) => {
+        state.towCapableOnly = e.target.checked;
+        renderVehicleCards();
+      });
+
+      document.getElementById('resetFiltersBtn').addEventListener('click', window.resetAllFilters);
+
+      // Add / Edit Modal Controls
+      document.getElementById('openAddModalBtn').addEventListener('click', () => {
+        document.getElementById('modalTitle').textContent = 'Add Australian EV to Catalog';
+        document.getElementById('vehicleForm').reset();
+        document.getElementById('formId').value = '';
+        document.getElementById('formCarplay').checked = true;
+        document.getElementById('formGlovebox').checked = true;
+        document.getElementById('formHeatPump').checked = true;
+        document.getElementById('vehicleModal').classList.remove('hidden');
+      });
+
+      ['closeModalBtn', 'cancelModalBtn'].forEach((id) => {
+        document.getElementById(id).addEventListener('click', () => {
+          document.getElementById('vehicleModal').classList.add('hidden');
+        });
+      });
+
+      document.getElementById('vehicleForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const make = document.getElementById('formMake').value.trim();
+        const model = document.getElementById('formModel').value.trim();
+        const variant = document.getElementById('formVariant').value.trim();
+        const existingId = document.getElementById('formId').value;
+        const id =
+          existingId ||
+          `${make}-${model}-${variant}`.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+
+        const newCar = {
+          id,
+          make,
+          model,
+          variant,
+          drivetrain: document.getElementById('formDrivetrain').value,
+          segment: document.getElementById('formSegment').value,
+          nswDriveAwayAud: Number(document.getElementById('formPrice').value),
+          wltpRangeKm: Number(document.getElementById('formRange').value),
+          batteryKwh: Number(document.getElementById('formBattery').value),
+          maxDcKw: Number(document.getElementById('formDcKw').value),
+          towballDownloadKg: Number(document.getElementById('formTowball').value),
+          brakedTowingKg: Number(document.getElementById('formTowball').value) * 10,
+          groundClearanceMm: Number(document.getElementById('formClearance').value),
+          features: {
+            v2l: document.getElementById('formV2l').checked,
+            ventilatedFrontSeats: document.getElementById('formVentSeats').checked,
+            headUpDisplay: document.getElementById('formHud').checked,
+            wirelessCarPlay: document.getElementById('formCarplay').checked,
+            gloveBox: document.getElementById('formGlovebox').checked,
+            heatPump: document.getElementById('formHeatPump').checked
+          },
+          notes: document.getElementById('formNotes').value.trim()
+        };
+
+        const idx = state.vehicles.findIndex((v) => v.id === id);
+        if (idx >= 0) state.vehicles[idx] = newCar;
+        else state.vehicles.unshift(newCar);
+
+        document.getElementById('vehicleModal').classList.add('hidden');
+        populateDropdowns();
+        refreshAll();
+
+        // Also POST to backend if connected
+        if (state.apiConnected) {
+          try {
+            await fetch(`${state.apiBaseUrl}/api/v1/evs`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(newCar)
+            });
+            showToast(`Saved ${make} ${model} ${variant} to dashboard & au-ev-api!`);
+          } catch (_err) {
+            showToast(`Saved ${make} ${model} ${variant} to local session.`);
+          }
+        } else {
+          showToast(`Saved ${make} ${model} ${variant} to catalog.`);
+        }
+      });
+
+      // API Config Modal Controls
+      document.getElementById('apiConfigBtn').addEventListener('click', () => {
+        document.getElementById('apiBaseUrlInput').value = state.apiBaseUrl;
+        document.getElementById('apiModal').classList.remove('hidden');
+      });
+
+      document.getElementById('closeApiModalBtn').addEventListener('click', () => {
+        document.getElementById('apiModal').classList.add('hidden');
+      });
+
+      document.getElementById('connectApiBtn').addEventListener('click', () => {
+        const url = document.getElementById('apiBaseUrlInput').value.trim();
+        document.getElementById('apiModal').classList.add('hidden');
+        tryConnectApi(url, false);
+      });
+
+      document.getElementById('useEmbeddedBtn').addEventListener('click', () => {
+        state.vehicles = structuredClone(DEFAULT_AU_EVS);
+        state.apiConnected = false;
+        document.getElementById('apiStatusDot').className = 'w-2 h-2 rounded-full bg-amber-400';
+        document.getElementById('apiStatusText').textContent = 'Standalone 2026 Catalog';
+        document.getElementById('apiModal').classList.add('hidden');
+        populateDropdowns();
+        refreshAll();
+        showToast('Switched to built-in 2026 Australian EV catalog.');
+      });
+
+      // Sync API Endpoint Trigger
+      document.getElementById('syncApiBtn').addEventListener('click', async () => {
+        if (!state.apiConnected) {
+          tryConnectApi(state.apiBaseUrl, false);
+          return;
+        }
+        try {
+          await fetch(`${state.apiBaseUrl}/api/v1/evs/sync`, { method: 'POST' });
+          await tryConnectApi(state.apiBaseUrl, false);
+        } catch (_err) {
+          showToast('Could not reach /api/v1/evs/sync');
+        }
+      });
+
+      document.getElementById('closeToastBtn').addEventListener('click', () => {
+        document.getElementById('toastBanner').classList.add('hidden');
+      });
+    });
+  </script>
+</body>
+</html>
