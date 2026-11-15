@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import crypto from 'node:crypto';
+import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -184,11 +185,10 @@ export function createApp({
     }
 
     const email = String(req.body?.email || '').trim().toLowerCase();
-    const genericOk = { ok: true, message: 'If that address is authorised, a 6-digit code has been sent.' };
 
-    // Don't reveal whether the address is the admin's
+    // Only the configured admin address may sign in; anything else is rejected outright.
     if (!email || !safeEqual(email, ADMIN_EMAIL)) {
-      return res.status(200).json(genericOk);
+      return res.status(403).json({ error: 'Access denied: this email is not authorised for admin access.' });
     }
 
     if (activeOtp && Date.now() - activeOtp.sentAt < OTP_RESEND_COOLDOWN_MS) {
@@ -227,7 +227,7 @@ export function createApp({
         return res.status(502).json({ error: `Email provider returned HTTP ${emailResponse.status}.` });
       }
 
-      return res.status(200).json(genericOk);
+      return res.status(200).json({ ok: true, message: 'A 6-digit code has been sent to the admin email.' });
     } catch (err) {
       console.error('[Admin OTP Send Error]', err);
       activeOtp = null;
@@ -239,7 +239,10 @@ export function createApp({
     const email = String(req.body?.email || '').trim().toLowerCase();
     const submittedPin = String(req.body?.pin || '').trim();
 
-    if (!ADMIN_EMAIL || !email || !safeEqual(email, ADMIN_EMAIL) || !activeOtp) {
+    if (!ADMIN_EMAIL || !email || !safeEqual(email, ADMIN_EMAIL)) {
+      return res.status(403).json({ error: 'Access denied: this email is not authorised for admin access.' });
+    }
+    if (!activeOtp) {
       return res.status(401).json({ error: 'Invalid or expired code. Please request a new one.' });
     }
 
@@ -438,6 +441,15 @@ export function createApp({
 // Start HTTP server only when executed directly (not imported by tests)
 const isMainModule = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 if (isMainModule) {
+  // Load au-ev-api/.env for local development. On Render there is no .env file
+  // and the dashboard's environment variables are used instead. Values already
+  // set in the environment are never overwritten.
+  const envFile = path.join(__dirname, '../.env');
+  if (fs.existsSync(envFile)) {
+    process.loadEnvFile(envFile);
+    console.log('[Config] Loaded environment from .env');
+  }
+
   const PORT = process.env.PORT || 3000;
   const app = createApp();
   if (!process.env.SESSION_SECRET) {

@@ -410,7 +410,7 @@ describe('Admin auth & write protection', () => {
     assert.equal(admin.admin, true);
   });
 
-  it('full OTP flow: wrong email gets generic reply, correct code issues HttpOnly cookie that unlocks writes', async () => {
+  it('full OTP flow: other emails are rejected (403), correct code issues HttpOnly cookie that unlocks writes', async () => {
     let emailedPin = null;
     let resendCalls = 0;
     const mockFetch = async (url, init) => {
@@ -429,7 +429,8 @@ describe('Admin auth & write protection', () => {
     });
 
     const wrong = await jsonPost(baseUrl, '/api/v1/admin/send-otp', { email: 'someone@else.com' });
-    assert.equal(wrong.status, 200);
+    assert.equal(wrong.status, 403);
+    assert.match((await wrong.json()).error, /not authorised/);
     assert.equal(resendCalls, 0, 'no email sent for non-admin address');
 
     const sent = await jsonPost(baseUrl, '/api/v1/admin/send-otp', { email: 'owner@example.com' });
@@ -439,6 +440,9 @@ describe('Admin auth & write protection', () => {
 
     const again = await jsonPost(baseUrl, '/api/v1/admin/send-otp', { email: 'owner@example.com' });
     assert.equal(again.status, 429, 'cooldown between codes');
+
+    const otherEmailVerify = await jsonPost(baseUrl, '/api/v1/admin/verify-otp', { email: 'someone@else.com', pin: emailedPin });
+    assert.equal(otherEmailVerify.status, 403, 'a valid code cannot be used with another email');
 
     const wrongPin = emailedPin === '000000' ? '111111' : '000000';
     const bad = await jsonPost(baseUrl, '/api/v1/admin/verify-otp', { email: 'owner@example.com', pin: wrongPin });
